@@ -1,6 +1,6 @@
 # AquaLens — submission working copy
 
-Prepared 2026-09-29. This is a draft, not a submitted entry. Fill in team details and real repository/demo/video URLs before submission. Recheck the organizer's current rules and deadline in SOURCES.md.
+Updated 2026-09-30. This is a draft, not a submitted entry. Public source: https://github.com/kammarohan55-crypto/ieee_hackathon (verified Sept30). Fill in team details and real demo/video URLs before submission. Recheck the organizer's current rules and deadline in SOURCES.md.
 
 ## Project description
 
@@ -51,7 +51,7 @@ If live visual AI is unavailable, show the honest error and continue with the lo
 
 ## Before submission
 
-- Create and verify the public source repository; include dependency notices and select a license for original project code.
+- Public source repository verified on Sept30; dependency notices included. Select a license for original project code before submission.
 - Complete team invitations and credits using actual contributor names and roles.
 - Provide a verified deployment URL with the intended judge-access settings; no successful deployment is recorded yet.
 - Record the actual 3–5 minute video. The script above is not a video deliverable.

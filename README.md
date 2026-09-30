@@ -1,5 +1,7 @@
 # AquaLens · Evidence in focus
 
+[Source repository](https://github.com/kammarohan55-crypto/ieee_hackathon) · OneAquaHealth Track 3
+
 OneAquaHealth Track 3 hackathon prototype, evolved from StreamCheck without rebuilding its tested workflow. Citizen evidence -> explicit uncertainty -> human review -> portable Decision Receipt. It does not diagnose water safety, pollutants, species, or ecological health.
 
 ## Setup
