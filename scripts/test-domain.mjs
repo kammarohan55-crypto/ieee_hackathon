@@ -7,7 +7,7 @@ import ts from "typescript";
 // Compile the real domain code, with no browser or provider involved.
 const dir = path.resolve(".sites-runtime/domain-tests");
 await mkdir(dir, { recursive: true });
-for (const name of ["field", "assessment", "gemini"]) {
+for (const name of ["field", "assessment", "gemini", "atlas", "river-observatory", "evidence-trail", "evidence-lab", "geographic"]) {
   const source = await readFile(`lib/${name}.ts`, "utf8");
   const output = ts
     .transpileModule(source, {
@@ -17,7 +17,8 @@ for (const name of ["field", "assessment", "gemini"]) {
       },
     })
     .outputText.replace('from "./assessment"', 'from "./assessment.mjs"')
-    .replace('from "./field"', 'from "./field.mjs"');
+    .replace('from "./field"', 'from "./field.mjs"')
+    .replace('from "./atlas"', 'from "./atlas.mjs"');
   await writeFile(path.join(dir, `${name}.mjs`), output);
 }
 const {
@@ -579,6 +580,186 @@ await test("Follow-up missions retain provenance and synthetic status without co
   assert.equal(next.field.media.length, 0);
   assert.equal(next.field.measurements.length, 0);
   assert.deepEqual(fieldSchema.parse(next.field), next.field);
+});
+const { atlasPhotos, collectionCoverage, comparisonPair, filterAtlasRecords, siteFilterValue } = await import(pathToFileURL(path.join(dir, "atlas.mjs")));
+const { groupObservationSites, recordEvidenceGaps } = await import(pathToFileURL(path.join(dir, "river-observatory.mjs")));
+const atlasRecord = (id, site, observedAt = "2026-09-28T09:00:00Z") => ({ ...structuredClone(fieldReport), id, original: { ...fieldReport.original, site, observedAt, synthetic: false }, field: newField() });
+await test("Atlas selects a real site named all without sentinel collision", () => {
+  const records = [atlasRecord("a", "all"), atlasRecord("b", "Brook")];
+  assert.deepEqual(filterAtlasRecords(records, siteFilterValue("all")).map((r) => r.id), ["a"]);
+});
+await test("Atlas missing site filter recovers to available records", () => {
+  assert.equal(filterAtlasRecords([atlasRecord("a", "Brook")], siteFilterValue("Deleted site")).length, 1);
+});
+await test("Citizen-only atlas excludes flagged examples and illustrative media", () => {
+  const citizen = atlasRecord("c", "Brook"), flagged = atlasRecord("f", "Brook"), illustrated = atlasRecord("i", "Brook");
+  flagged.original.synthetic = true;
+  illustrated.field.media = [{ ...media, origin: "illustration" }];
+  assert.deepEqual(filterAtlasRecords([citizen, flagged, illustrated], "all", false).map((r) => r.id), ["c"]);
+});
+await test("Atlas sorting preserves caller records and orders observation time", () => {
+  const records = [atlasRecord("late", "Brook", "2026-09-28T12:00:00Z"), atlasRecord("early", "Brook", "2026-09-28T09:00:00Z")];
+  const original = structuredClone(records);
+  assert.deepEqual(filterAtlasRecords(records, "all").map((r) => r.id), ["early", "late"]);
+  assert.deepEqual(records, original);
+});
+await test("Photo comparison deduplicates a reused media identifier", () => {
+  const a = atlasRecord("a", "Brook"), b = atlasRecord("b", "Brook");
+  a.field.media = [media]; b.field.media = [media];
+  assert.equal(atlasPhotos([a, b]).length, 1);
+});
+await test("Photo comparison never chooses the same original for both sides", () => {
+  const a = atlasRecord("a", "Brook");
+  a.field.media = [media, { ...media, id: "second-photo" }];
+  const pair = comparisonPair(atlasPhotos([a]), [media.id, media.id]);
+  assert.equal(pair.before.media.id, media.id);
+  assert.equal(pair.after.media.id, "second-photo");
+  assert.equal(comparisonPair(atlasPhotos([{ ...a, field: { ...a.field, media: [media] } }]), []).after, undefined);
+});
+await test("Photo comparison recovers when selected evidence leaves a filter", () => {
+  const a = atlasRecord("a", "Brook"); a.field.media = [media, { ...media, id: "second-photo" }];
+  const pair = comparisonPair(atlasPhotos([a]), ["removed-a", "removed-b"]);
+  assert.notEqual(pair.before.media.id, pair.after.media.id);
+});
+await test("Coverage counts metadata and review without crediting invalid measurements", () => {
+  const a = atlasRecord("a", "Brook"); a.status = "reviewed"; a.field.media = [media];
+  a.field.coordinates = { lat: 1, lon: 2, method: "manual" };
+  a.field.measurements = [{ parameter: "pH", value: 19, unit: "pH", instrument: "meter", calibration: "checked", method: "citizen_instrument" }];
+  assert.deepEqual(Object.fromEntries(collectionCoverage([a]).map((c) => [c.key, c.count])), { media: 1, location: 1, readings: 0, review: 1 });
+  assert.ok(collectionCoverage([]).every((c) => c.count === 0));
+});
+await test("River grouping includes unlocated records and preserves exact site labels", () => {
+  const records = [atlasRecord("a", "Brook"), atlasRecord("b", " Brook ")];
+  const original = structuredClone(records);
+  assert.equal(groupObservationSites(records).length, 2);
+  assert.deepEqual(records, original);
+  assert.deepEqual(groupObservationSites([]), []);
+});
+await test("River chronology places newest valid records before unknown dates", () => {
+  const records = [atlasRecord("unknown", "Brook", "unknown"), atlasRecord("early", "Brook", "2026-09-28T08:00:00Z"), atlasRecord("late", "Brook", "2026-09-28T12:00:00Z")];
+  assert.deepEqual(groupObservationSites(records)[0].records.map((r) => r.id), ["late", "early", "unknown"]);
+});
+await test("River provenance includes illustration-derived synthetic records", () => {
+  const a = atlasRecord("a", "Brook"); a.field.media = [{ ...media, origin: "illustration" }];
+  assert.equal(groupObservationSites([a])[0].synthetic, 1);
+});
+await test("River evidence gaps retain unreviewed visual candidates and instrument uncertainty", () => {
+  const a = atlasRecord("a", "Brook"); a.field.media = [media];
+  a.field.measurements = [{ parameter: "pH", value: 7, unit: "pH", instrument: "meter", calibration: "unknown", method: "citizen_instrument" }];
+  const gaps = recordEvidenceGaps(a);
+  assert.ok(gaps.includes("Visual AI candidate still needs human judgment"));
+  assert.ok(gaps.some((g) => g.includes("Calibration is unconfirmed")));
+  assert.ok(gaps.includes("Coordinates were not supplied"));
+});
+const { evidenceTrail } = await import(pathToFileURL(path.join(dir, "evidence-trail.mjs")));
+const { issueSourceSpan, labRecordSummary, replayReportRules } = await import(pathToFileURL(path.join(dir, "evidence-lab.mjs")));
+const { comparablePH, hasComparablePH } = await import(pathToFileURL(path.join(dir, "atlas.mjs")));
+const { geographicGroups, geographicBounds, locationState, syntheticLocation } = await import(pathToFileURL(path.join(dir, "geographic.mjs")));
+await test("Map distinguishes unknown, invalid and valid polar coordinates", () => {
+  const record = atlasRecord("a", "Brook");
+  assert.equal(locationState(record), "missing");
+  record.field.coordinates = { lat: 89, lon: 12, method: "manual" };
+  assert.equal(locationState(record), "polar");
+  assert.equal(record.field.coordinates.lat, 89);
+  record.field.coordinates = { lat: 91, lon: 12, method: "manual" };
+  assert.equal(locationState(record), "invalid");
+  record.field.coordinates = { lat: 0, lon: NaN, method: "manual" };
+  assert.equal(locationState(record), "invalid");
+});
+await test("Map groups only identical coordinates and never guesses sites", () => {
+  const a = atlasRecord("a", "Brook"), b = atlasRecord("b", "Different label"), c = atlasRecord("c", "Brook");
+  a.field.coordinates = { lat: 0, lon: 0, method: "device" };
+  b.field.coordinates = { lat: 0, lon: 0, method: "manual" };
+  const records = [a, b, c], snapshot = structuredClone(records);
+  const groups = geographicGroups(records);
+  assert.equal(groups.length, 1);
+  assert.equal(groups[0].reports.length, 2);
+  assert.deepEqual(records, snapshot);
+  assert.equal(geographicBounds([]), null);
+});
+await test("Map fitting uses shortest date-line extent", () => {
+  const records = [179, -179].map((lon, i) => {
+    const r = atlasRecord(String(i), "Brook"); r.field.coordinates = { lat: i, lon, method: "manual" }; return r;
+  });
+  const bounds = geographicBounds(geographicGroups(records));
+  assert.equal(bounds[1][0] - bounds[0][0], 2);
+  assert.deepEqual([bounds[0][1], bounds[1][1]], [0, 1]);
+});
+await test("Map provenance labels synthetic coordinates without inventing evidence", () => {
+  const r = atlasRecord("a", "Brook");
+  r.field.coordinates = { lat: 1, lon: 2, method: "synthetic" };
+  assert.equal(syntheticLocation(r), true);
+  assert.equal(r.original.synthetic, false);
+});
+await test("Evidence graph namespaces records even when stored IDs collide", () => {
+  const report = structuredClone(fieldReport);
+  report.field = { ...newField(), media: [{ ...media, id: "original" }] };
+  report.assessment.issues = [{ ...assess({ ...base, note: "The water is brown, so it must be sewage." }, now).issues[0], id: "review" }];
+  const graph = evidenceTrail(report);
+  assert.equal(new Set(graph.nodes.map((n) => n.id)).size, graph.nodes.length);
+  assert.ok(graph.edges.every((e) => graph.nodes.some((n) => n.id === e.source) && graph.nodes.some((n) => n.id === e.target)));
+});
+await test("Evidence graph preserves AI source and human disagreement separately", () => {
+  const report = recordVisualJudgment({ ...fieldReport, field: { ...newField(), media: [media] } }, { mediaId: media.id, finding: "brown_appearance", decision: "disagrees", reason: "The color may come from reflected bank material." }, now);
+  const snapshot = structuredClone(report);
+  const graph = evidenceTrail(report);
+  assert.ok(graph.nodes.some((n) => n.source === "ai" && n.detail.includes(media.visual.model)));
+  assert.ok(graph.nodes.some((n) => n.source === "human" && n.detail.includes("disagrees") && n.detail.includes("reflected bank")));
+  assert.deepEqual(report, snapshot);
+});
+await test("Evidence graph never fills in a missing human review", () => {
+  const graph = evidenceTrail({ ...fieldReport, reviewHistory: [], status: "awaiting_review" });
+  assert.equal(graph.nodes.find((n) => n.id === "review").source, "pending");
+  assert.match(graph.nodes.find((n) => n.id === "review").detail, /No human review/);
+});
+await test("Evidence graph retains implausible instrument values and rule warnings", () => {
+  const report = { ...fieldReport, field: { ...newField(), measurements: [{ parameter: "pH", value: 19, unit: "pH", instrument: "meter", calibration: "checked", method: "citizen_instrument" }] } };
+  const graph = evidenceTrail(report);
+  assert.ok(graph.nodes.some((n) => n.source === "citizen" && n.label.includes("19")));
+  assert.ok(graph.nodes.some((n) => n.source === "rules" && n.label.includes("needs context")));
+});
+await test("Lab replay uses record creation time and preserves saved decisions", () => {
+  const report = { ...structuredClone(fieldReport), createdAt: "2026-09-28T08:00:00Z", original: { ...fieldReport.original, observedAt: "2026-09-28T09:00:00Z" } };
+  const snapshot = structuredClone(report);
+  const replay = replayReportRules(report, new Date("2026-10-01T00:00:00Z"));
+  assert.equal(replay.referenceSource, "record_creation");
+  assert.ok(replay.assessment.issues.some((i) => i.code === "invalid_time"));
+  assert.deepEqual(report, snapshot);
+});
+await test("Lab replay discloses current-time fallback for invalid creation time", () => {
+  const replay = replayReportRules({ ...fieldReport, createdAt: "unknown" }, now);
+  assert.equal(replay.referenceSource, "current_time");
+  assert.equal(replay.referenceTime, now.toISOString());
+});
+await test("Lab highlights an exact source quote and rejects absent quotes", () => {
+  const original = { ...base, note: "I saw brown water by the bridge." };
+  const issue = { field: "note", quote: "brown water" };
+  const span = issueSourceSpan(original, issue);
+  assert.equal(span.before + span.quote + span.after, original.note);
+  assert.equal(issueSourceSpan(original, { ...issue, quote: "sewage" }), undefined);
+  assert.equal(issueSourceSpan(original, { ...issue, quote: "" }), undefined);
+});
+await test("Lab current judgment summary retains history but uses the latest decision", () => {
+  let report = recordVisualJudgment({ ...fieldReport, field: { ...newField(), media: [media] } }, { mediaId: media.id, finding: "brown_appearance", decision: "disagrees", reason: "Reflection seems likely." }, now);
+  assert.equal(labRecordSummary(report).visualDisagreements, 1);
+  report = recordVisualJudgment(report, { mediaId: media.id, finding: "brown_appearance", decision: "uncertain", reason: "Lighting prevents a judgment." }, now);
+  assert.equal(labRecordSummary(report).visualDisagreements, 0);
+  assert.equal(labRecordSummary(report).visualNeedsJudgment, 1);
+  assert.equal(report.field.dispositions.length, 2);
+});
+await test("pH comparison treats timezone-equivalent times as the same instant", () => {
+  const records = ["2026-09-28T09:00:00Z", "2026-09-28T10:00:00+01:00", "2026-09-28T14:30:00+05:30"].map((t, i) => {
+    const record = atlasRecord(String(i), "Brook", t);
+    record.field.measurements = [{ parameter: "pH", value: 7, unit: "pH", instrument: "meter", calibration: "checked", method: "citizen_instrument" }]; return record;
+  });
+  assert.equal(hasComparablePH(comparablePH(records, siteFilterValue("Brook"))), false);
+});
+await test("pH comparison omits invalid times and refuses mixed-site defaults", () => {
+  const record = atlasRecord("a", "Brook", "unknown");
+  record.field.measurements = [{ parameter: "pH", value: 7, unit: "pH", instrument: "meter", calibration: "checked", method: "citizen_instrument" }];
+  assert.deepEqual(comparablePH([record], siteFilterValue("Brook")), []);
+  assert.deepEqual(comparablePH([record], "all"), []);
+  assert.deepEqual(comparablePH([record], siteFilterValue("Missing")), []);
 });
 const summary = {
   suite: "AquaLens development fixtures and domain invariants",

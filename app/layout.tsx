@@ -2,6 +2,11 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./experience.css";
 import "./field.css";
+import "./river.css";
+import "./atlas.css";
+import "./evidence-trail.css";
+import "./evidence-lab.css";
+import "./geographic-map.css";
 
 export const metadata: Metadata = {
   title: "AquaLens — Evidence in focus",

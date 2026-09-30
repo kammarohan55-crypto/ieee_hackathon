@@ -8,7 +8,7 @@ Updated 2026-09-30. This is a draft, not a submitted entry. Public source: https
 
 AquaLens helps citizens describe what they observed without turning appearance into an unsupported diagnosis. It brings original photos, field notes and instrument readings into a guided assessment, asks focused questions, and makes every AI suggestion and human judgment inspectable.
 
-The prototype supports OneAquaHealth Track 3 through AI-assisted clarification and human oversight. A citizen can retain a photo or short silent video, inspect local image-quality warnings, optionally request visual AI candidates, record instrument metadata, resolve questions and explicitly confirm a report. A reviewer then inspects the original evidence, records agreement, disagreement or uncertainty, and exports a Decision Receipt. An attributed map and timeline connect located observations to their evidence; follow-up missions preserve the source relationship.
+The prototype supports OneAquaHealth Track 3 through AI-assisted clarification and human oversight. A citizen can retain a photo or short silent video, inspect local image-quality warnings, optionally request visual AI candidates, record instrument metadata, resolve questions and explicitly confirm a report. A reviewer then inspects the original evidence, records agreement, disagreement or uncertainty, and exports a Decision Receipt. River stories offer an explicitly illustrative evidence narrative; the geographic map plots supplied coordinates only. Evidence Lab exposes saved source quotes, local rule replay and human decisions without mutating the record. Follow-up missions preserve the source relationship.
 
 ## What distinguishes it
 
@@ -21,7 +21,7 @@ The prototype supports OneAquaHealth Track 3 through AI-assisted clarification a
 
 React/TypeScript with Vinext, Cloudflare Worker routes, Zod validation, Gemini text/visual adapters, idb for local original-media storage, MapLibre/OpenFreeMap, React Flow, Recharts and Workbox. No shared database or custom model training is required for the prototype.
 
-Engineering checks: 60 authored domain assertions and 19 mocked route-contract tests pass, with TypeScript and lint checks. These cover evidence preservation, review gates, malformed provider responses, opt-in boundaries, errors, rate limits, exports and provenance. They are development tests, not independent scientific validation.
+Engineering checks: 86 authored domain assertions and 19 mocked route-contract tests pass, with TypeScript and lint checks. These cover evidence preservation, review gates, malformed provider responses, opt-in boundaries, errors, rate limits, exports and provenance. They are development tests, not independent scientific validation.
 
 The latest recorded real Gemini text smoke run completed 3/3 synthetic scenarios; earlier failures are retained. Successful live visual analysis has not yet been verified because tested requests received provider 503 responses. Keep that distinction in the presentation.
 
@@ -34,8 +34,8 @@ The latest recorded real Gemini text smoke run completed 3/3 synthetic scenarios
 | 1:05–1:40 | Unsupported-cause question; optional measurement warning | “The original claim is retained. The citizen can explain, disagree or remain uncertain. A synthetic pH 19 input is flagged, never silently corrected.” |
 | 1:40–2:10 | Completeness breakdown and explicit confirmation | “Every point is explainable. This score describes the record, not the water.” |
 | 2:10–2:55 | Review desk, original evidence, graph and transparency | “A human must judge each visual candidate before completing review. Disagreements remain visible. The reviewer role here is local and unauthenticated.” |
-| 2:55–3:30 | Decision Receipt and atlas | “The receipt carries the sources and limitations. Coordinates are supplied by the observer. No monitoring stations or environmental conditions are invented.” |
-| 3:30–4:00 | Follow-up mission and limitations | “A follow-up links to the prior observation. Next validation needs field users and domain reviewers, followed by authenticated shared storage.” |
+| 2:55–3:30 | Evidence Lab and Decision Receipt | “Inspect source quotes and replay current local rules without changing saved decisions. The receipt carries sources and limitations.” |
+| 3:30–4:00 | River stories, supplied-coordinate map and follow-up | “The river scene is schematic; map locations come only from supplied coordinates. Follow-ups link to prior evidence. Field validation and authenticated collaboration remain future work.” |
 
 If live visual AI is unavailable, show the honest error and continue with the local workflow. Do not substitute a scripted result labeled as live. If illustrating the successful visual contract, use the explicitly labeled mocked test report, and state that it tests software behavior only. Do not claim physical camera, voice or offline device verification that has not been performed.
 
@@ -48,6 +48,8 @@ If live visual AI is unavailable, show the honest error and continue with the lo
 | Technical implementation | Running workflow, API contracts, immutable decisions, retained media and portable exports |
 | Usability | Mobile field interface, accessible controls, focused questions and visible error states |
 | Feasibility | Browser-first prototype, documented API boundaries, open-source dependencies and a clear path to authenticated collaboration |
+
+See DEMO_GUIDE.md for exact buttons, manual checks and a problem-report template. The user-supplied brief focused this pass on Track 3 oversight; it is not fresh verification of eligibility or prizes. Latest map/lab UI has code/build verification only.
 
 ## Before submission
 

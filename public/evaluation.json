@@ -1,9 +1,9 @@
 {
   "suite": "AquaLens development fixtures and domain invariants",
   "fixtureVersion": "1.0",
-  "generatedAt": "2026-09-29T10:29:17.141Z",
-  "passed": 60,
-  "total": 60,
+  "generatedAt": "2026-09-30T15:29:17.171Z",
+  "passed": 86,
+  "total": 86,
   "liveAI": false,
   "providerTests": "Mocked HTTP responses; no API call or ecological validation",
   "limitations": [
@@ -250,6 +250,110 @@
     },
     {
       "name": "Follow-up missions retain provenance and synthetic status without copying measurements",
+      "passed": true
+    },
+    {
+      "name": "Atlas selects a real site named all without sentinel collision",
+      "passed": true
+    },
+    {
+      "name": "Atlas missing site filter recovers to available records",
+      "passed": true
+    },
+    {
+      "name": "Citizen-only atlas excludes flagged examples and illustrative media",
+      "passed": true
+    },
+    {
+      "name": "Atlas sorting preserves caller records and orders observation time",
+      "passed": true
+    },
+    {
+      "name": "Photo comparison deduplicates a reused media identifier",
+      "passed": true
+    },
+    {
+      "name": "Photo comparison never chooses the same original for both sides",
+      "passed": true
+    },
+    {
+      "name": "Photo comparison recovers when selected evidence leaves a filter",
+      "passed": true
+    },
+    {
+      "name": "Coverage counts metadata and review without crediting invalid measurements",
+      "passed": true
+    },
+    {
+      "name": "River grouping includes unlocated records and preserves exact site labels",
+      "passed": true
+    },
+    {
+      "name": "River chronology places newest valid records before unknown dates",
+      "passed": true
+    },
+    {
+      "name": "River provenance includes illustration-derived synthetic records",
+      "passed": true
+    },
+    {
+      "name": "River evidence gaps retain unreviewed visual candidates and instrument uncertainty",
+      "passed": true
+    },
+    {
+      "name": "Map distinguishes unknown, invalid and valid polar coordinates",
+      "passed": true
+    },
+    {
+      "name": "Map groups only identical coordinates and never guesses sites",
+      "passed": true
+    },
+    {
+      "name": "Map fitting uses shortest date-line extent",
+      "passed": true
+    },
+    {
+      "name": "Map provenance labels synthetic coordinates without inventing evidence",
+      "passed": true
+    },
+    {
+      "name": "Evidence graph namespaces records even when stored IDs collide",
+      "passed": true
+    },
+    {
+      "name": "Evidence graph preserves AI source and human disagreement separately",
+      "passed": true
+    },
+    {
+      "name": "Evidence graph never fills in a missing human review",
+      "passed": true
+    },
+    {
+      "name": "Evidence graph retains implausible instrument values and rule warnings",
+      "passed": true
+    },
+    {
+      "name": "Lab replay uses record creation time and preserves saved decisions",
+      "passed": true
+    },
+    {
+      "name": "Lab replay discloses current-time fallback for invalid creation time",
+      "passed": true
+    },
+    {
+      "name": "Lab highlights an exact source quote and rejects absent quotes",
+      "passed": true
+    },
+    {
+      "name": "Lab current judgment summary retains history but uses the latest decision",
+      "passed": true
+    },
+    {
+      "name": "pH comparison treats timezone-equivalent times as the same instant",
+      "passed": true
+    },
+    {
+      "name": "pH comparison omits invalid times and refuses mixed-site defaults",
       "passed": true
     }
   ]

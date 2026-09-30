@@ -1,72 +1,43 @@
-# AquaLens feature audit
+# AquaLens feature audit — 2026-09-30
 
-Inspected 2026-09-28 before extending the existing StreamCheck checkout. Status is implementation evidence, not a scientific or production certification. Existing component library, domain engine, routes, fixtures, build scripts, configuration and documentation inspected; generated/dependency directories excluded.
+Status comes from source, command results and historical QA. **Working** means implemented behavior has relevant domain/contract or earlier workflow evidence. **Partial** means implemented code has a material provider/device/new-UI check remaining. **Missing** means deliberately unimplemented. No current broken feature is established by code checks; the user may still find browser problems. These are not scientific or production certifications.
 
-| Planned feature | Starting status | Evidence / required completion |
+| Feature | Status | Evidence / remaining boundary |
 |---|---|---|
-| Citizen form, explicit confirmation | Working | components/streamcheck.tsx; domain tests |
-| Original evidence, clarification, uncertainty | Working | lib/assessment.ts; immutable snapshots |
-| Text contradiction detection | Partial | English heuristics and optional Gemini; limited coverage |
-| Gemini text integration | Partial | Real success observed; provider 503/timeouts in 2 of 3 smoke cases |
-| Reviewer workflow and local history | Working | Review notes and status; no authentication |
-| JSON evidence export | Working | Schema round-trip tests |
-| Live sourced weather | Working | Open-Meteo route, unrelated to water quality |
-| Responsive cinematic shell | Partial | Artwork/motion present; mobile overflow correction needs verification |
-| Live camera, photo/video capture | Missing | No media capture component |
-| Image quality checks | Missing | No image processing |
-| Visual AI observations | Missing | Current Gemini adapter sends text only |
-| Measurement validation | Missing | No units/instrument/calibration fields |
-| Adaptive visual follow-up | Missing | Existing text workflow is reusable |
-| Transparent Observation Quality score | Missing | Must describe completeness, never ecological health |
-| AI/human disagreement | Partial | Issue dismissal exists; no visual disposition/reason |
-| Decision Receipt | Partial | Export/history exists; needs complete evidence and metadata |
-| Stream map / digital twin | Missing | No coordinates/map; no physical simulation data |
-| Timeline / before-after / graph | Partial | Text audit trail only |
-| Repeat-photo ghost overlay | Missing | Requires retained media |
-| Voice-to-structured observation | Missing | Browser speech availability varies |
-| Provenance / AI Transparency Mode | Partial | Rules vs AI labeled; visual method/limits missing |
-| Community consensus | Missing | No authenticated community backend; do not fake votes |
-| Outlier / trend detection | Missing | Only meaningful with comparable instrument observations |
-| Smart sampling missions | Missing | Can derive tasks from missing evidence locally |
-| Offline / PWA | Partial | Records local; app shell not cached |
-| CSV / GeoJSON export | Missing | Coordinates absent |
-| FAIR metadata | Missing | No persistent identifier or repository registration |
-| Accessible reviewer dashboard | Partial | Radix controls and labels; new features need QA |
-| Documentation / context handoff | Partial | Existing context and README stale |
+| Citizen form, originals, confirmation | Working | Existing lifecycle preserved; historical browser flow and domain checks |
+| Contradiction / unsupported-conclusion checks | Working, limited | English rules plus optional strict text AI; no guaranteed detection |
+| Adaptive clarification and uncertainty | Working | Explicit decisions preserve original; unknowns stay unknown |
+| Gemini text | Partial | Historical real 3/3 smoke completion; provider errors remain possible |
+| Camera / photo / 10s silent video | Partial | Native capture; duplicate startup/unmount cleanup improved; physical checks pending |
+| Local media, digest, quality heuristics | Working, limited | IndexedDB originals; brightness/detail heuristics; missing-media fallback cannot substitute an earlier image |
+| Visual AI | Partial | Consent/server adapter/candidate schema/failure handling; live success remains unverified |
+| Instrument validation / field follow-ups | Working | Values retained; unit/metadata/plausibility checks; no readings inferred from images |
+| Evidence completeness | Working | Every rubric point exposed; not accuracy, ecological health or confidence |
+| Reviewer and disagreements | Working, local | Mandatory candidate judgment, immutable history, reopened review; unauthenticated demo roles |
+| Decision Receipt | Partial | Tested serialization/provenance; browser download completion pending |
+| River stories / observatory | Partial | Exact site labels, Story/Evidence/Method and chronology; earlier basic smoke, latest presentation changes await user QA |
+| Geographic evidence map | Partial | Exact coordinates/groups, date-line bounds, dossier and accessible fallback; redesigned UI awaits user QA |
+| Evidence Lab | Partial | Saved-record inspector, source spans, non-mutating replay, separate synthetic practice; helper tests pass, UI awaits user QA |
+| Evidence graph | Partial | Citizen/rules/AI/human/pending nodes and readable list; helper tests pass, new interactions await user QA |
+| Timeline / photo comparison | Partial | Chronology/distinct-photo selection tested; actual two-photo slider pending |
+| Repeat-photo ghost guide | Partial | Reference/opacity controls; physical alignment manual and unverified |
+| Voice adoption | Partial | Transcript with explicit adoption; device/provider dependent |
+| Provenance / AI Transparency Mode | Working | Rules/AI/citizen/reviewer and synthetic sources distinguished |
+| Community consensus | Missing | Requires independent authenticated observers; no fake votes |
+| pH temporal comparison | Working, conditional | One site/instrument, checked metadata, three distinct instants; invalid/synthetic data excluded; no ecological trend claim |
+| Statistical outliers / forecasting | Missing | No validated dataset/model; outside scope |
+| Sampling missions | Working | Missing-evidence follow-up; source link retained, old readings/media/GPS not reused |
+| Offline / PWA | Partial | Workbox assets and local drafts; installation/offline device checks pending |
+| JSON / CSV / GeoJSON | Working serialization | Schemas, CSV formula escaping, omission of unknown coordinates; downloads await user QA |
+| FAIR-oriented metadata | Working, limited | Provenance/access/license fields; no certification or registered persistent identifiers |
+| Responsive / accessible controls | Partial | Radix, 44px targets, focus/reduced motion; newest map/lab mobile/assistive checks pending |
+| Public source / documentation | Working | Authorized GitHub repo, README, sources, QA, demo guide and handoff |
+| Physical twin / official OAH or FHIR integration | Missing | No verified hydrology/calibration/integration contract; not claimed |
 
-## Reuse choices before implementation
+## Reuse decisions
 
-- Keep the existing Vinext/React app, shadcn/Radix controls, Zod schemas, report store and tested assessment engine.
-- MapLibre GL JS (BSD-3-Clause) with attributed OpenFreeMap/OpenStreetMap basemap: real pan/zoom and explicitly entered coordinates. No invented monitoring stations or physical digital-twin claims.
-- React Flow (MIT): interactive evidence graph, retaining its attribution.
-- idb (ISC): browser IndexedDB Blob persistence. Native MediaDevices/MediaRecorder and canvas cover capture and basic exposure/detail heuristics; a large OpenCV/ONNX model adds no validated capability for this scope.
-- Existing Recharts (MIT) for comparable measurement series; CSS for restrained transitions and reduced-motion support.
-- Browser SpeechRecognition only when available, with permission/remote-service disclosure; transcript requires user adoption.
-- Gemini server-side secret already configured. No additional API key needed for these integrations. Live availability remains quota/provider dependent.
+Existing Vinext/React app, Zod schemas, local stores and lifecycle retained. Installed MapLibre (BSD-3-Clause), React Flow/Radix/Recharts (MIT), Lucide/idb (ISC) and Workbox (MIT) cover maps, graphs, controls, storage and caching. No packages or models added in this pass. River artwork is original SVG/CSS, visibly schematic. Licenses/credits remain in DEPENDENCIES.md and SOURCES.md.
 
-Scope boundary: local demonstration roles, not multi-user auth; no environmental diagnoses, calibrated AI confidence, community vote fabrication, physical stream simulation, or claimed FAIR certification.
+## Latest verification boundary
 
-## After implementation — 2026-09-29
-
-| Feature | Current status |
-|---|---|
-| Existing citizen text/confirmation/review | Working; preserved and browser-tested |
-| Camera/photo/video/ghost overlay | Partial: implemented; local media/image checks and reference upload verified, physical capture/overlay alignment need device verification |
-| Visual AI | Partial: real server integration, consent, schema and failure handling implemented; provider high-demand failures prevent live success verification |
-| Instrument validation/adaptive questions | Working: original pH 19 retained/flagged in browser; domain tests passed |
-| Completeness score | Working: transparent rubric and limits |
-| Disagreement and Decision Receipt | Partial: mandatory judgment, immutable revisions and review reopening pass domain tests; successful live-candidate UI/download completion need device verification |
-| Map and timeline | Working: real attributed basemap, supplied-coordinate points, filters and timeline |
-| Digital twin | Missing physical simulation, explicitly excluded pending validated hydrological data |
-| Comparison/evidence graph | Graph working; two-retained-photo slider implemented, full device verification pending |
-| Voice | Partial: browser transcript/adoption UI; successful speech depends on browser permissions/provider |
-| Provenance/transparency | Working |
-| Community consensus | Missing; deliberately no fake votes, local demo judgments only |
-| Trends/outliers | Partial: conservative comparable pH chart implemented; no statistical outlier model |
-| Sampling missions | Working rule-based prompts derived from missing evidence; follow-ups retain source linkage and synthetic status without copying old measurements |
-| Offline/PWA | Partial: local reports/drafts and generated Workbox assets; cross-browser install/offline navigation pending |
-| JSON/CSV/GeoJSON/FAIR metadata | Serialization working/tests pass; metadata FAIR-oriented, not certified |
-| Responsive/accessibility | Mobile/desktop widths verified, Radix controls/focus/reduced motion; no assistive-technology user study |
-| Documentation/context | Working: README, dependency register, QA ledger, feature audit, submission draft/demo script and handoff provided |
-
-Known prototype limits are visible, not silently represented as completed production features. Refer to app docs/QA.md for exact verification scope.
+86/86 authored domain assertions, existing 19/19 mocked API-route contracts, TypeScript, full ESLint, stylesheet parsing and production build pass. These establish software behavior, not ecological accuracy. Latest user instruction assigns website checks to the user: no new browser/server/provider check for the redesigned map/lab. See QA.md and DEMO_GUIDE.md.

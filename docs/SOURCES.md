@@ -39,7 +39,7 @@ Opened the public 50-page document and inspected its identifying metadata. It de
 - Any real observation dataset: permission, license, fields, dates, coverage, and anonymization needs.
 - AI provider access, permitted budget, measured runtime behavior, and documented failure modes.
 - Integration endpoints and FHIR profiles only if that optional work is selected.
-- Evaluation outputs and user feedback. None exists yet.
+- Independent domain evaluation and field-user feedback remain missing. Authored software tests and historical provider smoke results exist; they do not establish ecological accuracy.
 
 ## S6 — EPA visual assessment guidance (verified, archived)
 https://archive.epa.gov/water/archive/web/html/vms32.html
@@ -91,3 +91,15 @@ The example request succeeded without a key during research. Actual response had
 - https://open-meteo.com/en/terms and https://open-meteo.com/en/pricing — noncommercial prototype/evaluation limits and CC-BY4.0 attribution; model context only.
 
 New image heuristics, completeness weights, measurement input bounds and mission rules are authored prototype engineering choices. They are not thresholds validated by these sources. No scientific inference should be attributed to them.
+
+## S14 — Observatory, map and lab reuse (checked 2026-09-30)
+- https://www.radix-ui.com/primitives/docs/components/tabs — existing MIT Radix tabs for accessible view selection. This does not certify the complete app's accessibility.
+- https://www.radix-ui.com/primitives/docs/components/slider — existing slider for manual comparison controls; no automatic image registration.
+- https://reactflow.dev/api-reference/react-flow — selection/focus controls and provenance visualization. Connections are project-authored record relationships, not scientific causation.
+- https://maplibre.org/maplibre-gl-js/docs/API/classes/Map/ and https://maplibre.org/maplibre-gl-js/docs/API/classes/Marker/ — existing MapLibre map/markers, fit/cleanup behavior. Static licensed worker preserved; no new monitoring data/API access.
+- https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/viewBox — original SVG schematic rendering. Decorative river geometry has no geographic or physical interpretation.
+
+No packages or scientific model were added for this pass. Exact-coordinate groups, date-line extents, completeness coverage and deterministic rule replay are authored engineering logic. Local replay uses recorded creation time when available and explicitly discloses fallback; it does not reproduce an earlier model run.
+
+## S15 — User-supplied hackathon brief (received 2026-09-30)
+Source: pasted attachment `c6c75095-c6b2-47ce-8d36-ab683caa2bab/Pasted text.txt`, supplied by the user; not a fresh verification of the public rules. It describes Track 3 as responsible AI prompts, validation, explainability and human oversight, and requests a public repository, working demo and 3–5 minute video. Used to focus presentation on assessment reliability. It contains conflicting individual/team eligibility statements; no new eligibility conclusion, prize promise or organizer endorsement is inferred. Existing verified deadline source remains S1 and must be rechecked before submission.

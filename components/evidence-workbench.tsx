@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -16,7 +16,15 @@ import {
   ArrowRight,
   Target,
   GitBranch,
+  Waves,
+  Expand,
+  Minimize2,
 } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { RiverObservatory } from "./river-observatory";
+import { GeographicEvidenceMap } from "./geographic-evidence-map";
+import { evidenceTrail } from "@/lib/evidence-trail";
+import { atlasPhotos, collectionCoverage, comparablePH, hasComparablePH, comparisonPair, filterAtlasRecords, isSyntheticRecord, siteFilterValue } from "@/lib/atlas";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -96,64 +104,21 @@ export function QualityScore({
 }
 
 export function EvidenceGraph({ report }: { report: Report }) {
-  const [detail, setDetail] = useState("Select a node to inspect its source.");
+  const [selection, setSelection] = useState<{ reportId: string; nodeId: string } | null>(null);
   const data = useMemo(() => {
-    const nodes: Node[] = [
-      {
-        id: "original",
-        position: { x: 15, y: 130 },
-        data: { label: "01 · Citizen original", detail: report.original.note },
-        style: { background: "#e4f5ec", borderColor: "#3f7a62" },
-      },
-      {
-        id: "review",
-        position: { x: 560, y: 130 },
-        data: {
-          label: "04 · Human review",
-          detail:
-            report.reviewHistory.at(-1)?.note ||
-            "Awaiting a human review. AI cannot approve this record.",
-        },
-      },
-    ];
-    const edges: Edge[] = [];
-    if (report.field?.followupOf) {
-      nodes.push({ id: "predecessor", position: { x: -235, y: 130 }, data: {
-        label: "Previous observation", detail: `Follow-up source: ${report.field.followupOf}. A relationship, not proof that conditions are comparable.`,
-      } });
-      edges.push({ id: "followup-source", source: "predecessor", target: "original" });
-    }
-    const facts = [
-      ...report.assessment.issues.map((i) => ({
-        id: i.id,
-        label: `${i.source === "ai" ? "AI" : "Rule"} · ${i.code.replaceAll("_", " ")}`,
-        detail: `${i.quote}\n${i.detail}\nCitizen: ${i.answer || i.decision}`,
-      })),
-      ...(report.field?.media ?? []).map((m) => ({
-        id: m.id,
-        label: `${m.kind} · ${m.origin}`,
-        detail: `${m.sha256}\n${m.visual ? `${m.visual.model}: ${m.visual.findings.map((f) => findingLabels[f.kind]).join(", ")}` : "No visual AI output"}`,
-      })),
-    ];
-    if (!facts.length)
-      facts.push({
-        id: "clarity",
-        label: "02 · Checks completed",
-        detail: "No rule matched; no guarantee of correctness.",
-      });
-    facts.forEach((f, i) => {
-      nodes.push({
-        id: f.id,
-        position: { x: 285, y: i * 100 },
-        data: { label: f.label, detail: f.detail },
-      });
-      edges.push(
-        { id: `e-${i}`, source: "original", target: f.id },
-        { id: `r-${i}`, source: f.id, target: "review" },
-      );
-    });
+    const trail = evidenceTrail(report);
+    const nodes: Node[] = trail.nodes.map((n) => ({
+      id: n.id, position: { x: n.x, y: n.y },
+      data: { label: n.label, detail: n.detail, source: n.source },
+          className: `trail-node nopan trail-${n.source}`,
+      ariaLabel: `${n.label}. Press Enter to inspect.`,
+      selected: selection?.reportId === report.id && selection.nodeId === n.id,
+    }));
+    const edges: Edge[] = trail.edges;
     return { nodes, edges };
-  }, [report]);
+  }, [report, selection]);
+  const selectedNode = selection?.reportId === report.id ? data.nodes.find((n) => n.id === selection.nodeId) : undefined;
+  const inspect = (nodeId: string) => setSelection({ reportId: report.id, nodeId });
   return (
     <section className="graph-section">
       <div className="section-heading">
@@ -162,24 +127,31 @@ export function EvidenceGraph({ report }: { report: Report }) {
         </h3>
         <span className="tag">Interactive provenance graph</span>
       </div>
+      <div className="trail-legend" aria-label="Graph sources">
+        <span className="trail-citizen">Citizen evidence</span><span className="trail-rules">Local rules</span><span className="trail-ai">AI candidates</span><span className="trail-human">Human decisions</span><span className="trail-pending">Pending</span>
+      </div>
       <div className="evidence-graph">
         <ReactFlow
+          key={report.id}
           nodes={data.nodes}
           edges={data.edges}
           fitView
           nodesDraggable={false}
           nodesConnectable={false}
-          onNodeClick={(_, node) => setDetail(String(node.data.detail))}
-          minZoom={0.3}
+          onNodeClick={(_, node) => inspect(node.id)}
+          onNodesChange={(changes) => { const change = changes.find((c) => c.type === "select" && c.selected); if (change?.type === "select") inspect(change.id); }}
+          deleteKeyCode={null}
+          edgesFocusable={false}
+          fitViewOptions={{ padding: 0.15 }}
+          minZoom={0.15}
           maxZoom={1.5}
         >
           <Background color="#aac4bf" gap={22} />
           <Controls showInteractive={false} />
         </ReactFlow>
       </div>
-      <p className="graph-detail" aria-live="polite">
-        {detail}
-      </p>
+      <div className="graph-detail" aria-live="polite"><b>{selectedNode ? String(selectedNode.data.label) : "Select a node to inspect its source."}</b><p>{selectedNode ? String(selectedNode.data.detail) : "Connections show retained evidence and workflow relationships. They do not establish causation or scientific truth."}</p></div>
+      <details className="trail-readable"><summary>Read the evidence trail as a list</summary><div>{data.nodes.map((n) => <button className={`trail-list-item trail-${n.data.source}`} key={n.id} aria-pressed={selectedNode?.id === n.id} onClick={() => inspect(n.id)}>{String(n.data.label)}</button>)}</div></details>
     </section>
   );
 }
@@ -444,183 +416,77 @@ export function StreamAtlas({
   onOpen: (id: string) => void;
   onMission: (source: Report) => void;
 }) {
-  const container = useRef<HTMLDivElement>(null),
-    [status, setStatus] = useState("Loading the basemap…"),
-    [selected, setSelected] = useState("all"),
+  const [selected, setSelected] = useState("all"),
     [slider, setSlider] = useState(50),
     [pair, setPair] = useState<string[]>([]);
-  const located = useMemo(
-    () => reports.filter((r) => r.field?.coordinates && (selected === "all" || r.original.site === selected)),
-    [reports, selected],
-  );
-  const sites = [...new Set(reports.map((r) => r.original.site))];
-  const shown = reports
-    .filter((r) => selected === "all" || r.original.site === selected)
-    .sort(
-      (a, b) =>
-        Date.parse(a.original.observedAt) - Date.parse(b.original.observedAt),
-    );
-  const photos = shown.flatMap((r) =>
-    (r.field?.media ?? [])
-      .filter((m) => m.kind === "photo")
-      .map((m) => ({ report: r, media: m })),
-  );
-  const before = photos.find((p) => p.media.id === pair[0]) || photos[0],
-    after = photos.find((p) => p.media.id === pair[1]) || photos.at(-1);
+  const [view, setView] = useState("observatory");
+  const [includeSynthetic, setIncludeSynthetic] = useState(true);
+  const [presenting, setPresenting] = useState(false);
+  const sites = useMemo(() => [...new Set(reports.map((r) => r.original.site))], [reports]);
+  const activeFilter = selected === "all" || sites.some((s) => siteFilterValue(s) === selected) ? selected : "all";
+  const shown = useMemo(() => filterAtlasRecords(reports, activeFilter, includeSynthetic), [reports, activeFilter, includeSynthetic]);
+  const photos = useMemo(() => atlasPhotos(shown), [shown]);
+  const { before, after } = comparisonPair(photos, pair);
+  const coverage = collectionCoverage(shown);
+  const syntheticCount = shown.filter(isSyntheticRecord).length;
   useEffect(() => {
-    let disposed = false;
-    let map: import("maplibre-gl").Map | undefined;
-    import("@/lib/maplibre-client").then((lib) => {
-      if (disposed || !container.current) return;
-      try {
-        const c = located[0]?.field?.coordinates;
-        map = new lib.Map({
-          container: container.current,
-          style: "https://tiles.openfreemap.org/styles/liberty",
-          center: c ? [c.lon, c.lat] : [-8.4103, 40.2033],
-          zoom: c ? 13 : 11,
-          pitch: 35,
-          attributionControl: { compact: true },
-        });
-        map.addControl(new lib.NavigationControl(), "top-right");
-        map.on("load", () => {
-          if (!disposed)
-            setStatus(
-              located.length
-                ? `${located.length} geolocated observation${located.length === 1 ? "" : "s"}`
-                : "Coimbra basemap · no located observations yet",
-            );
-        });
-        map.on("error", () => {
-          if (!disposed)
-            setStatus(
-              "Some map data is unavailable. Use the observation list below.",
-            );
-        });
-        const bounds = new lib.LngLatBounds();
-        located.forEach((r) => {
-          const p = r.field!.coordinates!;
-          const button = document.createElement("button");
-          button.className = `atlas-marker ${r.original.synthetic ? "synthetic-marker" : ""}`;
-          button.setAttribute(
-            "aria-label",
-            `${r.original.site}${r.original.synthetic ? " — synthetic" : ""}`,
-          );
-          button.textContent = "◉";
-          button.onclick = () => onOpen(r.id);
-          new lib.Marker({ element: button })
-            .setLngLat([p.lon, p.lat])
-            .addTo(map!);
-          bounds.extend([p.lon, p.lat]);
-        });
-        if (located.length > 1)
-          map.fitBounds(bounds, { padding: 75, maxZoom: 14, duration: 0 });
-      } catch {
-        setStatus(
-          "WebGL mapping is unavailable on this device. Observation records remain accessible below.",
-        );
-      }
-    }).catch(() => { if (!disposed) setStatus("Map code could not load. Your observation list remains available below."); });
-    return () => {
-      disposed = true;
-      map?.remove();
-    };
-  }, [located, onOpen]);
-  const comparable =
-    selected === "all"
-      ? []
-      : shown
-          .filter((r) => !r.original.synthetic)
-          .flatMap((r) =>
-            (r.field?.measurements ?? [])
-              .filter(
-                (m) =>
-                  m.parameter === "pH" && measurementWarnings(m).length === 0,
-              )
-              .slice(0, 1)
-              .map((m) => ({
-                observedAt: r.original.observedAt,
-                time: new Date(r.original.observedAt).toLocaleDateString(
-                  "en-GB",
-                  { timeZone: "UTC" },
-                ),
-                value: m.value,
-                instrument: m.instrument,
-              })),
-          );
-  const sameInstrument =
-    comparable.length >= 3 &&
-    new Set(comparable.map((m) => m.observedAt)).size >= 3 &&
-    new Set(comparable.map((m) => m.instrument)).size === 1;
+    if (!presenting) return;
+    const escape = (e: KeyboardEvent) => { if (e.key === "Escape") setPresenting(false); };
+    window.addEventListener("keydown", escape);
+    return () => window.removeEventListener("keydown", escape);
+  }, [presenting]);
+  const comparable = comparablePH(shown, activeFilter);
+  const sameInstrument = hasComparablePH(comparable);
   return (
-    <div className="atlas-view">
+    <div className={`atlas-view${presenting ? " is-presenting" : ""}`}>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">THE LIVING FIELD NOTEBOOK</p>
-          <h1>Put evidence in its place.</h1>
+          <p className="eyebrow">THE RIVER OBSERVATORY / TRACK 3</p>
+          <h1>See the stream. Trace the evidence.</h1>
           <p className="subtext">
-            A spatial observation atlas. Every point leads back to its source.
+            One visual workspace for your stream sites, observations and human decisions.
           </p>
         </div>
-        <span className="tag">Observation map · no physical simulation</span>
+        <button className="btn secondary" aria-pressed={presenting} onClick={() => setPresenting((p) => !p)}>
+          {presenting ? <Minimize2 size={16} /> : <Expand size={16} />}
+          {presenting ? "Exit focus view" : "Focus view"}
+        </button>
       </div>
-      <section className="atlas-map-panel">
-        <div
-          ref={container}
-          className="atlas-map"
-          aria-label="Interactive stream observation map"
-        />
-        <div className="atlas-caption">
-          <MapPin size={16} />
-          <span aria-live="polite">{status}</span>
-          <b>{shown.length - located.length} without coordinates in this view</b>
-        </div>
-      </section>
+      <Tabs value={view} onValueChange={setView} className="atlas-explorer">
+      <div className="atlas-commandbar">
+        <TabsList aria-label="River visualization" className="atlas-view-tabs">
+          <TabsTrigger value="observatory"><Waves size={16} /> River stories</TabsTrigger>
+          <TabsTrigger value="map"><MapPin size={16} /> Geographic map</TabsTrigger>
+        </TabsList>
+        <label className="atlas-samples-control" htmlFor="atlas-include-synthetic">
+          <Switch id="atlas-include-synthetic" checked={includeSynthetic} onCheckedChange={(v) => { setIncludeSynthetic(v); setPair([]); }} />
+          Include synthetic samples
+        </label>
+      </div>
       <div className="atlas-toolbar">
-        <Select
-          value={selected}
-          onValueChange={(v) => {
-            setSelected(v);
-            setPair([]);
-          }}
-        >
-          <SelectTrigger aria-label="Filter atlas by site">
-            <SelectValue />
-          </SelectTrigger>
+        <Select value={activeFilter} onValueChange={(v) => { setSelected(v); setPair([]); }}>
+          <SelectTrigger aria-label="Filter observations by site"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All observation sites</SelectItem>
-            {sites.map((s) => (
-              <SelectItem value={s} key={s}>
-                {s}
-              </SelectItem>
-            ))}
+            {sites.map((s) => <SelectItem value={siteFilterValue(s)} key={s}>{s}</SelectItem>)}
           </SelectContent>
         </Select>
-        <button
-          className="btn secondary"
-          onClick={() =>
-            downloadFile(
-              exportCSV(shown),
-              "aqualens-observations.csv",
-              "text/csv",
-            )
-          }
-        >
-          <Download size={15} /> CSV
-        </button>
-        <button
-          className="btn secondary"
-          onClick={() =>
-            downloadFile(
-              JSON.stringify(exportGeoJSON(shown), null, 2),
-              "aqualens-observations.geojson",
-              "application/geo+json",
-            )
-          }
-        >
-          GeoJSON
-        </button>
+        <span className="atlas-record-count">{shown.length} records · {syntheticCount} synthetic</span>
+        <button className="btn secondary" onClick={() => downloadFile(JSON.stringify({ format: "aqualens-observation-collection", version: "1.0", records: shown.map(decisionReceipt) }, null, 2), "aqualens-receipts.json", "application/json")}><Download size={15} /> JSON receipts</button>
+        <button className="btn secondary" onClick={() => downloadFile(exportCSV(shown), "aqualens-observations.csv", "text/csv")}>CSV</button>
+        <button className="btn secondary" onClick={() => downloadFile(JSON.stringify(exportGeoJSON(shown), null, 2), "aqualens-observations.geojson", "application/geo+json")}>GeoJSON</button>
       </div>
+      <TabsContent value="observatory"><RiverObservatory records={shown} onOpen={onOpen} onMission={onMission} /></TabsContent>
+      <TabsContent value="map"><GeographicEvidenceMap records={shown} onOpen={onOpen} /></TabsContent>
+      </Tabs>
+      <section className="atlas-coverage" aria-label="Evidence coverage in this view">
+        <div className="atlas-coverage-title"><p className="eyebrow">EVIDENCE COVERAGE</p><h2>What is here. What is missing.</h2></div>
+        <div className="atlas-coverage-grid">{coverage.map((c) => <div key={c.key} className="atlas-coverage-item"><div><strong>{c.count}<small> / {shown.length}</small></strong><span>{c.label}</span></div><div className="atlas-coverage-track" aria-hidden="true"><span style={{ width: `${shown.length ? 100 * c.count / shown.length : 0}%` }} /></div><p>{c.detail}</p></div>)}</div>
+        <p className="micro-copy">Coverage and workflow only; no water-health inference. Media counts refer to retained metadata, not verified availability of files. {syntheticCount > 0 && `${syntheticCount} synthetic sample records included.`}</p>
+      </section>
+      <details className="atlas-details">
+      <summary>Explore the timeline, follow-up missions and photo comparison <ArrowRight size={17} /></summary>
+      <div className="atlas-details-body">
       <div className="atlas-columns">
         <section className="panel">
           <p className="eyebrow">01 / OBSERVATION TIMELINE</p>
@@ -639,7 +505,7 @@ export function StreamAtlas({
                 <p>{r.original.note}</p>
                 <div>
                   <span className="tag">
-                    {r.original.synthetic ? "Synthetic" : "Citizen"}
+                    {isSyntheticRecord(r) ? "Synthetic" : "Citizen"}
                   </span>
                   <span className="tag">{r.status.replaceAll("_", " ")}</span>
                 </div>
@@ -696,9 +562,9 @@ export function StreamAtlas({
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={comparable}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="time" />
+                      <XAxis dataKey="timestamp" type="number" scale="time" domain={["dataMin", "dataMax"]} tickFormatter={(v) => new Date(v).toLocaleDateString("en-GB", { timeZone: "UTC" })} />
                       <YAxis domain={[0, 14]} />
-                      <Tooltip />
+                      <Tooltip labelFormatter={(v) => `${new Date(Number(v)).toLocaleString("en-GB", { timeZone: "UTC" })} UTC`} />
                       <Area dataKey="value" stroke="#168d89" fill="#168d8940" />
                     </AreaChart>
                   </ResponsiveContainer>
@@ -738,15 +604,15 @@ export function StreamAtlas({
                   <SelectTrigger
                     aria-label={
                       side === 0
-                        ? "Earlier comparison image"
-                        : "Later comparison image"
+                        ? "Comparison image A"
+                        : "Comparison image B"
                     }
                   >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {photos.map((p) => (
-                      <SelectItem key={p.media.id} value={p.media.id}>
+                      <SelectItem key={p.media.id} value={p.media.id} disabled={p.media.id === (side === 0 ? after.media.id : before.media.id)}>
                         {p.report.original.site} ·{" "}
                         {p.report.original.observedAt} ·{" "}
                         {p.media.id.slice(0, 5)}
@@ -781,8 +647,8 @@ export function StreamAtlas({
               Images are fitted to the same frame, not scientifically
               registered. Different lighting, viewpoint, dates or sites can
               explain apparent differences.{" "}
-              {before.report.original.synthetic ||
-              after.report.original.synthetic
+              {isSyntheticRecord(before.report) ||
+              isSyntheticRecord(after.report)
                 ? "Synthetic imagery is included."
                 : "Citizen imagery is unverified."}
             </p>
@@ -794,15 +660,9 @@ export function StreamAtlas({
           </p>
         )}
       </section>
-      <div className="atlas-limit">
-        <ShieldCheck size={20} />
-        <p>
-          Community consensus requires independent, authenticated observers.
-          This local prototype records individual human judgments; it does not
-          invent votes or claim a community consensus. A physical digital twin
-          would require verified hydrological data and calibration.
-        </p>
       </div>
+      </details>
+      <p className="micro-copy atlas-scope-note">Browser-local observation collection · supplied evidence and demo review decisions. No stream sensors, ecological classification or physical simulation.</p>
     </div>
   );
 }

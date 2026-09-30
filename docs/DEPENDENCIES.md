@@ -17,3 +17,5 @@ Checked official documentation and installed licenses 2026-09-28/29 before imple
 OpenCV/ONNX considered but not installed: no validated detector/model justified their cost. CSS already supports the required restrained motion; no additional animation dependency. Native canvas provides only exposure/detail heuristics, with limits stated. No unsupported image classification is attributed to those heuristics. Lockfile pins exact versions.
 
 Open-Meteo: CC BY 4.0 modeled weather; free noncommercial evaluation/prototyping subject to its terms. Hero illustration generated with image generation. No private observations or uploaded user media are included in source.
+
+Sept30 map/lab/observatory update reuses installed MapLibre, React Flow, Radix and Lucide (ISC), plus original SVG/CSS. No packages, model weights or third-party component code were added. Existing basemap/graph/worker attribution remains visible; docs/SOURCES.md records the official APIs inspected.

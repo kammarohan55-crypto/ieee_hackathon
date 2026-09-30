@@ -43,15 +43,23 @@ import {
   saveMedia,
 } from "@/lib/media-store";
 
-export function EvidenceImage({
-  media,
-  className = "",
-  controls = true,
-}: {
+type EvidenceImageProps = {
   media: MediaEvidence;
   className?: string;
   controls?: boolean;
-}) {
+};
+
+export function EvidenceImage(props: EvidenceImageProps) {
+  // Changing evidence must discard the previous preview, even if the next file
+  // is missing from this browser's local store.
+  return <LocalEvidenceImage key={props.media.id} {...props} />;
+}
+
+function LocalEvidenceImage({
+  media,
+  className = "",
+  controls = true,
+}: EvidenceImageProps) {
   const [url, setURL] = useState("");
   const [failed, setFailed] = useState(false);
   useEffect(() => {
@@ -64,13 +72,13 @@ export function EvidenceImage({
           setURL(local);
         } else if (!disposed) setFailed(true);
       })
-      .catch(() => setFailed(true));
+      .catch(() => { if (!disposed) setFailed(true); });
     return () => {
       disposed = true;
       if (local) URL.revokeObjectURL(local);
     };
   }, [media.id]);
-  return url ? (
+  return url && !failed ? (
     media.kind === "video" ? (
       <video
         className={className}
@@ -78,12 +86,14 @@ export function EvidenceImage({
         controls={controls}
         playsInline
         muted
+        onError={() => setFailed(true)}
       />
     ) : (
       <img
         className={className}
         src={url}
         alt={`${media.origin === "illustration" ? "Synthetic illustration" : "Retained citizen photograph"}; unverified evidence`}
+        onError={() => setFailed(true)}
       />
     )
   ) : (
@@ -113,9 +123,11 @@ export function FieldStudio({
     recorder = useRef<MediaRecorder | null>(null),
     timer = useRef<ReturnType<typeof setTimeout> | null>(null),
     latest = useRef(value),
-    mounted = useRef(true);
+    mounted = useRef(true),
+    opening = useRef(false);
   useEffect(() => { latest.current = value; }, [value]);
   const [live, setLive] = useState(false),
+    [starting, setStarting] = useState(false),
     [recording, setRecording] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -123,7 +135,7 @@ export function FieldStudio({
     [ghost, setGhost] = useState(""),
     [opacity, setOpacity] = useState(35),
     [aiId, setAIId] = useState("");
-  useEffect(() => { onBusy(busy || !!aiId || recording); return () => onBusy(false); }, [busy, aiId, recording, onBusy]);
+  useEffect(() => { onBusy(busy || !!aiId || recording || starting); return () => onBusy(false); }, [busy, aiId, recording, starting, onBusy]);
   const stop = () => {
     if (recorder.current?.state === "recording") recorder.current.stop();
     stream.current?.getTracks().forEach((t) => t.stop());
@@ -147,7 +159,11 @@ export function FieldStudio({
     [ghost],
   );
   async function start() {
+    if (opening.current || stream.current) return;
+    opening.current = true;
+    setStarting(true);
     setError("");
+    let acquired: MediaStream | undefined;
     try {
       if (!navigator.mediaDevices?.getUserMedia)
         throw new Error(
@@ -157,6 +173,7 @@ export function FieldStudio({
         video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 } },
         audio: false,
       });
+      acquired = s;
       if (!mounted.current) {
         s.getTracks().forEach((t) => t.stop());
         return;
@@ -168,7 +185,15 @@ export function FieldStudio({
         await video.current.play();
       }
     } catch (e) {
-      setError(`Camera could not open. ${(e as Error).message}`);
+      acquired?.getTracks().forEach((track) => track.stop());
+      if (stream.current === acquired) stream.current = null;
+      if (mounted.current) {
+        setLive(false);
+        setError(`Camera could not open. ${(e as Error).message}`);
+      }
+    } finally {
+      opening.current = false;
+      if (mounted.current) setStarting(false);
     }
   }
   async function retain(
@@ -349,8 +374,9 @@ export function FieldStudio({
             </div>
             <h2>A closer look. A clearer record.</h2>
             <p>Capture the scene. Keep the uncertainty.</p>
-            <button type="button" className="btn mint" onClick={start}>
-              <Camera size={17} /> Open live camera
+            <button type="button" className="btn mint" onClick={start} disabled={starting}>
+              {starting ? <LoaderCircle size={17} className="spin" /> : <Camera size={17} />}
+              {starting ? "Opening camera…" : "Open live camera"}
             </button>
             <small>
               Camera stays on your device until you explicitly request AI.
@@ -590,6 +616,13 @@ export function FieldDetails({
   value: FieldEvidence;
   onChange: (v: FieldEvidence) => void;
 }) {
+  const latest = useRef({ value, onChange }),
+    mounted = useRef(true);
+  useEffect(() => { latest.current = { value, onChange }; }, [value, onChange]);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; };
+  }, []);
   const [lat, setLat] = useState(
       value.coordinates ? String(value.coordinates.lat) : "",
     ),
@@ -612,6 +645,7 @@ export function FieldDetails({
     }
     navigator.geolocation.getCurrentPosition(
       (p) => {
+        if (!mounted.current) return;
         const c = {
           lat: p.coords.latitude,
           lon: p.coords.longitude,
@@ -620,10 +654,11 @@ export function FieldDetails({
         };
         setLat(c.lat.toFixed(6));
         setLon(c.lon.toFixed(6));
-        onChange({ ...value, coordinates: c });
+        latest.current.onChange({ ...latest.current.value, coordinates: c });
         setLocating(false);
       },
       () => {
+        if (!mounted.current) return;
         setError(
           "Location permission denied or unavailable. Manual coordinates are optional.",
         );

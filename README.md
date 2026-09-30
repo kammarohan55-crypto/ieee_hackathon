@@ -33,8 +33,11 @@ The interface uses a marine field-instrument palette: deep navy, teal, warm ivor
 - Local luminance, edge-detail and resolution checks. These are uncalibrated heuristics, not scientific quality assessment.
 - Visual Gemini endpoint returns only enumerated candidate appearances, frame regions and low/medium/high uncalibrated model confidence. Explicit consent sends a resized JPEG only. No inferred instrument measurements or diagnoses.
 - Instrument readings with units, instrument/calibration metadata and broad input plausibility checks. Implausible values are retained and flagged, never silently corrected.
-- Transparent 100-point evidence-completeness rubric, human visual judgments/disagreement with reasons, retained original suggestions, review trail, interactive React Flow evidence graph, Decision Receipt.
-- MapLibre/OpenFreeMap atlas, explicit coordinates, timeline, site filtering, before/after photo slider and rule-based follow-up missions. No invented monitoring points or physical digital-twin simulation.
+- Transparent 100-point evidence-completeness rubric, human visual judgments/disagreement with reasons, retained original suggestions, review trail and Decision Receipt. The interactive evidence graph distinguishes citizen, rules, AI, human and pending sources, with a keyboard-readable list.
+- River Observatory: an explicitly illustrative river scene, selectable exact site labels, record chronology, Story/Evidence/Method views and presentation focus controls. Unlocated observations remain useful; matching labels do not establish connected waterways.
+- Geographic map: MapLibre/OpenFreeMap, exact-coordinate marker groups, location dossier, source/accuracy/time, accessible record index, fit controls and retry/fallback. Missing locations are never guessed; valid polar coordinates remain in records even outside the basemap projection.
+- Evidence Lab: inspect saved originals, highlighted source quotes, rule/AI provenance, media/readings and human decisions. Replay current local rules using record creation time without modifying the saved report. Separate editable synthetic practice makes no live AI call.
+- Site filtering, retained-photo comparison and rule-based follow-up missions. Supporting timeline/comparisons are collapsible so the main evidence story stays clear.
 - Follow-up missions retain a source-report link and synthetic status while requiring fresh readings. Later visual judgments reopen completed reviews and preserve the earlier history.
 - pH comparison only with three non-synthetic reports at distinct times, one site and the same named instrument with calibration reported checked. No ecological trend or outlier claims.
 - JSON/CSV/GeoJSON export. CSV neutralizes formula prefixes; GeoJSON omits unknown coordinates. FAIR-oriented metadata includes provenance/access/license limits. Media is downloaded separately and matched by digest.
@@ -49,6 +52,10 @@ The interface uses a marine field-instrument palette: deep navy, teal, warm ivor
 | components/streamcheck.tsx | Existing workspace, local report lifecycle, clarification and confirmation |
 | components/field-studio.tsx | Camera/media, ghost overlay, dictation, measurements |
 | components/evidence-workbench.tsx | Completeness, review additions, graph, atlas, timeline/comparison |
+| components/river-observatory.tsx | Illustrative site stories and selected observation evidence |
+| components/geographic-evidence-map.tsx + lib/geographic.ts | Supplied-coordinate map, location index and date-line-safe extents |
+| components/evidence-lab.tsx + lib/evidence-lab.ts | Read-only report inspection, source spans and deterministic replay |
+| lib/evidence-trail.ts + lib/atlas.ts | Provenance graph data, filters, distinct-photo pairs and comparable pH |
 | lib/assessment.ts | Original schema, text engine, decisions, evidence preservation |
 | lib/field.ts | Field schema, visual vocabulary, measurement checks and exports |
 | lib/media-store.ts | IndexedDB, hashing, image heuristics, resized JPEG |
@@ -64,11 +71,13 @@ The interface uses a marine field-instrument palette: deep navy, teal, warm ivor
 3. Opt in to visual AI if available. Inspect candidates and uncertainty. If unavailable, show the honest error and local fallback; never call rules AI.
 4. Demonstrate an explicitly synthetic pH 19 input: value retained, warning and follow-up. Preserve unknown cause, inspect score components, confirm.
 5. Reviewer inspects sources, media digest, graph and transparency. Record a reasoned judgment on every visual AI candidate before completing review. Download the receipt.
-6. Show located reports in the atlas, compare two retained images with lighting/viewpoint caveats, export GeoJSON.
+6. Open Evidence Lab and replay rules alongside the saved assessment. Show River stories, then the Geographic map if supplied coordinates exist; export a receipt or GeoJSON.
+
+See [the demo and manual-check guide](docs/DEMO_GUIDE.md) for exact buttons, expected behavior and a useful problem-report template.
 
 ## Verification and boundaries
 
-60/60 authored domain assertions and 19/19 mocked API contract tests passed; typecheck, lint and production build passed. See docs/QA.md, public/evaluation.json and public/api-evaluation.json. These tests execute actual domain/route code but do not validate scientific accuracy. `node scripts/test-live-ai.mjs` makes three real synthetic requests; public/live-evaluation.json is an integration smoke report, not a benchmark. Preserve prior results in docs/evaluation-runs/.
+86/86 authored domain assertions and 19/19 mocked API contract tests passed; typecheck, lint and production build passed. See docs/QA.md, public/evaluation.json and public/api-evaluation.json. The latest map/lab interface has source/build checks only; the user performs website verification. These tests execute actual domain/route code but do not validate scientific accuracy. `node scripts/test-live-ai.mjs` makes three real synthetic requests; public/live-evaluation.json is an integration smoke report, not a benchmark. Preserve prior results in docs/evaluation-runs/.
 
 Real Gemini text calls have succeeded in the development installation. The latest live text run passed 3/3 scenarios. Earlier high-demand failures (0/3 and1/3) are retained. Visual requests still received503 high-demand responses; failure behavior was verified in-browser, but successful visual response remains unverified. These historical results do not establish access or availability for a fresh clone's key. Quota/provider availability may change.
 

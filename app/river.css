@@ -1,0 +1,220 @@
+/* River Observatory: local evidence, illustrated without geographic inference. */
+.river-observatory {
+  --river-navy: #0b2f38;
+  --river-ink: #173e45;
+  --river-muted: #526b6d;
+  --river-sage: #d6e7d8;
+  margin-bottom: 30px;
+  color: var(--river-ink);
+}
+.river-observatory *, .river-observatory *::before, .river-observatory *::after { box-sizing: border-box; }
+.river-layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(350px, .85fr); border: 1px solid #d3ded8; border-radius: 22px; overflow: hidden; background: #fffdf8; box-shadow: 0 18px 55px #123e3810; }
+.river-stage { position: relative; display: flex; flex-direction: column; min-width: 0; isolation: isolate; overflow: hidden; color: #edf4e9; background: radial-gradient(ellipse at 70% 0%, #1c4849, transparent 70%), #0b2732; }
+.river-ribbon { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 550px; z-index: -2; }
+.river-stage-vignette { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, #0b2732b0, transparent 33%, transparent 57%, #0b2732df); pointer-events: none; }
+.river-flow-line { animation: river-flow 16s linear infinite; }
+.river-stage-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 35px 34px 22px; }
+.river-kicker { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 10px; font-weight: 700; letter-spacing: .14em; line-height: 1.6; }
+.river-stage .river-kicker { color: #c0d8c9; }
+.river-stage-heading h2 { margin: 18px 0 15px; font: 400 clamp(35px, 3.3vw, 50px)/1.1 Georgia, "Times New Roman", serif; letter-spacing: -.035em; color: #fcfbf2; }
+.river-stage-heading h2 em { font-weight: 400; color: #d1e1c9; }
+.river-stage-heading > div > p:last-child { max-width: 355px; margin: 0; color: #d1e0d8; font-size: 13px; line-height: 1.75; }
+.river-motion-control { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; border: 1px solid #adc7b73a; border-radius: 50%; color: #e7efdf; background: #143e4350; cursor: pointer; transition: background .2s; }
+.river-motion-control:hover { background: #45665c; }
+.river-stations { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: center; gap: 15px; flex: 1; min-height: 245px; padding: 26px 34px 32px; max-height: 600px; overflow: auto; scrollbar-width: thin; scrollbar-color: #789688 #12333d; }
+.river-station { position: relative; display: flex; flex-direction: column; min-width: 0; gap: 11px; padding: 18px 19px 14px; text-align: left; border: 1px solid #b2cfc452; border-radius: 13px; color: #f4f7ec; background: #0c2b34de; backdrop-filter: blur(12px); box-shadow: 0 6px 24px #03171d2b; cursor: pointer; transition: border-color .22s, background .22s, transform .22s; }
+.river-station:hover { transform: translateY(-3px); border-color: #d8e8c9aa; background: #143c40ee; }
+.river-station-selected { border-color: #d5e5bc; background: #234d4ade; box-shadow: 0 0 0 1px #d5e5bc28, 0 10px 30px #031b2359; }
+.river-station-top { display: flex; justify-content: space-between; align-items: center; }
+.river-station-number { color: #c1d6c7; font: 500 10px/1.1 "Segoe UI", sans-serif; letter-spacing: .13em; }
+.river-station-dot { width: 8px; height: 8px; border-radius: 50%; background: #8dada0; box-shadow: 0 0 0 4px #98bba312; }
+.river-station-selected .river-station-dot { background: #d9e7bc; box-shadow: 0 0 0 4px #d9e7bc22; }
+.river-station > strong { font: 400 21px/1.2 Georgia, "Times New Roman", serif; overflow-wrap: anywhere; letter-spacing: -.02em; }
+.river-station-details { color: #cdded3; font-size: 12px; line-height: 1.6; }
+.river-station-details > span { padding: 0 4px; }
+.river-station-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid #bbd4bd23; padding-top: 10px; color: #d4e0cf; font-size: 12px; }
+.river-station-bottom > span { overflow-wrap: anywhere; }
+.river-station-bottom > svg { flex-shrink: 0; }
+.river-stage-footer { padding: 22px 34px 23px; border-top: 1px solid #b5d0bf26; background: #09263190; }
+.river-local-counts { display: flex; flex-wrap: wrap; align-items: baseline; gap: 15px 24px; margin-bottom: 20px; }
+.river-local-counts > span { display: flex; align-items: baseline; gap: 7px; font-size: 12px; color: #c8dccd; }
+.river-local-counts b { font: 400 27px/1 Georgia, "Times New Roman", serif; color: #e8eed5; font-variant-numeric: tabular-nums; }
+.river-stage-footer > p { display: flex; align-items: flex-start; gap: 8px; max-width: 550px; margin: 0; font-size: 12px; line-height: 1.7; color: #bdcfc7; }
+.river-stage-footer > p > svg { flex-shrink: 0; margin-top: 2px; }
+.river-stage-footer strong { display: block; color: #e2e9d7; font-weight: 500; }
+.river-story { min-width: 0; display: flex; flex-direction: column; background: linear-gradient(150deg, #fffdf8, #f5f5ed); }
+.river-story-heading { padding: 27px 27px 20px; }
+.river-story-heading .river-kicker { justify-content: space-between; color: #597b72; font-size: 9px; letter-spacing: .1em; }
+.river-story-heading .river-kicker > span { color: #49675f; font-variant-numeric: tabular-nums; letter-spacing: .03em; }
+.river-story-heading h3 { font: 400 28px/1.15 Georgia, "Times New Roman", serif; letter-spacing: -.03em; margin: 14px 0 10px; overflow-wrap: anywhere; }
+.river-story-heading > p:not(.river-kicker) { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #526b6d; line-height: 1.5; margin: 0; }
+.river-story-heading > p > svg { flex-shrink: 0; }
+.river-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 15px; }
+.river-badge { display: inline-flex; align-items: center; gap: 4px; border: 1px solid #d3dfd5; background: #edf2e8; color: #3b6257; border-radius: 4px; padding: 5px 7px; font-size: 12px; line-height: 1.35; }
+.river-badge.synthetic { color: #75603b; border-color: #e4d5af; background: #f2e9d2; }
+.river-detail-tabs { flex: 1; min-width: 0; }
+.river-tabs-list { display: flex; gap: 14px; border-bottom: 1px solid #d9e1d9; padding: 0 27px; }
+.river-tabs-list > button { position: relative; display: flex; justify-content: center; align-items: center; gap: 6px; min-height: 44px; padding: 8px 0 12px; color: #526b6d; border: 0; background: none; font-size: 14px; font-weight: 600; cursor: pointer; }
+.river-tabs-list > button[data-state="active"] { color: #183e42; }
+.river-tabs-list > button[data-state="active"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: #396f63; }
+.river-tab-content { padding: 24px 27px; max-height: 470px; overflow: auto; scrollbar-width: thin; scrollbar-color: #b5c8bb #f5f5ed; }
+.river-tab-content[data-state="inactive"] { display: none; }
+.river-section-label { display: flex; align-items: center; gap: 6px; margin: 0 0 13px; color: #5f786c; font-size: 9px; font-weight: 700; line-height: 1.5; letter-spacing: .11em; }
+.river-tab-content blockquote { margin: 0 0 24px; padding: 0 0 0 16px; border-left: 2px solid #a7bba1; font: 400 17px/1.6 Georgia, "Times New Roman", serif; color: #2a4a49; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 200px; overflow: auto; scrollbar-width: thin; }
+.river-observed-appearance { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+.river-observed-appearance > svg { color: #628e79; }
+.river-observed-appearance span, .river-observed-appearance strong { display: block; }
+.river-observed-appearance span { color: #5b716b; font-size: 12px; margin-bottom: 4px; }
+.river-observed-appearance strong { font-size: 12px; font-weight: 500; text-transform: capitalize; }
+.river-completeness { padding: 16px; border: 1px solid #dce3d8; border-radius: 10px; background: #edf1e5; }
+.river-completeness > div:first-child { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.river-completeness > div > span { font-size: 12px; font-weight: 500; }
+.river-completeness strong { font: 400 27px/1 Georgia, "Times New Roman", serif; font-variant-numeric: tabular-nums; }
+.river-completeness small { color: #6b7d70; font: 400 12px/1 "Segoe UI", sans-serif; margin-left: 2px; }
+.river-completeness-track { height: 3px; border-radius: 4px; overflow: hidden; margin-top: 12px; background: #d1decd; }
+.river-completeness-track > i { display: block; height: 100%; background: #668c69; transition: width .35s; }
+.river-completeness > p { font-size: 12px; line-height: 1.6; margin: 10px 0 0; color: #536b58; }
+.river-gaps { margin-top: 15px; }
+.river-gaps > summary, .river-quality-method > summary { display: flex; align-items: center; gap: 8px; min-height: 44px; color: #425f56; font-size: 14px; cursor: pointer; }
+.river-gaps > summary > span { display: grid; place-items: center; margin-left: auto; width: 22px; height: 22px; color: #6b684d; background: #ece9d7; border-radius: 50%; font-size: 12px; }
+.river-gaps > summary::after, .river-quality-method > summary::after { content: "+"; margin-left: 3px; font-size: 16px; font-weight: 400; }
+.river-gaps[open] > summary::after, .river-quality-method[open] > summary::after { content: "−"; }
+.river-gaps > ul { margin: 8px 0 12px; padding: 0 0 0 16px; color: #665d45; font-size: 12px; line-height: 1.65; }
+.river-gaps li + li { margin-top: 7px; }
+.river-gaps > p, .river-quality-method > p, .river-local-note { color: #5f7169; font-size: 12px; line-height: 1.7; }
+.river-story-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 18px 27px 24px; border-top: 1px solid #dfe5dc; }
+.river-action-primary, .river-action-secondary { display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; flex: 1; padding: 11px 12px; border: 1px solid #17494c; border-radius: 7px; font-size: 14px; font-weight: 600; line-height: 1.4; white-space: normal; cursor: pointer; transition: background .2s, border-color .2s; }
+.river-action-primary { color: #f5f5e9; background: #123e43; }
+.river-action-primary:hover { background: #246064; border-color: #246064; }
+.river-action-secondary { color: #284f4e; background: transparent; border-color: #cedacf; }
+.river-action-secondary:hover { background: #e7eee0; border-color: #96b59d; }
+.river-action-primary > svg, .river-action-secondary > svg { flex-shrink: 0; }
+.river-media-frame { position: relative; overflow: hidden; min-height: 210px; border-radius: 10px; background: #15383e; }
+.river-media-frame > img, .river-media-frame > video { display: block; width: 100%; height: 235px; object-fit: contain; background: #102f38; }
+.river-media-frame > .media-placeholder { display: flex; align-items: center; justify-content: center; min-height: 210px; padding: 55px 24px 30px; margin: 0; background: #15383e; color: #dbe5d2; font-size: 12px; line-height: 1.7; text-align: center; }
+.river-media-origin { position: absolute; top: 10px; left: 10px; right: 10px; max-width: calc(100% - 20px); width: fit-content; padding: 5px 7px; border: 1px solid #d6e3d147; border-radius: 4px; background: #0a2b35dd; color: #e3ebd9; font-size: 12px; line-height: 1.45; pointer-events: none; }
+.river-media-selector { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+.river-media-selector > button { display: flex; align-items: center; justify-content: center; gap: 6px; min-width: 44px; height: 44px; color: #50695e; border: 1px solid #cddacf; border-radius: 6px; background: transparent; cursor: pointer; font-size: 14px; }
+.river-media-selector > button[aria-pressed="true"] { color: #e9f0df; background: #305c50; border-color: #305c50; }
+.river-media-meta { margin: 11px 0 0; color: #607668; font-size: 12px; }
+.river-evidence-warning { padding: 12px; border: 1px solid #e4d6b8; border-radius: 7px; color: #725c35; background: #f5eddb; font-size: 12px; line-height: 1.65; }
+.river-visual-candidates { margin-top: 23px; }
+.river-visual-candidates > div { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid #dce4d8; padding: 12px 0; }
+.river-visual-candidates strong { font-size: 12px; font-weight: 500; }
+.river-visual-candidates span, .river-visual-candidates > p:not(.river-section-label) { font-size: 12px; line-height: 1.65; color: #5f7069; overflow-wrap: anywhere; }
+.river-no-media { padding: 24px 18px; border: 1px dashed #c5d5c4; border-radius: 9px; background: #edf2e6; text-align: center; }
+.river-no-media > svg { color: #6e8d70; }
+.river-no-media h4 { margin: 12px 0 7px; font: 400 21px/1.2 Georgia, "Times New Roman", serif; }
+.river-no-media p { margin: 0; color: #5d7464; font-size: 12px; line-height: 1.7; }
+.river-readings { margin-top: 24px; }
+.river-readings > div { padding: 12px 0; border-top: 1px solid #dce4d8; }
+.river-readings strong { display: flex; justify-content: space-between; gap: 15px; font-size: 12px; font-weight: 500; }
+.river-readings p { font-size: 12px; line-height: 1.6; color: #5c7267; margin: 7px 0 0; }
+.river-provenance-list { display: flex; flex-direction: column; gap: 20px; }
+.river-provenance-list > div { display: flex; align-items: flex-start; gap: 12px; }
+.river-provenance-list > div > svg { flex-shrink: 0; color: #688b70; margin-top: 2px; }
+.river-provenance-list p { margin: 0; }
+.river-provenance-list strong { display: block; font-size: 12px; font-weight: 500; margin-bottom: 6px; }
+.river-provenance-list span { display: block; color: #5c7369; font-size: 12px; line-height: 1.75; overflow-wrap: anywhere; }
+.river-quality-method { margin-top: 22px; border-top: 1px solid #dce4d8; padding-top: 5px; }
+.river-quality-method > summary { justify-content: space-between; font-weight: 600; }
+.river-quality-method > ul { list-style: none; padding: 0; margin: 10px 0 15px; }
+.river-quality-method li { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; padding: 9px 0; border-bottom: 1px solid #e0e6db; font-size: 12px; line-height: 1.6; }
+.river-quality-method b { white-space: nowrap; font-weight: 500; font-variant-numeric: tabular-nums; }
+.river-local-note { margin-top: 16px; }
+.river-empty-stage { grid-column: 1 / -1; padding: 25px 15px 45px; max-width: 350px; margin: auto; text-align: center; }
+.river-empty-stage > svg { color: #c9dcbc; margin-bottom: 16px; }
+.river-empty-stage h3 { margin: 0 0 12px; font: 400 27px/1.2 Georgia, "Times New Roman", serif; color: #e5eed8; }
+.river-empty-stage p { margin: 0; color: #c7d8c9; font-size: 12px; line-height: 1.8; }
+.river-empty-story { display: flex; flex: 1; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 50px 32px; min-height: 250px; }
+.river-empty-story > svg { color: #6f9579; margin-bottom: 15px; }
+.river-empty-story h3 { font: 400 28px/1.2 Georgia, "Times New Roman", serif; margin: 0 0 15px; }
+.river-empty-story p { max-width: 255px; font-size: 12px; line-height: 1.8; color: #5f756a; margin: 0; }
+.river-time-section { border: 1px solid #d7e0d5; border-radius: 15px; background: #f7f8ef; padding: 27px 30px 23px; margin-top: 18px; }
+.river-time-heading { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 23px; }
+.river-time-heading .river-kicker { color: #698371; font-size: 9px; }
+.river-time-heading h3 { font: 400 25px/1.25 Georgia, "Times New Roman", serif; letter-spacing: -.02em; margin: 8px 0; overflow-wrap: anywhere; }
+.river-time-heading > div > p:last-child { color: #61766a; font-size: 12px; line-height: 1.6; margin: 0; }
+.river-time-controls { display: flex; gap: 7px; flex-shrink: 0; }
+.river-time-controls > button { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid #c6d5c6; border-radius: 50%; color: #34584c; background: transparent; cursor: pointer; transition: background .2s; }
+.river-time-controls > button:hover:not(:disabled) { background: #e4eddd; }
+.river-time-controls > button:disabled { opacity: .4; cursor: default; }
+.river-time-track { display: flex; gap: 17px; overflow-x: auto; padding: 10px 3px 12px; scrollbar-width: thin; scrollbar-color: #a5bda4 #f7f8ef; scroll-snap-type: x proximity; }
+.river-time-track > button { position: relative; display: flex; flex-direction: column; gap: 9px; flex: 0 0 235px; min-width: 0; min-height: 130px; padding: 19px 17px 15px; border: 1px solid #d3decf; border-radius: 10px; background: #fffdf8; color: #35564a; text-align: left; cursor: pointer; scroll-snap-align: start; transition: background .2s, border-color .2s; }
+.river-time-track > button:hover { border-color: #84a689; background: #edf3e6; }
+.river-time-track > button.river-time-selected { border-color: #6f9976; background: #e9efdf; box-shadow: 0 0 0 1px #6f997633; }
+.river-time-dot { position: absolute; top: -6px; left: 18px; width: 10px; height: 10px; border: 2px solid #f7f8ef; border-radius: 50%; background: #8faa8b; }
+.river-time-selected .river-time-dot { background: #28553f; box-shadow: 0 0 0 3px #28553f14; }
+.river-time-track small { font-size: 12px; color: #64796a; }
+.river-time-track strong { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; font: 400 15px/1.5 Georgia, "Times New Roman", serif; overflow-wrap: anywhere; }
+.river-time-track > button > span:last-child { margin-top: auto; font-size: 12px; color: #526b5c; line-height: 1.6; }
+.river-observatory button:focus-visible, .river-observatory summary:focus-visible, .river-tab-content:focus-visible { outline: 3px solid #aeb975; outline-offset: 4px; }
+.river-observatory button { font-family: inherit; }
+.river-paused .river-flow-line { animation-play-state: paused; }
+@keyframes river-flow { to { stroke-dashoffset: -348; } }
+@media (min-width: 1550px) { .river-stations { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 1150px) {
+  .river-layout { grid-template-columns: minmax(0, 1.15fr) minmax(330px, .85fr); }
+  .river-stage-heading, .river-stations { padding-left: 24px; padding-right: 24px; }
+  .river-stage-footer { padding-left: 24px; padding-right: 24px; }
+  .river-stage-heading h2 { font-size: 37px; }
+  .river-story-heading, .river-tab-content { padding-left: 23px; padding-right: 23px; }
+  .river-tabs-list { padding-left: 23px; padding-right: 23px; }
+  .river-story-actions { padding-left: 23px; padding-right: 23px; }
+  .river-story-actions > button { flex-basis: 100%; }
+}
+@media (max-width: 850px) {
+  .river-layout { grid-template-columns: minmax(0, 1fr); }
+  .river-stage-heading { padding: 30px 30px 18px; }
+  .river-stage-heading h2 { font-size: 43px; }
+  .river-stations { grid-template-columns: repeat(3, minmax(0, 1fr)); min-height: 210px; padding: 24px 30px 32px; }
+  .river-stage-footer { padding: 21px 30px; }
+  .river-story-heading { padding: 26px 30px 20px; }
+  .river-tabs-list { padding-left: 30px; padding-right: 30px; }
+  .river-tab-content { padding: 25px 30px; max-height: none; }
+  .river-story-actions { padding: 20px 30px 26px; }
+  .river-story-actions > button { flex-basis: 0; }
+  .river-media-frame > img, .river-media-frame > video { height: 310px; }
+  .river-ribbon { min-height: 0; }
+}
+@media (max-width: 600px) {
+  .river-layout { border-radius: 15px; }
+  .river-stage-heading { padding: 25px 21px 10px; gap: 10px; }
+  .river-stage-heading h2 { font-size: clamp(33px, 8.5vw, 42px); margin-top: 15px; }
+  .river-stage-heading > div > p:last-child { font-size: 12px; }
+  .river-stations { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 23px 20px 28px; gap: 11px; }
+  .river-station { padding: 15px 13px 12px; gap: 9px; }
+  .river-station > strong { font-size: 20px; }
+  .river-station-bottom { font-size: 12px; gap: 5px; }
+  .river-stage-footer { padding: 20px; }
+  .river-local-counts { gap: 13px 19px; }
+  .river-local-counts > span { font-size: 12px; gap: 6px; }
+  .river-local-counts b { font-size: 25px; }
+  .river-story-heading { padding: 25px 21px 18px; }
+  .river-story-heading h3 { font-size: 28px; }
+  .river-tabs-list { padding-left: 21px; padding-right: 21px; gap: 24px; }
+  .river-tab-content { padding: 23px 21px; }
+  .river-tab-content blockquote { font-size: 18px; }
+  .river-story-actions { padding: 19px 21px 23px; gap: 8px; }
+  .river-action-primary, .river-action-secondary { padding-left: 10px; padding-right: 10px; font-size: 14px; }
+  .river-media-frame > img, .river-media-frame > video { height: 250px; }
+  .river-time-section { padding: 24px 20px 20px; border-radius: 13px; }
+  .river-time-heading { align-items: flex-start; }
+  .river-time-heading h3 { font-size: 23px; }
+  .river-time-heading > div > p:last-child { font-size: 12px; }
+  .river-time-controls { flex-direction: column; }
+  .river-time-controls > button { width: 44px; height: 44px; }
+  .river-time-track { gap: 12px; }
+  .river-time-track > button { flex-basis: 225px; }
+}
+@media (max-width: 350px) {
+  .river-stations { grid-template-columns: minmax(0, 1fr); }
+  .river-story-actions > button { flex-basis: 100%; }
+  .river-tabs-list { gap: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .river-flow-line { animation: none; }
+  .river-observatory button, .river-completeness-track > i { transition: none; }
+  .river-station:hover { transform: none; }
+  .river-time-track { scroll-behavior: auto; }
+}

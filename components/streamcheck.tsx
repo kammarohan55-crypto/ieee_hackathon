@@ -33,7 +33,6 @@ import {
   Sparkles,
   Waves,
   Wind,
-  X,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -69,6 +68,7 @@ import {
   type Report,
 } from "@/lib/assessment";
 import { sampleReports, scenarios } from "@/lib/fixtures";
+import { EvidenceLab } from "./evidence-lab";
 import {
   FieldStudio,
   FieldDetails,
@@ -240,6 +240,8 @@ export default function StreamCheck() {
   const [field, setField] = useState<FieldEvidence>(newField);
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [captureBusy, setCaptureBusy] = useState(false);
+  const draftEpoch = useRef(0);
+  const [draftRevision, setDraftRevision] = useState(0);
   const [online, setOnline] = useState(true);
   const [tab, setTab] = useState("overview"),
     [records, setRecords] = useState<Report[]>(sampleReports),
@@ -258,17 +260,15 @@ export default function StreamCheck() {
     [busy, setBusy] = useState(false),
     [formError, setFormError] = useState("");
   const [aiReady, setAIReady] = useState(false),
-    [useAI, setUseAI] = useState(false),
-    [labIndex, setLabIndex] = useState(0),
-    [labNote, setLabNote] = useState(scenarios[0].input.note),
-    [labResult, setLabResult] = useState<Assessment | null>(null),
-    [evaluation, setEvaluation] = useState<{
-      passed: number;
-      total: number;
-      generatedAt: string;
-    } | null>(null);
+    [useAI, setUseAI] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null),
     stateRef = useRef({ records, tab });
+  const updateField = useCallback((next: FieldEvidence) => {
+    if (draftEpoch.current === draftRevision) setField(next);
+  }, [draftRevision]);
+  const updateCaptureBusy = useCallback((next: boolean) => {
+    if (draftEpoch.current === draftRevision) setCaptureBusy(next);
+  }, [draftRevision]);
   useEffect(() => { stateRef.current = { records, tab }; }, [records, tab]);
   useEffect(() => {
     const connected = () => setOnline(navigator.onLine);
@@ -318,26 +318,6 @@ export default function StreamCheck() {
           !!d && typeof d === "object" && "liveAI" in d && d.liveAI === true,
         ),
       )
-      .catch(() => {});
-    fetch("/evaluation.json")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (
-          d &&
-          typeof d === "object" &&
-          "passed" in d &&
-          "total" in d &&
-          "generatedAt" in d &&
-          typeof d.passed === "number" &&
-          typeof d.total === "number" &&
-          typeof d.generatedAt === "string"
-        )
-          setEvaluation({
-            passed: d.passed,
-            total: d.total,
-            generatedAt: d.generatedAt,
-          });
-      })
       .catch(() => {});
     const sync = (e: StorageEvent) => {
       if (e.key !== KEY || !e.newValue) return;
@@ -440,6 +420,10 @@ export default function StreamCheck() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const reset = () => {
+    draftEpoch.current += 1;
+    setDraftRevision(draftEpoch.current);
+    setBusy(false);
+    setCaptureBusy(false);
     setField(newField());
     setDraft(empty);
     setWhen(localTime());
@@ -451,6 +435,10 @@ export default function StreamCheck() {
     go("observe");
   };
   const loadScenario = (index: number) => {
+    draftEpoch.current += 1;
+    setDraftRevision(draftEpoch.current);
+    setBusy(false);
+    setCaptureBusy(false);
     setField(newField());
     setDraft({ ...scenarios[index].input });
     setWhen(localTime(new Date(scenarios[index].input.observedAt)));
@@ -466,6 +454,8 @@ export default function StreamCheck() {
     });
   };
   async function analyze() {
+    if (busy) return;
+    const epoch = draftEpoch.current;
     if (captureBusy) { setFormError("Wait for the image operation to finish before continuing."); return; }
     setFormError("");
     let observedAt = "";
@@ -504,12 +494,14 @@ export default function StreamCheck() {
         if (!r.ok) throw new Error();
         result = await r.json();
       } else result = assess(input);
+      if (epoch !== draftEpoch.current) return;
       setSnapshot(structuredClone(input));
       setAssessment(result);
       setStage(result.issues.length ? 1 : 2);
       setConfirm(false);
       setAnswer("");
     } catch {
+      if (epoch !== draftEpoch.current) return;
       const result = assess(input);
       setSnapshot(structuredClone(input));
       setAssessment({
@@ -518,8 +510,10 @@ export default function StreamCheck() {
       });
       setStage(result.issues.length ? 1 : 2);
     } finally {
-      setBusy(false);
-      sectionRef.current?.focus();
+      if (epoch === draftEpoch.current) {
+        setBusy(false);
+        sectionRef.current?.focus();
+      }
     }
   }
   function decision(value: Issue["decision"]) {
@@ -579,10 +573,10 @@ export default function StreamCheck() {
       toast.error((e as Error).message);
     }
   }
-  function openReport(id: string) {
+  const openReport = useCallback((id: string) => {
     setSelectedId(id);
     setReviewNote("");
-  }
+  }, []);
   const list =
     filter === "all" ? records : records.filter((r) => r.status === filter);
   return (
@@ -636,7 +630,7 @@ export default function StreamCheck() {
               <FlaskConical size={16} /> Evidence lab
             </TabsTrigger>
             <TabsTrigger value="atlas">
-              <MapPin size={16} /> Stream atlas
+              <Waves size={16} /> River observatory
             </TabsTrigger>
           </TabsList>
           <span className="track-label">
@@ -699,7 +693,7 @@ export default function StreamCheck() {
                 </button>
                 <button className="hero-workflow-row" onClick={() => go("atlas")}>
                   <span className="workflow-index">03</span>
-                  <span><strong>Connect</strong><small>Explore the map and evidence timeline</small></span>
+                  <span><strong>Connect</strong><small>Explore streams and their evidence stories</small></span>
                   <ArrowUpRight size={17} />
                 </button>
                 <div className="hero-workflow-footer"><span>{records.length} local records</span><span>{awaiting} awaiting review</span></div>
@@ -870,11 +864,12 @@ export default function StreamCheck() {
             />
             {stage === 0 && (
               <FieldStudio
+                key={draftRevision}
                 value={field}
-                onChange={setField}
+                onChange={updateField}
                 aiReady={aiReady && online}
-                onBusy={setCaptureBusy}
-                onSynthetic={() => setDraft((d) => ({ ...d, synthetic: true }))}
+                onBusy={updateCaptureBusy}
+                onSynthetic={() => { if (draftEpoch.current === draftRevision) setDraft((d) => ({ ...d, synthetic: true })); }}
               />
             )}
             <div className="stepper" aria-label="Observation progress">
@@ -961,8 +956,9 @@ export default function StreamCheck() {
                       </span>
                     </label>
                     <VoiceNote
+                      key={draftRevision}
                       onAdopt={(text) =>
-                        setDraft((d) => ({
+                        draftEpoch.current === draftRevision && setDraft((d) => ({
                           ...d,
                           note: `${d.note}${d.note ? "\n" : ""}${text}`.slice(
                             0,
@@ -971,7 +967,7 @@ export default function StreamCheck() {
                         }))
                       }
                     />
-                    <FieldDetails value={field} onChange={setField} />
+                    <FieldDetails key={draftRevision} value={field} onChange={updateField} />
                     {field.followupOf && <p className="micro-copy">Follow-up to record {field.followupOf}. Record a fresh observation; previous readings and coordinates have not been copied.</p>}
                     <div className="form-grid">
                       <div className="field">
@@ -1378,221 +1374,12 @@ export default function StreamCheck() {
           </TabsContent>
 
           <TabsContent value="lab" className="view-enter">
-            <Heading
-              eyebrow="THE EVIDENCE LAB"
-              title="Don’t take our word for it."
-              description="Change the note. Run the checks. Inspect exactly what the system does."
-              action={
-                <Tag tone="green">
-                  <FlaskConical size={14} /> Interactive rules sandbox
-                </Tag>
-              }
-            />
-            <div className="lab-grid">
-              <section className="panel lab-input">
-                <p className="eyebrow">01 / CHANGE THE EVIDENCE</p>
-                <h2>Put an observation to the test.</h2>
-                <label id="scenario-label">Choose a synthetic scenario</label>
-                <Select
-                  value={String(labIndex)}
-                  onValueChange={(v) => {
-                    const i = Number(v);
-                    setLabIndex(i);
-                    setLabNote(scenarios[i].input.note);
-                    setLabResult(null);
-                  }}
-                >
-                  <SelectTrigger
-                    aria-labelledby="scenario-label"
-                    className="field-select"
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {scenarios.map((s, i) => (
-                      <SelectItem key={s.title} value={String(i)}>
-                        {s.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <label>
-                  Experiment with the note
-                  <textarea
-                    rows={6}
-                    value={labNote}
-                    maxLength={4000}
-                    onChange={(e) => {
-                      setLabNote(e.target.value);
-                      setLabResult(null);
-                    }}
-                  />
-                </label>
-                <div className="lab-context">
-                  <span>
-                    Appearance: {scenarios[labIndex].input.appearance}
-                  </span>
-                  <span>Synthetic fixture</span>
-                </div>
-                <button
-                  className="btn primary full"
-                  onClick={() =>
-                    setLabResult(
-                      assess({ ...scenarios[labIndex].input, note: labNote }),
-                    )
-                  }
-                >
-                  <FlaskConical size={18} /> Run transparent checks{" "}
-                  <ArrowRight size={17} />
-                </button>
-                <p className="micro-copy">
-                  Runs locally using English-language rules. This sandbox makes
-                  no AI accuracy claim.
-                </p>
-              </section>
-              <section className="panel lab-output">
-                <p className="eyebrow">02 / INSPECT THE REASONING</p>
-                <h2>
-                  {labResult
-                    ? `${labResult.issues.length} question${labResult.issues.length === 1 ? "" : "s"} surfaced`
-                    : "Every flag needs a reason."}
-                </h2>
-                {labResult ? (
-                  <>
-                    <div className="lab-result-summary">
-                      <span>
-                        <Check size={16} /> Original note unchanged
-                      </span>
-                      <span>
-                        <Check size={16} /> No generated factual additions
-                      </span>
-                    </div>
-                    {labResult.issues.length ? (
-                      labResult.issues.map((i) => (
-                        <div className="lab-issue" key={i.id}>
-                          <Tag tone="amber">{i.code.replaceAll("_", " ")}</Tag>
-                          <h3>{i.title}</h3>
-                          <p>{i.detail}</p>
-                          <blockquote>{i.quote || "Missing field"}</blockquote>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="lab-no-issues">
-                        <ShieldCheck size={36} />
-                        <h3>No issue matched these rules.</h3>
-                        <p>
-                          This is not a guarantee of completeness, correctness,
-                          or safety.
-                        </p>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="lab-placeholder">
-                    <GitBranch size={48} />
-                    <p>
-                      Your note → a transparent rule → a focused question.
-                      <br />
-                      No hidden environmental score.
-                    </p>
-                  </div>
-                )}
-              </section>
-            </div>
-            <div className="method-grid">
-              <section className="panel">
-                <p className="eyebrow">MEASURABLE, NOT MAGICAL</p>
-                <h3>Engineering checks</h3>
-                <div className="test-stat">
-                  <strong>
-                    {evaluation
-                      ? `${evaluation.passed}/${evaluation.total}`
-                      : "—"}
-                  </strong>
-                  <span>
-                    {evaluation
-                      ? "automated assertions passed"
-                      : "Results appear after the test run"}
-                  </span>
-                </div>
-                <p>
-                  Development fixtures check evidence retention, date
-                  validation, uncertainty, decisions, and export. They are not
-                  independent ecological validation.
-                </p>
-                <a
-                  className="plain-btn"
-                  href="/evaluation.json"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Inspect test report <ArrowUpRight size={15} />
-                </a>
-              </section>
-              <section className="panel">
-                <p className="eyebrow">GROUNDED IN GUIDANCE</p>
-                <h3>Know where the method comes from.</h3>
-                <ul className="reference-list">
-                  <li>
-                    <a
-                      href="https://archive.epa.gov/water/archive/web/html/vms32.html"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      EPA · Visual assessment <ArrowUpRight size={14} />
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://archive.epa.gov/water/archive/web/html/vms41.html"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      EPA · Stream habitat walk <ArrowUpRight size={14} />
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://www.usgs.gov/water-science-school/science/water-color"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      USGS · Water color <ArrowUpRight size={14} />
-                    </a>
-                  </li>
-                </ul>
-                <p>
-                  Prototype categories adapted from guidance. Not official
-                  OneAquaHealth fields or scientifically validated rules.
-                </p>
-              </section>
-              <section className="panel">
-                <p className="eyebrow">HONEST BY DESIGN</p>
-                <h3>What this prototype does.</h3>
-                <ul className="honesty-list">
-                  <li>
-                    <Check /> Preserves reported observations
-                  </li>
-                  <li>
-                    <Check /> Makes uncertainty inspectable
-                  </li>
-                  <li>
-                    <Check /> Requires human decisions
-                  </li>
-                  <li>
-                    <X /> Does not diagnose water safety
-                  </li>
-                  <li>
-                    <X /> Does not identify pollutants
-                  </li>
-                </ul>
-              </section>
-            </div>
+            <EvidenceLab records={records} onOpen={openReport} />
           </TabsContent>
           <TabsContent value="atlas" className="view-enter">
             <StreamAtlas
               reports={records}
-              onOpen={setSelectedId}
+              onOpen={openReport}
               onMission={(source) => {
                 reset();
                 const followup = createFollowupDraft(source);
