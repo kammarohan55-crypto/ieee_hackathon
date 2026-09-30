@@ -1,0 +1,86 @@
+{
+  "suite": "AquaLens route contracts",
+  "generatedAt": "2026-09-29T10:29:17.642Z",
+  "liveAI": false,
+  "providerTests": "Mocked fetch and Worker environment; actual route code. No live service or ecological validation.",
+  "passed": 19,
+  "total": 19,
+  "results": [
+    {
+      "name": "Configuration exposes capability, never the key",
+      "passed": true
+    },
+    {
+      "name": "Text opt-out remains local and does not call the provider",
+      "passed": true
+    },
+    {
+      "name": "Text missing-key fallback is explicit and uncached",
+      "passed": true
+    },
+    {
+      "name": "Both AI routes reject cross-origin requests before provider access",
+      "passed": true
+    },
+    {
+      "name": "Malformed and oversized text requests fail cleanly",
+      "passed": true
+    },
+    {
+      "name": "Visual requests require explicit consent and valid input shape",
+      "passed": true
+    },
+    {
+      "name": "Visual route rejects oversized bodies even without length headers",
+      "passed": true
+    },
+    {
+      "name": "Visual missing configuration never fabricates findings",
+      "passed": true
+    },
+    {
+      "name": "Visual provider request excludes unrelated citizen data and uses a header key",
+      "passed": true
+    },
+    {
+      "name": "Visual results deduplicate candidates and allow abstention",
+      "passed": true
+    },
+    {
+      "name": "Provider free-form diagnosis is rejected",
+      "passed": true
+    },
+    {
+      "name": "Invalid visual vocabulary and confidence are rejected",
+      "passed": true
+    },
+    {
+      "name": "Truncated and safety-stopped visual completions cannot become evidence",
+      "passed": true
+    },
+    {
+      "name": "Thought output is excluded from visual parsing",
+      "passed": true
+    },
+    {
+      "name": "Provider errors and timeouts disclose no internal text or key",
+      "passed": true
+    },
+    {
+      "name": "Visual per-client throttle prevents a fifth provider request",
+      "passed": true
+    },
+    {
+      "name": "Text per-client throttle preserves honest local fallback",
+      "passed": true
+    },
+    {
+      "name": "Weather rejects unknown units instead of relabeling values",
+      "passed": true
+    },
+    {
+      "name": "Weather retains source time, interval and provenance, then uses its cache",
+      "passed": true
+    }
+  ]
+}

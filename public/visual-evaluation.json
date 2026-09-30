@@ -1,0 +1,17 @@
+{
+  "suite": "Visual API integration smoke test",
+  "generatedAt": "2026-09-29T03:07:23.261Z",
+  "synthetic": true,
+  "fixture": "AI-generated illustrative river image; not field evidence",
+  "status": 503,
+  "passed": false,
+  "latencyMs": 4477,
+  "result": {
+    "error": "Gemini is unavailable or rate-limited. No visual findings were generated. Try later or continue with your own observations."
+  },
+  "limitations": [
+    "Verifies live integration and accepted schema only, not visual accuracy.",
+    "No expert ground truth or field photo validation.",
+    "Model confidence is uncalibrated."
+  ]
+}

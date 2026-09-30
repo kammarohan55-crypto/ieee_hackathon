@@ -1,0 +1,256 @@
+{
+  "suite": "AquaLens development fixtures and domain invariants",
+  "fixtureVersion": "1.0",
+  "generatedAt": "2026-09-29T10:29:17.141Z",
+  "passed": 60,
+  "total": 60,
+  "liveAI": false,
+  "providerTests": "Mocked HTTP responses; no API call or ecological validation",
+  "limitations": [
+    "Visible authored development fixtures, not held-out data.",
+    "Rules have limited English-language coverage.",
+    "Exact quote validation does not establish semantic correctness."
+  ],
+  "results": [
+    {
+      "name": "SC01: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "SC02: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "SC03: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "SC04: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "SC05: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "SC06: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "SC07: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "SC08: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "SC09: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "SC10: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "SC11: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "SC12: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "SC13: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "SC14: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "SC15: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "SC16: expected issue classes",
+      "passed": true
+    },
+    {
+      "name": "Missing location and time are independently identified",
+      "passed": true
+    },
+    {
+      "name": "Impossible calendar dates are rejected",
+      "passed": true
+    },
+    {
+      "name": "Ambiguous timezone-free and future timestamps are rejected",
+      "passed": true
+    },
+    {
+      "name": "Unacknowledged clarification cannot be submitted",
+      "passed": true
+    },
+    {
+      "name": "Empty clarification is rejected",
+      "passed": true
+    },
+    {
+      "name": "Unknown issue cannot mutate an assessment",
+      "passed": true
+    },
+    {
+      "name": "Clarification preserves the exact original evidence",
+      "passed": true
+    },
+    {
+      "name": "Report owns independent copies of the source",
+      "passed": true
+    },
+    {
+      "name": "Unknown stays unknown after explicit acknowledgement",
+      "passed": true
+    },
+    {
+      "name": "Review requires a nonempty explanation",
+      "passed": true
+    },
+    {
+      "name": "Repeated review actions retain the complete trail",
+      "passed": true
+    },
+    {
+      "name": "JSON export round-trips without losing evidence or uncertainty",
+      "passed": true
+    },
+    {
+      "name": "Malformed stored records are rejected",
+      "passed": true
+    },
+    {
+      "name": "AI factual additions outside the allowed schema are rejected",
+      "passed": true
+    },
+    {
+      "name": "AI quotes that do not occur in the note are rejected",
+      "passed": true
+    },
+    {
+      "name": "AI cannot remove deterministic flags",
+      "passed": true
+    },
+    {
+      "name": "AI duplicate codes are collapsed",
+      "passed": true
+    },
+    {
+      "name": "Gemini happy path validates output and sends no location or timestamp",
+      "passed": true
+    },
+    {
+      "name": "Rate limits fall back to honestly labeled local rules",
+      "passed": true
+    },
+    {
+      "name": "Timeouts leave original evidence unchanged",
+      "passed": true
+    },
+    {
+      "name": "Provider refusals never become assessment facts",
+      "passed": true
+    },
+    {
+      "name": "Invalid provider JSON falls back without leaking provider text",
+      "passed": true
+    },
+    {
+      "name": "Instruction-like notes never reach the AI provider",
+      "passed": true
+    },
+    {
+      "name": "Legacy reports remain readable without field evidence",
+      "passed": true
+    },
+    {
+      "name": "Coordinates reject non-finite/out-of-range values",
+      "passed": true
+    },
+    {
+      "name": "Visual output rejects invented diagnoses and free text",
+      "passed": true
+    },
+    {
+      "name": "Visual confidence cannot be a fabricated probability",
+      "passed": true
+    },
+    {
+      "name": "Visual output permits abstention",
+      "passed": true
+    },
+    {
+      "name": "Measurement validation preserves implausible input and flags it",
+      "passed": true
+    },
+    {
+      "name": "Measurement wrong units, missing instrument, calibration produce separate warnings",
+      "passed": true
+    },
+    {
+      "name": "Visual/citizen color contradiction creates a non-diagnostic question",
+      "passed": true
+    },
+    {
+      "name": "Unknown appearance does not create a false contradiction",
+      "passed": true
+    },
+    {
+      "name": "Completeness score is bounded and transparent",
+      "passed": true
+    },
+    {
+      "name": "Missing optional media cannot receive image completeness credit",
+      "passed": true
+    },
+    {
+      "name": "Field evidence survives legacy report schema roundtrip",
+      "passed": true
+    },
+    {
+      "name": "Human disagreement retains original AI finding",
+      "passed": true
+    },
+    {
+      "name": "GeoJSON uses longitude latitude order and omits unlocated records",
+      "passed": true
+    },
+    {
+      "name": "CSV neutralizes spreadsheet formula injection",
+      "passed": true
+    },
+    {
+      "name": "Receipt contains explicit reuse and verification limitations",
+      "passed": true
+    },
+    {
+      "name": "Review cannot bypass pending visual human judgments",
+      "passed": true
+    },
+    {
+      "name": "Human visual judgment validates its candidate and reason",
+      "passed": true
+    },
+    {
+      "name": "Revised visual judgment reopens review and preserves all evidence",
+      "passed": true
+    },
+    {
+      "name": "Judgment history cannot exceed the persistence schema limit",
+      "passed": true
+    },
+    {
+      "name": "Follow-up missions retain provenance and synthetic status without copying measurements",
+      "passed": true
+    }
+  ]
+}

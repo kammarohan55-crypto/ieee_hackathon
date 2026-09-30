@@ -1,0 +1,67 @@
+{
+  "suite": "Live Gemini integration smoke test",
+  "generatedAt": "2026-09-28T11:41:56.251Z",
+  "model": "gemini-3.8-flash",
+  "synthetic": true,
+  "passed": 1,
+  "total": 3,
+  "limitations": [
+    "Three authored development scenarios, not a held-out benchmark.",
+    "Labels not validated by an ecologist.",
+    "This does not establish general accuracy or environmental safety."
+  ],
+  "results": [
+    {
+      "id": "live-cause",
+      "note": "The water is brown, so it must be sewage.",
+      "expected": [
+        "unsupported_conclusion"
+      ],
+      "actual": [
+        "unsupported_conclusion"
+      ],
+      "passed": false,
+      "mode": "rules",
+      "latencyMs": 9715,
+      "issues": [
+        {
+          "id": "rules-unsupported_conclusion-note",
+          "code": "unsupported_conclusion",
+          "field": "note",
+          "quote": "The water is brown, so it must be sewage.",
+          "title": "Separate appearance from a conclusion",
+          "detail": "Appearance alone cannot establish a cause, contamination, or water safety. Your original statement remains visible as an unverified claim.",
+          "question": "What did you directly observe that led to this conclusion? It is fine to say the cause or safety is unknown.",
+          "source": "rules",
+          "decision": "pending"
+        }
+      ],
+      "notice": "Gemini was unavailable, rate-limited, or its response failed validation. Local rules were used. Your original evidence is unchanged."
+    },
+    {
+      "id": "live-semantic",
+      "note": "The water's sparkle tells me children can drink it without worrying.",
+      "expected": [
+        "unsupported_conclusion"
+      ],
+      "actual": [],
+      "passed": false,
+      "mode": "rules",
+      "latencyMs": 18084,
+      "issues": [],
+      "notice": "Gemini was unavailable, rate-limited, or its response failed validation. Local rules were used. Your original evidence is unchanged."
+    },
+    {
+      "id": "live-unknown",
+      "note": "I could not see the water clearly from the path, so I do not know its appearance.",
+      "expected": [],
+      "actual": [],
+      "passed": true,
+      "mode": "ai",
+      "model": "gemini-3.8-flash",
+      "latencyMs": 5436,
+      "issues": [],
+      "notice": "Local rules + live Gemini suggestions. Human confirmation is required."
+    }
+  ]
+}
