@@ -42,7 +42,7 @@ User must check new UI, keyboard/mobile, camera/video/voice, ghost alignment, su
 The previously requested dev process was last started as PID13456; this pass did not start/restart/visit it. No current server-health claim. Logs/PID in ignored .sites-runtime.
 
 ## Repository / hosting
-Origin: https://github.com/kammarohan55-crypto/ieee_hackathon.git, branch main. GitHub public visibility verified Sept30; user explicitly authorized this destination. Earlier published docs commit64d3b7e. Current map/lab delivery is prepared for this existing source repository after passing release checks; inspect git status/log/remote for exact publication state.
+Origin: https://github.com/kammarohan55-crypto/ieee_hackathon.git, branch main. GitHub public visibility verified Sept30; user explicitly authorized this destination. Map/lab/observatory implementation commit14c5532 was pushed to origin/main after passing release checks. A documentation follow-up may advance main; inspect git status/log/remote for the exact HEAD. No Sites publication occurred.
 On this Windows host use per-command trust only: git -c safe.directory='C:/Users/Rohan/OneDrive/Desktop/ieee hackathon/streamcheck' … . Do not change global Git trust. Secret/runtime/dependencies/build/outputs ignored. Local ZIP may be refreshed from git archive after commit.
 Existing owner-private Sites project appgprj_6ab966e17e388191a45bd547269c9f45 in .openai/hosting.json, no live URL/deployment confirmed. Earlier automatic approval review rejected Sites source-export/publishing helper: destination not authorized. Do not bypass/retry without explicit Sites destination approval. GitHub authorization does not authorize Sites. No hosting change in this pass.
 

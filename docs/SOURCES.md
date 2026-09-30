@@ -2,7 +2,7 @@
 
 ## GitHub source delivery — checked 2026-09-30
 
-User-authorized repository: https://github.com/kammarohan55-crypto/ieee_hackathon. The initial full-source commit `cd8a89a6c7abc70c95cd57bac2ad0d9548ad445c` was pushed to `main`; Git `ls-remote` returned the same SHA as local HEAD. GitHub's read-only API https://api.github.com/repos/kammarohan55-crypto/ieee_hackathon returned `private: false` and `default_branch: main`. This verifies source availability/visibility at that time, not app deployment, scientific validation or competition submission. Later documentation commits may advance main.
+User-authorized repository: https://github.com/kammarohan55-crypto/ieee_hackathon. The initial full-source commit `cd8a89a6c7abc70c95cd57bac2ad0d9548ad445c` was pushed to `main`; Git `ls-remote` returned the same SHA as local HEAD. GitHub's read-only API https://api.github.com/repos/kammarohan55-crypto/ieee_hackathon returned `private: false` and `default_branch: main`. This verifies source availability/visibility at that time, not app deployment, scientific validation or competition submission. Sept30 map/lab/observatory implementation commit14c5532 was subsequently pushed to the same main branch after source/build verification (86/86 authored domain checks); later documentation commits may advance main. No app deployment is implied.
 
 Checked: 2026-09-28. Prefer direct organizer statements to stale search snippets. Recheck time-sensitive facts before submission.
 
