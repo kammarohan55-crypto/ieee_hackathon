@@ -1,6 +1,6 @@
 # AquaLens — current project handoff
 
-Updated 2026-10-01. Repository: https://github.com/kammarohan55-crypto/ieee_hackathon. Current branch: `improve/real-evidence-workspace`, based on `d1fbcff`. Read Git for the exact final commit.
+Updated 2026-10-01. Repository: https://github.com/kammarohan55-crypto/ieee_hackathon. Current branch: `main`. Tested release: `7003eaa8d66520e95c941931734eee0db9b9d5ec`; tested tree: `c3ebf3afa142a2d11eee075175dde2b29d9283d8`. Read Git for the exact final commit.
 
 ## User goal and instructions
 
@@ -44,11 +44,11 @@ Important additions: `lib/workspace.ts`, `components/collection-tools.tsx`, `com
 
 ## Repository delivery / hosting
 
-Earlier improvements are committed locally as `6db1530`; the October 1 reference-photo continuation is staged for the final source delivery. `origin/main` was verified at `d1fbcff2a329360d489b3c3c0a2deb1d39b44bb9` before delivery. The previous CLI credential blocker is resolved by the now-connected GitHub app, which reports push permission. Final update and read-back verification are the next step; do not mistake the old September 30 ZIP/patch under ignored `outputs/` for this latest source set. Existing owner-private Sites project `appgprj_6ab966e17e388191a45bd547269c9f45` is untouched. Earlier context recorded an automatic approval rejection for Sites export/publishing, with no authorized Sites destination; do not retry or bypass it. No judge-access deployment is verified.
+**Delivered to GitHub main:** `7003eaa8d66520e95c941931734eee0db9b9d5ec`, through the authenticated GitHub app, using a non-forced update from `d1fbcff2a329360d489b3c3c0a2deb1d39b44bb9`. All 45 changed paths (earlier improvements plus the photo continuation) are included. A fresh CLI fetch confirmed the remote SHA and tree `c3ebf3afa142a2d11eee075175dde2b29d9283d8`; `git diff HEAD origin/main` was empty before moving this checkout to main. The former credential blocker is resolved. Local implementation checkpoints `6db1530` and `b1a1ced` remain on `improve/real-evidence-workspace`; they were consolidated into the remote release without changing tested file contents. This handoff update follows that verified release and changes documentation only. Source ZIP/patch under ignored `outputs/` are regenerated from the delivered source. Existing owner-private Sites project `appgprj_6ab966e17e388191a45bd547269c9f45` is untouched. Earlier context recorded an automatic approval rejection for Sites export/publishing, with no authorized Sites destination; do not retry or bypass it. No judge-access deployment is verified.
 
 ## Exact next steps
 
-1. Finish the authorized GitHub push and verify remote tree/commit against this tested source. No additional push permission is needed.
+1. GitHub source delivery is complete and verified. Do not redo the improvements or request push approval again. Read Git for the later documentation-only commit SHA.
 2. User can run the bundled historical-photo demo immediately: Field kit → Review this photo → original note → checks → confirmation → Review desk → receipt → field pack. No user photos or video are needed for this path. Perform the browser steps in `docs/DEMO_GUIDE.md`; this session did not run a server or browser.
 3. For firsthand field evidence, optionally collect the three original views in `docs/MEDIA_CHECKLIST.md` with actual visit details. Do not relabel public photos as a new visit.
 4. Configure an own server-side Gemini key in ignored `.dev.vars` if demonstrating live AI. Never print or commit it. No live visual success is verified in this checkout.
