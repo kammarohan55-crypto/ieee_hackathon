@@ -7,7 +7,7 @@ import ts from "typescript";
 // Compile the real domain code, with no browser or provider involved.
 const dir = path.resolve(".sites-runtime/domain-tests");
 await mkdir(dir, { recursive: true });
-for (const name of ["field", "assessment", "gemini", "atlas", "river-observatory", "evidence-trail", "evidence-lab", "geographic"]) {
+for (const name of ["references", "field", "assessment", "gemini", "atlas", "river-observatory", "evidence-trail", "evidence-lab", "geographic", "workspace"]) {
   const source = await readFile(`lib/${name}.ts`, "utf8");
   const output = ts
     .transpileModule(source, {
@@ -18,7 +18,8 @@ for (const name of ["field", "assessment", "gemini", "atlas", "river-observatory
     })
     .outputText.replace('from "./assessment"', 'from "./assessment.mjs"')
     .replace('from "./field"', 'from "./field.mjs"')
-    .replace('from "./atlas"', 'from "./atlas.mjs"');
+    .replace('from "./atlas"', 'from "./atlas.mjs"')
+    .replace('from "./references"', 'from "./references.mjs"');
   await writeFile(path.join(dir, `${name}.mjs`), output);
 }
 const {

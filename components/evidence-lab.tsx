@@ -8,19 +8,15 @@ import {
   RefreshCw, Scale, ShieldCheck, Sparkles,
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { assess, appearanceValues, type Assessment, type Issue, type Report } from "@/lib/assessment";
-import { scenarios } from "@/lib/fixtures";
+import { type Assessment, type Issue, type Report } from "@/lib/assessment";
 import { findingLabels, measurementWarnings, observationQuality, type MediaEvidence } from "@/lib/field";
 import { isSyntheticRecord } from "@/lib/atlas";
 import { issueSourceSpan, labRecordSummary, replayReportRules } from "@/lib/evidence-lab";
+import { ReferenceCredit } from "./reference-gallery";
+import { displayEvidenceTime } from "@/lib/references";
 import { EvidenceImage } from "./field-studio";
 
-function timeLabel(value: string) {
-  const time = Date.parse(value);
-  return Number.isFinite(time)
-    ? new Date(time).toLocaleString("en-GB", { timeZone: "UTC", dateStyle: "medium", timeStyle: "short" }) + " UTC"
-    : "Time not available";
-}
+const timeLabel = displayEvidenceTime;
 
 const statusLabels: Record<Report["status"], string> = {
   awaiting_review: "Awaiting human review",
@@ -79,7 +75,7 @@ function MediaInspector({ report }: { report: Report }) {
       <div className="el-detail-heading"><h3><Camera size={18} /> Retained evidence</h3><span className="el-badge">{mediaList.length} file{mediaList.length === 1 ? "" : "s"}</span></div>
       {mediaList.length > 1 && <div className="el-media-picker" aria-label="Select retained evidence">{mediaList.map((item, i) => <button type="button" key={item.id} aria-pressed={media?.id === item.id} onClick={() => setMediaId(item.id)}>{item.kind} {i + 1}</button>)}</div>}
       {media ? <>
-        <div className="el-media-frame"><EvidenceImage media={media} /><span>{media.origin === "illustration" ? "Synthetic illustration" : media.origin === "camera" ? "Citizen camera capture" : "Citizen upload"}</span></div>
+        <div className="el-media-frame"><EvidenceImage media={media} /><span>{media.origin === "illustration" ? "Synthetic illustration" : media.origin === "camera" ? "Citizen camera capture" : media.origin === "public_reference" ? "Historical source photograph" : "Citizen upload"}</span></div>
         <MediaMethod media={media} />
         <div className="el-candidates"><p className="el-label"><Sparkles size={14} /> RECORDED VISUAL AI · CANDIDATE FINDINGS</p>
           {media.visual ? <><p className="el-limitation">{media.visual.model} · {timeLabel(media.visual.at)}. Confidence is qualitative and uncalibrated; it is not diagnostic accuracy.</p>
@@ -132,15 +128,15 @@ function SavedRecordInspector({ records, onOpen }: { records: Report[]; onOpen: 
   const report = ordered.find((entry) => entry.id === recordId) ?? ordered[0];
   const activeReplay = replay?.report === report ? replay.result : undefined;
   const useReplay = checkView === "replay" && !!activeReplay;
-  if (!report) return <div className="el-empty el-start-empty"><Layers size={36} /><h3>Your evidence workbench starts with a saved observation.</h3><p>Record and confirm an observation in the Field Studio, then return to inspect its original evidence, assessment and human decisions. The separate practice lab is available now.</p></div>;
+  if (!report) return <div className="el-empty el-start-empty"><Layers size={36} /><h3>Your evidence workbench starts with a saved observation.</h3><p>Record and confirm an observation in the Field Studio, then return to inspect its original evidence, assessment and human decisions.</p></div>;
   const quality = observationQuality(report);
   const summary = labRecordSummary(report);
   return <>
-    <div className="el-record-toolbar"><div><label id={`${id}-record-label`}>Choose a saved observation</label><Select value={report.id} onValueChange={(value) => { setRecordId(value); setReplay(null); setCheckView("stored"); }}><SelectTrigger aria-labelledby={`${id}-record-label`}><SelectValue /></SelectTrigger><SelectContent>{ordered.map((entry) => <SelectItem key={entry.id} value={entry.id}>{entry.original.site || "Location unknown"} · {timeLabel(entry.original.observedAt)}{isSyntheticRecord(entry) ? " · Synthetic" : ""}</SelectItem>)}</SelectContent></Select></div><button type="button" className="el-button" onClick={() => onOpen(report.id)}>Open full receipt <ArrowRight size={16} /></button></div>
+    <div className="el-record-toolbar"><div><label id={`${id}-record-label`}>Choose a saved observation</label><Select value={report.id} onValueChange={(value) => { setRecordId(value); setReplay(null); setCheckView("stored"); }}><SelectTrigger aria-labelledby={`${id}-record-label`}><SelectValue /></SelectTrigger><SelectContent>{ordered.map((entry) => <SelectItem key={entry.id} value={entry.id}>{entry.original.site || "Location unknown"} · {timeLabel(entry.original.observedAt)}{entry.field?.reference ? " · Historical photo review" : isSyntheticRecord(entry) ? " · Synthetic" : ""}</SelectItem>)}</SelectContent></Select></div><button type="button" className="el-button" onClick={() => onOpen(report.id)}>Open full receipt <ArrowRight size={16} /></button></div>
     <div className="el-workbench" key={report.id}>
-      <aside className="el-original"><div className="el-original-heading"><p className="el-label"><Fingerprint size={15} /> PRESERVED CITIZEN SOURCE</p><span className={`el-badge${isSyntheticRecord(report) ? " synthetic" : ""}`}>{isSyntheticRecord(report) ? "Synthetic record" : "Citizen supplied · unverified"}</span></div><h2>{report.original.site || "Location unknown"}</h2><p className="el-original-time"><Clock3 size={14} /> {timeLabel(report.original.observedAt)}</p><blockquote>{report.original.note || "Original note is empty."}</blockquote><div className="el-appearance"><span>Citizen selected appearance</span><strong>{report.original.appearance === "unsure" ? "Unsure / not observed" : report.original.appearance}</strong></div>
+      <aside className="el-original"><div className="el-original-heading"><p className="el-label"><Fingerprint size={15} /> {report.field?.reference ? "PRESERVED PHOTO-REVIEW NOTE" : "PRESERVED CITIZEN SOURCE"}</p><span className={`el-badge${isSyntheticRecord(report) ? " synthetic" : ""}`}>{report.field?.reference ? "Historical photo review" : isSyntheticRecord(report) ? "Synthetic record" : "Citizen supplied · unverified"}</span></div>{report.field?.reference && <ReferenceCredit reference={report.field.reference} />}<h2>{report.original.site || "Location unknown"}</h2><p className="el-original-time"><Clock3 size={14} /> {timeLabel(report.original.observedAt)}</p><blockquote>{report.original.note || "Original note is empty."}</blockquote><div className="el-appearance"><span>Citizen selected appearance</span><strong>{report.original.appearance === "unsure" ? "Unsure / not observed" : report.original.appearance}</strong></div>
         <div className="el-quality"><div><span>Evidence completeness</span><strong>{quality.value}<small>/100</small></strong></div><div className="el-quality-track" aria-hidden="true"><span style={{ width: `${quality.value}%` }} /></div><p>Prototype checklist score. Not water health, accuracy or scientific confidence.</p><details><summary>Inspect the score</summary>{quality.checks.map((check) => <div className="el-quality-row" key={check.label}><span>{check.label}</span><b>{check.earned}/{check.max}</b></div>)}<small>Method: {quality.method}. Optional media and location affect this score; never take risks to raise it.</small></details></div>
-        <div className="el-provenance-counts"><span><b>{summary.ruleChecks}</b> retained rule checks</span><span><b>{summary.textAICandidates}</b> text AI candidates</span><span><b>{summary.visualAICandidates}</b> visual AI candidates</span><span><b>{summary.unresolvedText}</b> pending or uncertain text checks</span></div><p className="el-original-footer">The lab reads this record. Replay and practice never change the original or the decisions.</p>
+        <div className="el-provenance-counts"><span><b>{summary.ruleChecks}</b> retained rule checks</span><span><b>{summary.textAICandidates}</b> text AI candidates</span><span><b>{summary.visualAICandidates}</b> visual AI candidates</span><span><b>{summary.unresolvedText}</b> pending or uncertain text checks</span></div><p className="el-original-footer">The lab reads this record. Replay never changes the original or the decisions.</p>
       </aside>
       <div className="el-inspection"><Tabs.Root defaultValue="checks"><Tabs.List className="el-inspection-tabs" aria-label="Saved evidence inspection"><Tabs.Trigger value="checks"><GitBranch size={16} /> Checks</Tabs.Trigger><Tabs.Trigger value="media"><Camera size={16} /> Media & readings</Tabs.Trigger><Tabs.Trigger value="decisions"><ShieldCheck size={16} /> Decisions</Tabs.Trigger></Tabs.List>
         <Tabs.Content value="checks" className="el-inspection-content"><div className="el-check-toolbar"><div><p className="el-label">{useReplay ? "LOCAL REPLAY · RULES ONLY" : "STORED ASSESSMENT"}</p><p>{useReplay ? "Fresh rule output; saved decisions are preserved." : report.assessment.notice}</p></div><button type="button" className="el-button" onClick={() => { setReplay({ report, result: replayReportRules(report) }); setCheckView("replay"); }}><RefreshCw size={15} /> Replay rules</button></div>
@@ -151,23 +147,6 @@ function SavedRecordInspector({ records, onOpen }: { records: Report[]; onOpen: 
       </Tabs.Root></div>
     </div>
   </>;
-}
-
-function PracticeLab() {
-  const id = useId();
-  const [scenarioIndex, setScenarioIndex] = useState(0);
-  const scenario = scenarios[scenarioIndex];
-  const [note, setNote] = useState(scenarios[0].input.note);
-  const [appearance, setAppearance] = useState(scenarios[0].input.appearance);
-  const [result, setResult] = useState<Assessment | null>(null);
-  const input = { ...scenario.input, note, appearance, synthetic: true };
-  function loadScenario(index: number) {
-    setScenarioIndex(index); setNote(scenarios[index].input.note);
-    setAppearance(scenarios[index].input.appearance); setResult(null);
-  }
-  return <div className="el-practice"><section className="el-practice-input"><p className="el-label"><FlaskConical size={16} /> SYNTHETIC PRACTICE · NOTHING IS SAVED</p><h2>Change a claim.<br /><em>See the reasoning.</em></h2><p>Try an unsupported conclusion, a contradiction, or an uncertain description. Inspect what the limited local rules actually detect.</p><label id={`${id}-scenario-label`}>Practice scenario</label><Select value={String(scenarioIndex)} onValueChange={(value) => loadScenario(Number(value))}><SelectTrigger aria-labelledby={`${id}-scenario-label`}><SelectValue /></SelectTrigger><SelectContent>{scenarios.map((entry, i) => <SelectItem key={entry.title} value={String(i)}>{entry.title}</SelectItem>)}</SelectContent></Select><label htmlFor={`${id}-note`}>Observation note</label><textarea id={`${id}-note`} rows={6} value={note} maxLength={4000} onChange={(event) => { setNote(event.target.value); setResult(null); }} /><label id={`${id}-appearance-label`}>Reported appearance</label><Select value={appearance} onValueChange={(value) => { const next = appearanceValues.find((item) => item === value); if (next) { setAppearance(next); setResult(null); } }}><SelectTrigger aria-labelledby={`${id}-appearance-label`}><SelectValue /></SelectTrigger><SelectContent>{appearanceValues.map((value) => <SelectItem key={value} value={value}>{value === "unsure" ? "Unsure / not observed" : value}</SelectItem>)}</SelectContent></Select><div className="el-practice-actions"><button type="button" className="el-button primary" onClick={() => setResult(assess(input))}><FlaskConical size={17} /> Run transparent checks <ArrowRight size={16} /></button><button type="button" className="el-button" onClick={() => loadScenario(scenarioIndex)} aria-label="Restore the selected synthetic practice scenario"><RefreshCw size={15} /> Restore</button></div><p className="el-limitation">Local rules only · no live AI request · no scientific accuracy claim. Context: {scenario.input.site || "Location missing"} · {timeLabel(scenario.input.observedAt)}.</p></section>
-      <section className="el-practice-output" aria-label="Practice check results"><div className="el-detail-heading"><p className="el-label">TRACEABLE RULE OUTPUT</p><span className="el-badge">{result ? `${result.issues.length} check${result.issues.length === 1 ? "" : "s"} surfaced` : "Ready to inspect"}</span></div>{result ? <><CheckInspector assessment={result} original={input} stored={false} /><p className="el-limitation">{result.notice} Your edited practice note is the input; no factual additions were generated.</p></> : <div className="el-practice-placeholder"><div className="el-trace-illustration" aria-hidden="true"><span><FileText size={24} /></span><i /><span><GitBranch size={24} /></span><i /><span><CircleHelp size={24} /></span></div><h3>Source → check → question</h3><p>Run the checks, then select a result to highlight its source and inspect the follow-up. Editing the input clears the previous result.</p></div>}</section>
-    </div>;
 }
 
 function EngineeringEvidence() {
@@ -188,5 +167,5 @@ function EngineeringEvidence() {
 
 export function EvidenceLab({ records, onOpen }: { records: Report[]; onOpen: (id: string) => void }) {
   const id = useId();
-  return <section className="evidence-lab" aria-labelledby={`${id}-title`}><header className="el-heading"><div><p className="el-label"><FlaskConical size={15} /> THE EVIDENCE LAB · TRACK 3</p><h1 id={`${id}-title`}>See the evidence.<br /><em>Question the assessment.</em></h1><p>A practical workbench for original observations, explainable checks and human judgment.</p></div><div className="el-heading-seal"><Fingerprint size={31} /><span>Original evidence retained<br />Human decisions visible</span></div></header><Tabs.Root defaultValue="records"><Tabs.List className="el-mode-tabs" aria-label="Evidence Lab mode"><Tabs.Trigger value="records"><Layers size={17} /> Saved evidence <span>{records.length}</span></Tabs.Trigger><Tabs.Trigger value="practice"><FlaskConical size={17} /> Synthetic practice</Tabs.Trigger></Tabs.List><Tabs.Content value="records" className="el-mode-content"><SavedRecordInspector records={records} onOpen={onOpen} /></Tabs.Content><Tabs.Content value="practice" className="el-mode-content"><PracticeLab /></Tabs.Content></Tabs.Root><EngineeringEvidence /></section>;
+  return <section className="evidence-lab" aria-labelledby={`${id}-title`}><header className="el-heading"><div><p className="el-label"><FlaskConical size={15} /> THE EVIDENCE LAB · TRACK 3</p><h1 id={`${id}-title`}>See the evidence.<br /><em>Question the assessment.</em></h1><p>A practical workbench for original observations, explainable checks and human judgment.</p></div><div className="el-heading-seal"><Fingerprint size={31} /><span>Original evidence retained<br />Human decisions visible</span></div></header><SavedRecordInspector records={records} onOpen={onOpen} /><EngineeringEvidence /></section>;
 }

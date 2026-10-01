@@ -41,6 +41,7 @@ import {
   inspectImage,
   readMedia,
   saveMedia,
+  videoPoster,
 } from "@/lib/media-store";
 
 type EvidenceImageProps = {
@@ -92,7 +93,7 @@ function LocalEvidenceImage({
       <img
         className={className}
         src={url}
-        alt={`${media.origin === "illustration" ? "Synthetic illustration" : "Retained citizen photograph"}; unverified evidence`}
+        alt={`${media.origin === "illustration" ? "Synthetic illustration" : media.origin === "public_reference" ? "Credited historical reference photograph" : "Retained citizen photograph"}; unverified evidence`}
         onError={() => setFailed(true)}
       />
     )
@@ -109,13 +110,11 @@ export function FieldStudio({
   value,
   onChange,
   aiReady,
-  onSynthetic,
   onBusy,
 }: {
   value: FieldEvidence;
   onChange: (value: FieldEvidence) => void;
   aiReady: boolean;
-  onSynthetic: () => void;
   onBusy: (busy: boolean) => void;
 }) {
   const video = useRef<HTMLVideoElement>(null),
@@ -124,7 +123,8 @@ export function FieldStudio({
     timer = useRef<ReturnType<typeof setTimeout> | null>(null),
     latest = useRef(value),
     mounted = useRef(true),
-    opening = useRef(false);
+    opening = useRef(false),
+    retaining = useRef(false);
   useEffect(() => { latest.current = value; }, [value]);
   const [live, setLive] = useState(false),
     [starting, setStarting] = useState(false),
@@ -202,6 +202,8 @@ export function FieldStudio({
     kind: "photo" | "video" = "photo",
     preview?: Blob,
   ) {
+    if (retaining.current) return;
+    retaining.current = true;
     setBusy(true);
     setError("");
     try {
@@ -211,7 +213,9 @@ export function FieldStudio({
         throw new Error(
           "File exceeds 25 MB. Use a shorter clip or smaller photo.",
         );
-      const inspected = await inspectImage(preview || blob);
+      if (kind === "photo" && !["image/jpeg", "image/png", "image/webp"].includes(blob.type))
+        throw new Error("Use an original JPEG, PNG or WebP photo.");
+      const inspected = await inspectImage(preview || (kind === "video" ? await videoPoster(blob) : blob));
       const id = crypto.randomUUID();
       const sha256 = await hashBlob(blob);
       await saveMedia(id, blob);
@@ -224,13 +228,14 @@ export function FieldStudio({
         sha256,
         createdAt: new Date().toISOString(),
         origin,
+        ...(blob instanceof File ? { filename: blob.name.slice(0, 255) } : {}),
         ...inspected,
       };
       onChange({ ...latest.current, media: [...latest.current.media, media] });
-      if (origin === "illustration") onSynthetic();
     } catch (e) {
       setError((e as Error).message);
     } finally {
+      retaining.current = false;
       if (mounted.current) setBusy(false);
     }
   }
@@ -351,6 +356,7 @@ export function FieldStudio({
   }
   return (
     <section className="field-studio" aria-label="Camera and evidence capture">
+      {!value.reference && <>
       <div className="studio-title">
         <span>
           <Camera size={18} /> FIELD OPTICS <b>01 / CAPTURE</b>
@@ -428,15 +434,15 @@ export function FieldStudio({
       </div>
       <div className="capture-tools">
         <label className="btn secondary">
-          <Upload size={16} /> Upload photo
+          <Upload size={16} /> Upload photo or clip
           <input
             className="sr-only"
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
             disabled={busy || value.media.length >= 4}
             onChange={(e) => {
               const f = e.target.files?.[0];
-              if (f) void retain(f, "upload");
+              if (f) void retain(f, "upload", f.type.startsWith("video/") ? "video" : "photo");
               e.target.value = "";
             }}
           />
@@ -453,22 +459,7 @@ export function FieldStudio({
             }}
           />
         </label>
-        <button
-          type="button"
-          className="plain-btn"
-          disabled={busy || value.media.length >= 4}
-          onClick={async () => {
-            try {
-              const r = await fetch("/images/stream-hero.png");
-              if (!r.ok) throw new Error("Illustration unavailable offline");
-              await retain(await r.blob(), "illustration");
-            } catch (e) {
-              setError((e as Error).message);
-            }
-          }}
-        >
-          Try illustrative image
-        </button>
+
       </div>
       {ghost && (
         <div className="ghost-control">
@@ -493,6 +484,7 @@ export function FieldStudio({
           </small>
         </div>
       )}
+      </>}
       <label className="consent-row">
         <Checkbox
           checked={consent}
@@ -505,7 +497,7 @@ export function FieldStudio({
       </label>
       {!aiReady && (
         <p className="micro-copy">
-          Visual AI unavailable; capture and local image checks remain usable.
+          Visual AI unavailable; photo review and local image checks remain usable.
         </p>
       )}
       {error && (
@@ -525,9 +517,9 @@ export function FieldStudio({
                 <span className="tag">
                   {m.origin === "illustration"
                     ? "Synthetic illustration"
-                    : `Citizen ${m.kind}`}
+                    : m.origin === "public_reference" ? "Historical reference photo" : `Citizen ${m.kind}`}
                 </span>
-                <button
+                {!value.reference && <button
                   type="button"
                   className="icon-btn"
                   aria-label="Remove media from draft"
@@ -540,8 +532,9 @@ export function FieldStudio({
                   }
                 >
                   <X size={15} />
-                </button>
+                </button>}
               </div>
+              {m.filename && <p className="media-filename">{m.filename}</p>}
               <p>
                 {m.width} × {m.height} · {(m.bytes / 1024 / 1024).toFixed(1)} MB
               </p>

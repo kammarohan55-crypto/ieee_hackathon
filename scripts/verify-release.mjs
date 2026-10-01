@@ -1,6 +1,8 @@
 import { readFile, readdir, stat, writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 
 // Read the locally configured secret only to detect accidental inclusion.
 // Never log its value, fingerprint, or matching text.
@@ -38,13 +40,21 @@ assert.ok(ignoredText.includes(".dev.vars*") && ignoredText.includes(".env*"), "
 for (const file of ["dist/server/index.js", "dist/client/sw.js", "dist/client/manifest.webmanifest", "dist/client/vendor/maplibre/maplibre-gl-worker.mjs", "dist/client/vendor/maplibre/LICENSE.txt"]) {
   assert.ok((await stat(file)).size > 0, `Missing release asset: ${file}`);
 }
-for (const name of ["evaluation", "api-evaluation"]) {
+for (const name of ["evaluation", "api-evaluation", "workspace-evaluation"]) {
   const content = await readFile(`public/${name}.json`, "utf8");
   const test = JSON.parse(content);
   assert.equal(test.passed, test.total, `${name} has failed tests`);
   assert.equal(test.liveAI, false, "Authored test results must be labeled as non-live");
   assert.equal(await readFile(`dist/client/${name}.json`, "utf8"), content, "Rebuild after updating test results");
 }
+const sourceCatalogue = await import(pathToFileURL(path.resolve(".sites-runtime/domain-tests/references.mjs")));
+const offlineWorker = await readFile("dist/client/sw.js", "utf8");
+for (const photo of sourceCatalogue.referencePhotos) {
+  const bytes = await readFile(`dist/client${photo.src}`);
+  assert.equal(createHash("sha256").update(bytes).digest("hex"), photo.sha256, "Built reference image must preserve its source digest");
+  assert.ok(offlineWorker.includes(photo.src.slice(1)), "Reference photograph missing from offline cache");
+}
+assert.ok((await stat("dist/client/images/references/CREDITS.md")).size > 0, "Photograph licence notice must ship with the images");
 await mkdir(".sites-runtime", { recursive: true });
 await writeFile(".sites-runtime/source-files.json", JSON.stringify(source, null, 2));
 const report = {

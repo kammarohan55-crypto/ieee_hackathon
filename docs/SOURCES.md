@@ -103,3 +103,23 @@ No packages or scientific model were added for this pass. Exact-coordinate group
 
 ## S15 — User-supplied hackathon brief (received 2026-09-30)
 Source: pasted attachment `c6c75095-c6b2-47ce-8d36-ab683caa2bab/Pasted text.txt`, supplied by the user; not a fresh verification of the public rules. It describes Track 3 as responsible AI prompts, validation, explainability and human oversight, and requests a public repository, working demo and 3–5 minute video. Used to focus presentation on assessment reliability. It contains conflicting individual/team eligibility statements; no new eligibility conclusion, prize promise or organizer endorsement is inferred. Existing verified deadline source remains S1 and must be rechecked before submission.
+
+
+## S18 — Real-evidence workflow pass (checked 2026-09-30)
+
+- Reopened https://open-meteo.com/en/docs and confirmed coordinate-based current-model request parameters. The app now requires observation coordinates, validates returned units, retains model time and grid position, and keeps cache entries separate by coordinate. Current weather is not the weather at an older observation time; no causal/stream-health inference is made. API behavior was tested with mocks; no live weather call was made in this session.
+- Reopened https://archive.epa.gov/water/archive/web/html/vms32.html for the field-guide background. It supports recording location/context and identifiable photos for later review. The three-photo kit is this project's own UX choice, not an official protocol or validated ecological score.
+- Reopened https://oneaquahealth-ieee-hackathon.devpost.com/ alongside the supplied challenge brief. The current work targets Track 3: responsible assistance, traceable checks and human judgment. No session recording was watched and no official data API integration is claimed.
+- User-provided brief read from `upload/Pasted text.txt` in this session. No older unrelated hackathon deadlines/tracks were used.
+- No external field photographs were copied. Generated hero imagery was removed, and synthetic software fixtures remain confined to tests and explicitly labeled historical test results.
+
+
+## S19 — Bundled historical Mutha River photographs (checked 2026-10-01)
+
+Opened the three Wikimedia Commons file pages, inspected source metadata, downloaded the public 1280px thumbnails and visually inspected the local files:
+
+- https://commons.wikimedia.org/wiki/File:Mutha_River,_Pune.jpg — Ak2431989, CC BY 3.0, source date 2010-08-03. Original 1600×1200; bundled thumbnail 1280×960.
+- https://commons.wikimedia.org/wiki/File:Scenic_Reflection.jpg — Sharvarism, CC BY-SA 4.0, source date 2023-06-06. Original 5400×3600; bundled thumbnail 1280×853.
+- https://commons.wikimedia.org/wiki/File:Sambhaji_Bridge_as_seen_through_the_trees_on_the_banks_of_Mutha_River_in_Pune.jpg — DesiBoy101, CC BY-SA 4.0, source date 2023-06-12. Original 4000×3000; bundled thumbnail 1280×960.
+
+Full source titles, licence links and reuse notes travel in `public/images/references/CREDITS.md`; the exact bytes are checked against `lib/references.ts` SHA-256 digests. Dates are source supplied with day precision in the app. Exact time zone, camera clock and authenticity are not independently verified. Source metadata names editing software on the latter two files; no camera-original claim is made. Photos are historical references, never seeded citizen records, current conditions, instrument data, field GPS or recorded AI output. New reviews retain user-written words and explicit confirmation. No ecological comparison is inferred from these different dates/viewpoints.

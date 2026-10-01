@@ -293,7 +293,6 @@ button:disabled {
 .hero-image {
   position: absolute;
   inset: 0;
-  background-image: url("/images/stream-hero.png");
   background-size: cover;
   background-position: 50% 47%;
   transform: scale(1.025);

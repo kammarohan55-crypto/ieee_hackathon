@@ -1,17 +1,58 @@
 import { openDB } from "idb";
 import type { MediaEvidence } from "./field";
-const db = () =>
-  openDB("aqualens-evidence", 1, {
+let connection: ReturnType<typeof openDB> | undefined;
+const db = () => connection ??= openDB("aqualens-evidence", 1, {
     upgrade(store) {
       store.createObjectStore("media");
     },
-  });
+    terminated() { connection = undefined; },
+  }).catch((error) => { connection = undefined; throw error; });
+// add() prevents an import from overwriting bytes already attached to a record.
+// All additions either commit together or are rolled back by IndexedDB.
+export async function addMediaBatch(files: { id: string; blob: Blob }[]) {
+  const transaction = (await db()).transaction("media", "readwrite");
+  try {
+    for (const file of files) await transaction.store.add(file.blob, file.id);
+    await transaction.done;
+  } catch (error) {
+    try { transaction.abort(); } catch { /* Already aborted. */ }
+    await transaction.done.catch(() => {});
+    throw error;
+  }
+}
 export async function saveMedia(id: string, blob: Blob) {
   const store = await db();
   await store.put("media", blob, id);
 }
 export async function readMedia(id: string): Promise<Blob | undefined> {
   return (await db()).get("media", id);
+}
+export async function videoPoster(blob: Blob): Promise<Blob> {
+  const url = URL.createObjectURL(blob), video = document.createElement("video");
+  video.muted = true; video.playsInline = true; video.preload = "auto";
+  try {
+    return await new Promise<Blob>((resolve, reject) => {
+      const finish = (error?: Error, poster?: Blob) => {
+        clearTimeout(timer); video.onloadeddata = null; video.onerror = null;
+        if (error) reject(error); else resolve(poster!);
+      };
+      const timer = setTimeout(() => finish(new Error("This clip could not be decoded. Try an MP4 or upload a photo.")), 12000);
+      video.onerror = () => finish(new Error("This video format is not supported by your browser. Try MP4 or WebM."));
+      video.onloadeddata = () => {
+        try {
+          if (!Number.isFinite(video.duration) || video.duration > 15) return finish(new Error("Use a clip of 15 seconds or less."));
+          if (!video.videoWidth || !video.videoHeight) return finish(new Error("The clip has no readable video frame."));
+          const canvas = document.createElement("canvas");
+          canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+          const context = canvas.getContext("2d");
+          if (!context) return finish(new Error("Could not read the clip's first frame."));
+          context.drawImage(video, 0, 0);
+          canvas.toBlob((poster) => poster ? finish(undefined, poster) : finish(new Error("Could not read the clip's first frame.")), "image/jpeg", 0.9);
+        } catch { finish(new Error("Could not read the clip's first frame. Try a photo instead.")); }
+      };
+      video.src = url;
+    });
+  } finally { video.removeAttribute("src"); video.load(); URL.revokeObjectURL(url); }
 }
 export async function inspectImage(
   blob: Blob,

@@ -17,7 +17,6 @@ import {
   CircleHelp,
   ClipboardCheck,
   Clock3,
-  CloudRain,
   Compass,
   Eye,
   FileText,
@@ -28,11 +27,11 @@ import {
   LoaderCircle,
   MapPin,
   Plus,
-  RefreshCw,
+  Search,
+  Backpack,
   ShieldCheck,
   Sparkles,
   Waves,
-  Wind,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -67,10 +66,17 @@ import {
   type ObservationInput,
   type Report,
 } from "@/lib/assessment";
-import { sampleReports, scenarios } from "@/lib/fixtures";
+import { ReferenceGallery, ReferenceCredit } from "./reference-gallery";
+import { referencePhotos, displayEvidenceTime, type ReferencePhoto } from "@/lib/references";
+import { hashBlob, inspectImage, addMediaBatch } from "@/lib/media-store";
+import { SiteConditions } from "./site-conditions";
+import { CaptureGuide, FieldGuide, OneHealthNotes, OneHealthSummary } from "./field-guide";
+import { CollectionTools } from "./collection-tools";
+import { WORKSPACE_KEY as KEY, LEGACY_ARCHIVE_KEY, MAX_REPORTS, realRecords, parseWorkspace, searchReports, mergeRecords } from "@/lib/workspace";
 import { EvidenceLab } from "./evidence-lab";
 import {
   FieldStudio,
+  EvidenceImage,
   FieldDetails,
   VoiceNote,
   VisualFollowups,
@@ -80,9 +86,8 @@ import {
   QualityScore,
   StreamAtlas,
 } from "./evidence-workbench";
-import { newField, createFollowupDraft, fieldQuestions, fieldSchema, downloadFile, type FieldEvidence } from "@/lib/field";
+import { newField, createReferenceDraft, assertReferenceRecord, createFollowupDraft, fieldQuestions, fieldSchema, downloadFile, type FieldEvidence } from "@/lib/field";
 
-const KEY = "streamcheck-workspace-v1";
 const empty: ObservationInput = {
   site: "",
   observedAt: "",
@@ -95,12 +100,7 @@ const labels = {
   needs_information: "More information",
   reviewed: "Reviewed",
 };
-function displayTime(value: string) {
-  return new Date(value).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
+const displayTime = displayEvidenceTime;
 function localTime(value = new Date()) {
   return new Date(value.getTime() - value.getTimezoneOffset() * 60000)
     .toISOString()
@@ -142,114 +142,22 @@ function download(report: Report) {
   toast.success("Evidence download requested");
 }
 
-type Weather = {
-  interval: number;
-  city: string;
-  temperature: number;
-  rain: number;
-  wind: number;
-  time: string;
-  fetchedAt: string;
-  source: string;
-};
-function Conditions() {
-  const [weather, setWeather] = useState<Weather | null>(null),
-    [busy, setBusy] = useState(true),
-    [error, setError] = useState("");
-  const refresh = useCallback(async () => {
-    setBusy(true);
-    setError("");
-    try {
-      const r = await fetch("/api/conditions", {
-        signal: AbortSignal.timeout(12000),
-      });
-      if (!r.ok) throw new Error();
-      setWeather(await r.json());
-    } catch {
-      setError(
-        "Current conditions unavailable. No values have been estimated.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }, []);
-  useEffect(() => {
-    // Start the external weather subscription once the browser mounts.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void refresh();
-    const timer = setInterval(refresh, 300000);
-    return () => clearInterval(timer);
-  }, [refresh]);
-  return (
-    <section className="panel conditions">
-      <div className="panel-title">
-        <div>
-          <span className="eyebrow">REGIONAL CONTEXT</span>
-          <h3>Coimbra, Portugal</h3>
-        </div>
-        <button
-          className="icon-btn"
-          aria-label="Refresh current weather"
-          onClick={refresh}
-          disabled={busy}
-        >
-          <RefreshCw size={17} className={busy ? "spin" : ""} />
-        </button>
-      </div>
-      <div className="weather-reading">
-        <CloudRain size={36} />
-        <strong>{weather ? `${Math.round(weather.temperature)}°` : "—"}</strong>
-        <span>
-          Air temperature
-          <br />
-          <small>Modeled current conditions</small>
-        </span>
-      </div>
-      <div className="weather-pair">
-        <span>
-          <CloudRain size={16} /> {weather ? `${weather.rain} mm` : "—"}{" "}
-          <small>
-            precipitation / {weather ? weather.interval / 60 : "—"} min
-          </small>
-        </span>
-        <span>
-          <Wind size={16} /> {weather ? `${weather.wind} km/h` : "—"}{" "}
-          <small>wind</small>
-        </span>
-      </div>
-      {error ? (
-        <p className="notice error">{error}</p>
-      ) : (
-        <p className="micro-copy">
-          {weather
-            ? `Source time: ${weather.time.replace("T", " ")} UTC · Refreshes every 5 min`
-            : "Connecting to Open-Meteo…"}
-        </p>
-      )}
-      <div className="source-line">
-        <a href="https://open-meteo.com/" target="_blank" rel="noreferrer">
-          Open-Meteo · CC BY 4.0 <ArrowUpRight size={12} />
-        </a>
-        <span>Weather ≠ water quality</span>
-      </div>
-    </section>
-  );
-}
-
 export default function StreamCheck() {
   const [field, setField] = useState<FieldEvidence>(newField);
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [captureBusy, setCaptureBusy] = useState(false);
+  const [referenceLoading, setReferenceLoading] = useState("");
   const draftEpoch = useRef(0);
   const [draftRevision, setDraftRevision] = useState(0);
   const [online, setOnline] = useState(true);
   const [tab, setTab] = useState("overview"),
-    [records, setRecords] = useState<Report[]>(sampleReports),
+    [records, setRecords] = useState<Report[]>([]),
     [loaded, setLoaded] = useState(false),
     [storageError, setStorageError] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null),
     [reviewNote, setReviewNote] = useState(""),
-    [filter, setFilter] = useState("all");
+    [filter, setFilter] = useState("all"),
+    [search, setSearch] = useState("");
   const [draft, setDraft] = useState<ObservationInput>(empty),
     [when, setWhen] = useState(""),
     [stage, setStage] = useState(0),
@@ -292,8 +200,11 @@ export default function StreamCheck() {
         const d = JSON.parse(savedDraft);
         const restored = inputSchema.parse(d.draft);
         const restoredField = fieldSchema.parse(d.field);
+        assertReferenceRecord({ original: restored, field: restoredField });
         if (typeof d.when === "string" && d.when.length <= 30) {
-          setDraft(restored); setField(restoredField); setWhen(d.when);
+          if (!restored.synthetic && restoredField.coordinates?.method !== "synthetic" && !restoredField.media.some((media) => media.origin === "illustration")) {
+            setDraft(restored); setField(restoredField); setWhen(d.when);
+          }
         }
       }
     } catch { toast.error("A saved draft could not be restored. Existing confirmed reports are unaffected."); }
@@ -301,13 +212,15 @@ export default function StreamCheck() {
     try {
       const saved = localStorage.getItem(KEY);
       if (saved) {
-        const parsed = JSON.parse(saved);
-        if (!Array.isArray(parsed) || parsed.length > 500) throw new Error();
-        setRecords(parsed.map((r) => reportSchema.parse(r) as Report));
+        const parsed = parseWorkspace(JSON.parse(saved));
+        const genuine = realRecords(parsed);
+        if (genuine.length !== parsed.length && !localStorage.getItem(LEGACY_ARCHIVE_KEY))
+          localStorage.setItem(LEGACY_ARCHIVE_KEY, saved);
+        setRecords(genuine);
       }
     } catch {
       setStorageError(
-        "Saved records could not be read. Sample records are shown; the saved data has not been overwritten.",
+        "Saved records could not be read. Your saved data has not been overwritten. Download the recovery file before trying a restore.",
       );
     }
     setLoaded(true);
@@ -320,11 +233,9 @@ export default function StreamCheck() {
       )
       .catch(() => {});
     const sync = (e: StorageEvent) => {
-      if (e.key !== KEY || !e.newValue) return;
+      if (e.key !== KEY) return;
       try {
-        const parsed = JSON.parse(e.newValue);
-        if (Array.isArray(parsed) && parsed.length <= 500)
-          setRecords(parsed.map((r) => reportSchema.parse(r) as Report));
+        setRecords(e.newValue ? realRecords(parseWorkspace(JSON.parse(e.newValue))) : []);
       } catch {
         setStorageError("An update from another tab could not be read.");
       }
@@ -424,6 +335,7 @@ export default function StreamCheck() {
     setDraftRevision(draftEpoch.current);
     setBusy(false);
     setCaptureBusy(false);
+    setReferenceLoading("");
     setField(newField());
     setDraft(empty);
     setWhen(localTime());
@@ -434,33 +346,44 @@ export default function StreamCheck() {
     setFormError("");
     go("observe");
   };
-  const loadScenario = (index: number) => {
-    draftEpoch.current += 1;
-    setDraftRevision(draftEpoch.current);
-    setBusy(false);
-    setCaptureBusy(false);
-    setField(newField());
-    setDraft({ ...scenarios[index].input });
-    setWhen(localTime(new Date(scenarios[index].input.observedAt)));
-    setStage(0);
-    setAssessment(null);
-    setSnapshot(null);
-    setConfirm(false);
-    setFormError("");
-    go("observe");
-    toast("Synthetic scenario loaded", {
-      description:
-        "Every saved record from this example stays labeled synthetic.",
-    });
-  };
+  async function reviewReference(photo: ReferencePhoto) {
+    if (referenceLoading) return;
+    reset();
+    const epoch = draftEpoch.current;
+    const reference = createReferenceDraft(photo);
+    setDraft(reference.draft);
+    setField(reference.field);
+    setWhen(photo.capturedDate);
+    setUseAI(false);
+    setReferenceLoading(photo.id);
+    try {
+      const response = await fetch(photo.src, { signal: AbortSignal.timeout(15000) });
+      if (!response.ok) throw new Error("The reference photo could not be loaded. Reconnect and try again.");
+      const blob = await response.blob();
+      if (await hashBlob(blob) !== photo.sha256) throw new Error("The photo did not match its source digest. No image was retained.");
+      const info = await inspectImage(blob);
+      if (epoch !== draftEpoch.current) return;
+      const media = { id: crypto.randomUUID(), kind: "photo" as const, mime: blob.type, bytes: blob.size,
+        sha256: photo.sha256, createdAt: new Date().toISOString(), origin: "public_reference" as const,
+        filename: `${photo.id}.jpg`, ...info };
+      await addMediaBatch([{ id: media.id, blob }]);
+      if (epoch !== draftEpoch.current) return;
+      setField({ ...reference.field, media: [media] });
+    } catch (error) {
+      if (epoch === draftEpoch.current) {
+        setField(newField()); setDraft(empty); setWhen(localTime());
+        setFormError(error instanceof Error ? error.message : "The photo could not be retained. Try again from the Field kit.");
+      }
+    } finally { if (epoch === draftEpoch.current) setReferenceLoading(""); }
+  }
   async function analyze() {
     if (busy) return;
     const epoch = draftEpoch.current;
-    if (captureBusy) { setFormError("Wait for the image operation to finish before continuing."); return; }
+    if (captureBusy || referenceLoading) { setFormError("Wait for the image operation to finish before continuing."); return; }
     setFormError("");
     let observedAt = "";
     try {
-      observedAt = new Date(when).toISOString();
+      observedAt = field.reference?.capturedDate ?? new Date(when).toISOString();
     } catch {
       setFormError("Choose the actual date and time of the observation.");
       return;
@@ -492,7 +415,7 @@ export default function StreamCheck() {
           signal: AbortSignal.timeout(22000),
         });
         if (!r.ok) throw new Error();
-        result = await r.json();
+        result = reportSchema.shape.assessment.parse(await r.json());
       } else result = assess(input);
       if (epoch !== draftEpoch.current) return;
       setSnapshot(structuredClone(input));
@@ -538,10 +461,13 @@ export default function StreamCheck() {
         throw new Error(
           "Answer each evidence follow-up, including when you are unsure.",
         );
-      const report = {
+      if (records.length >= MAX_REPORTS) throw new Error("Workspace limit reached. Export your field pack before collecting more records.");
+      const report = reportSchema.parse({
         ...createReport(snapshot, assessment),
         field: structuredClone(field),
-      };
+      });
+      assertReferenceRecord(report);
+      if (!realRecords([report]).length) throw new Error("Only real observations can be saved. Start a fresh field note.");
       setRecords((prev) => [report, ...prev]);
       setSelectedId(report.id);
       setStage(0);
@@ -577,8 +503,15 @@ export default function StreamCheck() {
     setSelectedId(id);
     setReviewNote("");
   }, []);
-  const list =
-    filter === "all" ? records : records.filter((r) => r.status === filter);
+  const list = searchReports(records, search, filter);
+  function importRecords(incoming: Report[]) {
+    if (storageError) throw new Error("Resolve the workspace storage error before importing.");
+    const stored = localStorage.getItem(KEY);
+    const current = stored ? realRecords(parseWorkspace(JSON.parse(stored))) : stateRef.current.records;
+    const next = mergeRecords(current, incoming).records;
+    localStorage.setItem(KEY, JSON.stringify(next));
+    setRecords(next);
+  }
   return (
     <div className="app-shell">
       <a href="#workspace-content" className="skip-link">
@@ -632,6 +565,7 @@ export default function StreamCheck() {
             <TabsTrigger value="atlas">
               <Waves size={16} /> River observatory
             </TabsTrigger>
+            <TabsTrigger value="kit"><Backpack size={16} /> Field kit</TabsTrigger>
           </TabsList>
           <span className="track-label">
             ONEAQUAHEALTH CHALLENGE <span>TRACK 03</span>
@@ -639,9 +573,11 @@ export default function StreamCheck() {
         </div>
         <main id="workspace-content" className="main">
           {storageError && (
-            <p className="notice error" role="alert">
-              {storageError}
-            </p>
+            <div className="notice error" role="alert"><p>{storageError}</p><button className="plain-btn" onClick={() => {
+              const saved = localStorage.getItem(KEY);
+              if (saved) downloadFile(saved, "aqualens-workspace-recovery.json");
+              else toast.error("No saved workspace file is available.");
+            }}>Download saved data for recovery</button></div>
           )}
           <TabsContent value="overview" className="view-enter">
             <div className="overview-heading">
@@ -650,29 +586,28 @@ export default function StreamCheck() {
               </p>
               <span className="overview-state"><span className="live-dot" /> Citizen science, with care.</span>
             </div>
-            <section className="hero">
-              <div className="hero-image" />
+            <section className="hero real-evidence-hero">
+              <div className="hero-river-photo" aria-hidden="true" />
               <div className="hero-shade" />
               <div className="hero-content">
                 <Tag tone="glass">
                   <Waves size={14} /> A CLOSER LOOK AT OUR WATER
                 </Tag>
                 <h1>
-                  A closer look.
+                  Every stream
                   <br />
-                  <em>A clearer record.</em>
+                  <em>has a story.</em>
                 </h1>
                 <p>
-                  Observe what is visible. Keep what is uncertain.
-                  <br />
-                  Build evidence a human can review.
+                  Start with what you see. Turn a moment by the water
+                  into evidence your community can build on.
                 </p>
                 <div className="hero-actions">
                   <button className="btn mint" onClick={reset}>
                     Make an observation <ArrowUpRight size={18} />
                   </button>
-                  <button className="hero-link" onClick={() => loadScenario(0)}>
-                    Explore a sample <ArrowRight size={16} />
+                  <button className="hero-link" onClick={() => go("kit")}>
+                    Open the field kit <ArrowRight size={16} />
                   </button>
                 </div>
               </div>
@@ -699,15 +634,15 @@ export default function StreamCheck() {
                 <div className="hero-workflow-footer"><span>{records.length} local records</span><span>{awaiting} awaiting review</span></div>
               </aside>
               <span className="image-caption">
-                Illustrative artwork · not a monitored location
+                <span>Scenic Reflection · Sharvarism · 6 Jun 2023 · <a href={referencePhotos[1].licenseUrl} target="_blank" rel="noreferrer">CC BY-SA 4.0</a> · <a href={referencePhotos[1].sourceUrl} target="_blank" rel="noreferrer">Source / display crop</a></span>
               </span>
             </section>
             <div className="metrics">
               <Metric
                 icon={<FileText />}
                 value={records.length}
-                label="Observations in this browser"
-                detail={`${records.filter((r) => r.original.synthetic).length} synthetic examples included`}
+                label="Saved records in this browser"
+                detail={`${records.filter((r) => !r.field?.reference).length} field observations · ${records.filter((r) => r.field?.reference).length} photo reviews`}
               />
               <Metric
                 icon={<CircleHelp />}
@@ -726,7 +661,7 @@ export default function StreamCheck() {
               />
               <Metric
                 icon={<Fingerprint />}
-                value={`${records.length ? 100 : 0}%`}
+                value={records.length ? "100%" : "—"}
                 label="Original notes retained"
                 detail="Retention, not an accuracy score"
               />
@@ -742,6 +677,7 @@ export default function StreamCheck() {
                     View all <ArrowRight size={16} />
                   </button>
                 </div>
+                {!records.length && <div className="first-observation"><span className="first-observation-icon"><Waves size={35} strokeWidth={1.2} /></span><p className="eyebrow">YOUR NEXT VISIT STARTS HERE</p><h3>A stream. A phone. A first observation.</h3><p>Capture a real photo, add a few words, and keep what you don’t know visible. Your evidence will appear here.</p><div className="button-row"><button className="btn primary" onClick={reset}><Plus size={16} />Create your first record</button><button className="plain-btn" onClick={() => go("kit")}>Review a reference photo <ArrowRight size={15} /></button></div></div>}
                 <div className="observation-list">
                   {records.slice(0, 3).map((r, i) => (
                     <button
@@ -751,12 +687,12 @@ export default function StreamCheck() {
                       style={{ animationDelay: `${i * 75}ms` }}
                     >
                       <span className={`site-icon site-${i % 3}`}>
-                        <Waves size={24} />
+                        {r.field?.media.find((media) => media.kind === "photo") ? <EvidenceImage media={r.field.media.find((media) => media.kind === "photo")!} className="evidence-img" /> : <Waves size={24} />}
                       </span>
                       <div className="observation-info">
                         <div className="row-title">
                           <h3>{r.original.site}</h3>
-                          {r.original.synthetic && <Tag>Sample</Tag>}
+                          {r.field?.reference && <Tag>Historical photo</Tag>}
                         </div>
                         <p>{r.original.note}</p>
                         <span className="row-meta">
@@ -801,7 +737,7 @@ export default function StreamCheck() {
                 </div>
               </div>
               <aside className="right-column">
-                <Conditions />
+                <SiteConditions records={records.filter((r) => !r.field?.reference)} />
                 <section className="field-tip">
                   <span className="tip-icon">
                     <Eye size={20} />
@@ -852,24 +788,21 @@ export default function StreamCheck() {
           <TabsContent value="observe" className="view-enter">
             <Heading
               eyebrow="THE FIELD NOTEBOOK"
-              title="Start with what you noticed."
+              title={field.reference ? "Read the photograph. Keep the source." : "Start with what you noticed."}
               description="Your words are the evidence. We’ll help make the questions clearer."
               action={
-                <Tag tone={draft.synthetic ? "amber" : "green"}>
-                  {draft.synthetic
-                    ? "Synthetic example"
-                    : "Your own observation"}
-                </Tag>
+                <Tag tone="green">{field.reference ? "Historical photo review" : "Your own observation"}</Tag>
               }
             />
-            {stage === 0 && (
+            {field.reference && <ReferenceCredit reference={field.reference} />}
+            {referenceLoading && <p className="notice" role="status">Preparing the source image and its digest…</p>}
+            {stage === 0 && !referenceLoading && (
               <FieldStudio
                 key={draftRevision}
                 value={field}
                 onChange={updateField}
                 aiReady={aiReady && online}
                 onBusy={updateCaptureBusy}
-                onSynthetic={() => { if (draftEpoch.current === draftRevision) setDraft((d) => ({ ...d, synthetic: true })); }}
               />
             )}
             <div className="stepper" aria-label="Observation progress">
@@ -898,7 +831,7 @@ export default function StreamCheck() {
             </div>
             <div className="capture-grid">
               <section className="panel capture" ref={sectionRef} tabIndex={-1}>
-                {stage === 0 && (
+                {stage === 0 && !referenceLoading && (
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
@@ -906,12 +839,11 @@ export default function StreamCheck() {
                     }}
                   >
                     <div className="panel-title">
-                      <h2>A moment by the stream</h2>
+                      <h2>{field.reference ? "What is visible in this frame?" : "A moment by the stream"}</h2>
                       <Compass size={23} />
                     </div>
                     <p className="subtext">
-                      Observe from a safe, accessible place. Describe only what
-                      you noticed.
+                      {field.reference ? "Describe only what the photograph shows. Keep causes, measurements and current conditions unknown." : "Observe from a safe, accessible place. Describe only what you noticed."}
                     </p>
                     <div className="form-grid">
                       <label>
@@ -919,6 +851,7 @@ export default function StreamCheck() {
                         <input
                           required
                           maxLength={160}
+                          readOnly={!!field.reference}
                           value={draft.site}
                           onChange={(e) =>
                             setDraft({ ...draft, site: e.target.value })
@@ -927,19 +860,20 @@ export default function StreamCheck() {
                         />
                       </label>
                       <label>
-                        Observation time
+                        {field.reference ? "Photograph source date" : "Observation time"}
                         <input
                           required
-                          type="datetime-local"
+                          type={field.reference ? "date" : "datetime-local"}
+                          readOnly={!!field.reference}
                           value={when}
-                          max={localTime()}
+                          max={field.reference ? undefined : localTime()}
                           onChange={(e) => setWhen(e.target.value)}
                         />
-                        <small>Your device’s local time zone</small>
+                        <small>{field.reference ? "Date supplied by the source. Exact time is not asserted." : "Your device’s local time zone"}</small>
                       </label>
                     </div>
                     <label className="field">
-                      What did you directly observe?
+                      {field.reference ? "What can you see in this historical photograph?" : "What did you directly observe?"}
                       <textarea
                         required
                         maxLength={4000}
@@ -948,7 +882,7 @@ export default function StreamCheck() {
                         onChange={(e) =>
                           setDraft({ ...draft, note: e.target.value })
                         }
-                        placeholder="The water looked brown beside the footbridge. I saw leaves collecting near the bank. I don’t know what caused the color."
+                        placeholder={field.reference ? "Describe visible details in your own words. What is obscured or uncertain?" : "The water looked brown beside the footbridge. I saw leaves collecting near the bank. I don’t know what caused the color."}
                       />
                       <span className="field-hint">
                         Details, uncertainty, and context are all useful.{" "}
@@ -967,7 +901,7 @@ export default function StreamCheck() {
                         }))
                       }
                     />
-                    <FieldDetails key={draftRevision} value={field} onChange={updateField} />
+                    {!field.reference && <><FieldDetails key={draftRevision} value={field} onChange={updateField} /><OneHealthNotes value={field} onChange={updateField} /></>}
                     {field.followupOf && <p className="micro-copy">Follow-up to record {field.followupOf}. Record a fresh observation; previous readings and coordinates have not been copied.</p>}
                     <div className="form-grid">
                       <div className="field">
@@ -1001,17 +935,7 @@ export default function StreamCheck() {
                           A reported appearance, not a quality rating
                         </small>
                       </div>
-                      <div className="field data-choice">
-                        <label className="check-label">
-                          <Checkbox
-                            checked={draft.synthetic}
-                            onCheckedChange={(v) =>
-                              setDraft({ ...draft, synthetic: v === true })
-                            }
-                          />{" "}
-                          This is a synthetic / practice observation
-                        </label>
-                      </div>
+
                     </div>
                     <div className="ai-option">
                       <div className="ai-option-top">
@@ -1149,7 +1073,7 @@ export default function StreamCheck() {
                       </span>
                       <span>
                         <Eye size={16} />
-                        {snapshot.appearance} appearance · citizen reported
+                        {snapshot.appearance} appearance · {field.reference ? "photo reviewer selected" : "citizen reported"}
                       </span>
                     </div>
                     <blockquote>
@@ -1191,6 +1115,7 @@ export default function StreamCheck() {
                         setConfirm(false);
                       }}
                     />
+                    <OneHealthSummary field={field} />
                     <QualityScore
                       report={{ original: snapshot, assessment, field }}
                     />
@@ -1199,8 +1124,7 @@ export default function StreamCheck() {
                         checked={confirm}
                         onCheckedChange={(v) => setConfirm(v === true)}
                       />{" "}
-                      I confirm this record reflects my observation. Unverified
-                      claims and uncertainty remain visible for review.
+                      {field.reference ? "I confirm this is my review of the credited historical photo, not a new field observation. Uncertainty remains visible." : "I confirm this record reflects my observation. Unverified claims and uncertainty remain visible for review."}
                     </label>
                     {formError && (
                       <p className="notice error" role="alert">
@@ -1249,22 +1173,7 @@ export default function StreamCheck() {
                     </span>
                   </div>
                 </section>
-                <section className="panel sample-panel">
-                  <p className="eyebrow">TRY IT FIRST</p>
-                  <h3>Explore a field scenario</h3>
-                  {scenarios.map((s, i) => (
-                    <button key={s.title} onClick={() => loadScenario(i)}>
-                      <span>
-                        {s.title}
-                        <small>{s.description}</small>
-                      </span>
-                      <ArrowUpRight size={17} />
-                    </button>
-                  ))}
-                  <p className="micro-copy">
-                    Authored synthetic examples, never live observations.
-                  </p>
-                </section>
+                <CaptureGuide compact />
               </aside>
             </div>
           </TabsContent>
@@ -1299,7 +1208,8 @@ export default function StreamCheck() {
               </div>
             </div>
             <div className="section-heading">
-              <h2>Observation records</h2>
+              <h2>Observation records <span className="result-count">{list.length}</span></h2>
+              <label className="record-search"><Search size={17} /><input type="search" aria-label="Search observations" placeholder="Search sites, notes or record IDs" value={search} onChange={(event) => setSearch(event.target.value)} /></label>
               <Select value={filter} onValueChange={setFilter}>
                 <SelectTrigger
                   className="filter-select"
@@ -1342,7 +1252,7 @@ export default function StreamCheck() {
                       {r.assessment.issues.length !== 1 ? "s" : ""}
                     </span>
                     <Tag>
-                      {r.original.synthetic ? "Synthetic" : "Citizen report"}
+                      {r.field?.reference ? "Historical photo review" : "Citizen report"}
                     </Tag>
                   </div>
                   <div className="review-card-bottom">
@@ -1373,12 +1283,18 @@ export default function StreamCheck() {
             </p>
           </TabsContent>
 
+          <TabsContent value="kit" className="view-enter">
+            <ReferenceGallery onReview={(photo) => void reviewReference(photo)} loading={referenceLoading} />
+            <FieldGuide onStart={reset} />
+            <CollectionTools records={records} onImport={importRecords} disabled={!loaded || !!storageError} />
+          </TabsContent>
           <TabsContent value="lab" className="view-enter">
             <EvidenceLab records={records} onOpen={openReport} />
           </TabsContent>
           <TabsContent value="atlas" className="view-enter">
+            {records.some((r) => r.field?.reference) && <p className="notice">Historical photo reviews are available in the Review desk and Evidence lab. The river observatory contains field observations only.</p>}
             <StreamAtlas
-              reports={records}
+              reports={records.filter((r) => !r.field?.reference)}
               onOpen={openReport}
               onMission={(source) => {
                 reset();
@@ -1418,9 +1334,7 @@ export default function StreamCheck() {
                   {labels[active.status]}
                 </Tag>
                 <Tag>
-                  {active.original.synthetic
-                    ? "Synthetic example"
-                    : "Citizen report"}
+                  {active.field?.reference ? "Historical photo review" : "Citizen report"}
                 </Tag>
                 <button
                   className="plain-btn export-btn"
@@ -1442,12 +1356,12 @@ export default function StreamCheck() {
                     <dd>{active.original.site}</dd>
                   </div>
                   <div>
-                    <dt>Observed</dt>
+                    <dt>{active.field?.reference ? "Source date" : "Observed"}</dt>
                     <dd>{displayTime(active.original.observedAt)}</dd>
                   </div>
                   <div>
                     <dt>Appearance</dt>
-                    <dd>{active.original.appearance} · citizen reported</dd>
+                    <dd>{active.original.appearance} · {active.field?.reference ? "photo reviewer selected" : "citizen reported"}</dd>
                   </div>
                 </dl>
               </section>

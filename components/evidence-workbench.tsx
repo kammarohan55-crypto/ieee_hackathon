@@ -21,6 +21,8 @@ import {
   Minimize2,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ReferenceCredit } from "./reference-gallery";
+import { OneHealthSummary } from "./field-guide";
 import { RiverObservatory } from "./river-observatory";
 import { GeographicEvidenceMap } from "./geographic-evidence-map";
 import { evidenceTrail } from "@/lib/evidence-trail";
@@ -79,7 +81,7 @@ export function QualityScore({
         </span>
       </div>
       <div>
-        <p className="eyebrow">OBSERVATION QUALITY</p>
+        <p className="eyebrow">EVIDENCE COMPLETENESS</p>
         <h3>How complete is the evidence?</h3>
         <p>{quality.limitation}</p>
         <details>
@@ -128,7 +130,7 @@ export function EvidenceGraph({ report }: { report: Report }) {
         <span className="tag">Interactive provenance graph</span>
       </div>
       <div className="trail-legend" aria-label="Graph sources">
-        <span className="trail-citizen">Citizen evidence</span><span className="trail-rules">Local rules</span><span className="trail-ai">AI candidates</span><span className="trail-human">Human decisions</span><span className="trail-pending">Pending</span>
+        <span className="trail-citizen">Citizen evidence</span><span className="trail-reference">Public photo source</span><span className="trail-rules">Local rules</span><span className="trail-ai">AI candidates</span><span className="trail-human">Human decisions</span><span className="trail-pending">Pending</span>
       </div>
       <div className="evidence-graph">
         <ReactFlow
@@ -272,6 +274,7 @@ export function EvidenceReceipt({
   }
   return (
     <div className="receipt-extension">
+      {report.field?.reference && <ReferenceCredit reference={report.field.reference} />}
       <QualityScore report={report} />
       {report.field?.followupOf && <p className="micro-copy">Follow-up source record: {report.field.followupOf}. The original report remains separate.</p>}
       <div className="transparency-toggle">
@@ -316,7 +319,7 @@ export function EvidenceReceipt({
               {m.origin} · {m.kind}
             </span>
             <button className="plain-btn" onClick={() => original(m)}>
-              <Download size={14} /> Download original
+              <Download size={14} /> {m.origin === "public_reference" ? "Download retained source image" : "Download original"}
             </button>
           </div>
           {transparent && (
@@ -378,6 +381,7 @@ export function EvidenceReceipt({
           ))}
         </section>
       )}
+      <OneHealthSummary field={report.field} />
       <EvidenceGraph report={report} />
       <div className="decision-receipt">
         <ShieldCheck size={27} />
@@ -420,15 +424,13 @@ export function StreamAtlas({
     [slider, setSlider] = useState(50),
     [pair, setPair] = useState<string[]>([]);
   const [view, setView] = useState("observatory");
-  const [includeSynthetic, setIncludeSynthetic] = useState(true);
   const [presenting, setPresenting] = useState(false);
   const sites = useMemo(() => [...new Set(reports.map((r) => r.original.site))], [reports]);
   const activeFilter = selected === "all" || sites.some((s) => siteFilterValue(s) === selected) ? selected : "all";
-  const shown = useMemo(() => filterAtlasRecords(reports, activeFilter, includeSynthetic), [reports, activeFilter, includeSynthetic]);
+  const shown = useMemo(() => filterAtlasRecords(reports, activeFilter, false), [reports, activeFilter]);
   const photos = useMemo(() => atlasPhotos(shown), [shown]);
   const { before, after } = comparisonPair(photos, pair);
   const coverage = collectionCoverage(shown);
-  const syntheticCount = shown.filter(isSyntheticRecord).length;
   useEffect(() => {
     if (!presenting) return;
     const escape = (e: KeyboardEvent) => { if (e.key === "Escape") setPresenting(false); };
@@ -458,10 +460,7 @@ export function StreamAtlas({
           <TabsTrigger value="observatory"><Waves size={16} /> River stories</TabsTrigger>
           <TabsTrigger value="map"><MapPin size={16} /> Geographic map</TabsTrigger>
         </TabsList>
-        <label className="atlas-samples-control" htmlFor="atlas-include-synthetic">
-          <Switch id="atlas-include-synthetic" checked={includeSynthetic} onCheckedChange={(v) => { setIncludeSynthetic(v); setPair([]); }} />
-          Include synthetic samples
-        </label>
+        <span className="tag">Citizen evidence only</span>
       </div>
       <div className="atlas-toolbar">
         <Select value={activeFilter} onValueChange={(v) => { setSelected(v); setPair([]); }}>
@@ -471,7 +470,7 @@ export function StreamAtlas({
             {sites.map((s) => <SelectItem value={siteFilterValue(s)} key={s}>{s}</SelectItem>)}
           </SelectContent>
         </Select>
-        <span className="atlas-record-count">{shown.length} records · {syntheticCount} synthetic</span>
+        <span className="atlas-record-count">{shown.length} citizen records</span>
         <button className="btn secondary" onClick={() => downloadFile(JSON.stringify({ format: "aqualens-observation-collection", version: "1.0", records: shown.map(decisionReceipt) }, null, 2), "aqualens-receipts.json", "application/json")}><Download size={15} /> JSON receipts</button>
         <button className="btn secondary" onClick={() => downloadFile(exportCSV(shown), "aqualens-observations.csv", "text/csv")}>CSV</button>
         <button className="btn secondary" onClick={() => downloadFile(JSON.stringify(exportGeoJSON(shown), null, 2), "aqualens-observations.geojson", "application/geo+json")}>GeoJSON</button>
@@ -482,7 +481,7 @@ export function StreamAtlas({
       <section className="atlas-coverage" aria-label="Evidence coverage in this view">
         <div className="atlas-coverage-title"><p className="eyebrow">EVIDENCE COVERAGE</p><h2>What is here. What is missing.</h2></div>
         <div className="atlas-coverage-grid">{coverage.map((c) => <div key={c.key} className="atlas-coverage-item"><div><strong>{c.count}<small> / {shown.length}</small></strong><span>{c.label}</span></div><div className="atlas-coverage-track" aria-hidden="true"><span style={{ width: `${shown.length ? 100 * c.count / shown.length : 0}%` }} /></div><p>{c.detail}</p></div>)}</div>
-        <p className="micro-copy">Coverage and workflow only; no water-health inference. Media counts refer to retained metadata, not verified availability of files. {syntheticCount > 0 && `${syntheticCount} synthetic sample records included.`}</p>
+        <p className="micro-copy">Coverage and workflow only; no water-health inference. Media counts refer to retained metadata, not verified availability of files.</p>
       </section>
       <details className="atlas-details">
       <summary>Explore the timeline, follow-up missions and photo comparison <ArrowRight size={17} /></summary>

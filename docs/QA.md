@@ -1,3 +1,24 @@
+# Current verification — real-evidence workspace
+
+2026-10-01, branch `improve/real-evidence-workspace`.
+
+- `npm ci` initially failed: two optional @emnapi entries were absent from the lockfile. `npm install` repaired the lockfile; subsequent `npm ci --dry-run --include=dev --include=optional` passes.
+- `npm test`: 86/86 domain assertions + 28/28 field-pack integrity/merge/source checks + 21/21 mocked API contracts = **135/135**.
+- `npm run typecheck`, `npm run lint`, nine PostCSS stylesheet parses and `git diff --check`: pass.
+- `npm run build`: passes. Production offline asset set: 23 assets, 4,432,233 bytes at this build. Existing >500 kB bundle warning remains; it is not a build failure.
+- `npm run verify:release`: passes; required worker, MapLibre license, PWA assets and all three generated test reports present. No Gemini secret is configured in this fresh clone, so configured-secret matching was not exercised.
+- No server started, browser visited, screenshot taken, live AI call made, or deployment performed. This follows the manual website-testing preference in the existing project instructions.
+
+New source tests additionally decode all three bundled JPEGs, match their digests, preserve attribution on round-trip, reject missing/changed credits and invented visit context, keep source dates at day precision across time zones, and inspect graph provenance. Release checks verify the built photos and offline-cache entries.
+
+Tests also exercise original-byte round trips, optional context preservation, corrupt bytes/digests/MIME, missing media, receipt compatibility, rejection of synthetic inputs, duplicate/conflict handling, capacity limits, source media ID collisions, search, required weather coordinates, model provenance, unit failures and cross-site cache isolation. They do not execute browser IndexedDB transactions or prove ecological accuracy.
+
+Manual checks still required: actual downloads/import in a second profile, phone camera/video/voice/GPS, keyboard/mobile layout, a successful consented visual-AI call, map loading and production offline installation. See DEMO_GUIDE.md.
+
+---
+
+## Historical verification (before this branch)
+
 # Verification ledger — 2026-09-30
 
 ## Current map/lab/observatory delivery

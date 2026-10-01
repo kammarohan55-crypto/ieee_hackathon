@@ -134,6 +134,12 @@ export function makeIssue(
   };
 }
 export function validObservationTime(value: string, now = new Date()): boolean {
+  // Historical sources can supply a day without a defensible time zone or time.
+  // Keep that precision in the record; UTC is used only to validate the calendar.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const day = new Date(`${value}T00:00:00Z`);
+    return Number.isFinite(day.getTime()) && day.toISOString().slice(0, 10) === value && value <= now.toISOString().slice(0, 10);
+  }
   const match =
     /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/.exec(
       value,

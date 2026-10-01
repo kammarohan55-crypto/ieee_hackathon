@@ -1,0 +1,125 @@
+{
+  "suite": "AquaLens real-evidence transfers",
+  "generatedAt": "2026-10-01T02:23:32.629Z",
+  "liveAI": false,
+  "passed": 28,
+  "total": 28,
+  "limitations": [
+    "Authored software fixtures, not field evidence.",
+    "No browser, IndexedDB transaction, camera or download completion test."
+  ],
+  "results": [
+    {
+      "name": "No records are invented for an empty workspace",
+      "passed": true
+    },
+    {
+      "name": "Migration excludes synthetic reports, illustrative media and synthetic coordinates",
+      "passed": true
+    },
+    {
+      "name": "Field pack round-trip preserves original words, unknowns, filename, context and bytes",
+      "passed": true
+    },
+    {
+      "name": "Changed bytes fail integrity validation before import",
+      "passed": true
+    },
+    {
+      "name": "Changed digest, media size and MIME fail validation",
+      "passed": true
+    },
+    {
+      "name": "Missing local media is counted without invented replacement bytes",
+      "passed": true
+    },
+    {
+      "name": "Metadata-only export never reads private media bytes",
+      "passed": true
+    },
+    {
+      "name": "Existing JSON receipts and collections remain importable",
+      "passed": true
+    },
+    {
+      "name": "Synthetic evidence is rejected even in a single receipt",
+      "passed": true
+    },
+    {
+      "name": "Duplicate import is idempotent despite property ordering",
+      "passed": true
+    },
+    {
+      "name": "Conflicting report IDs preserve existing original and review decisions",
+      "passed": true
+    },
+    {
+      "name": "Shared media IDs with different metadata block merging",
+      "passed": true
+    },
+    {
+      "name": "Unreferenced or repeated embedded media cannot enter storage",
+      "passed": true
+    },
+    {
+      "name": "Malformed JSON, unsupported versions, empty collections and repeated record IDs are rejected",
+      "passed": true
+    },
+    {
+      "name": "Record limit prevents partial overflow imports",
+      "passed": true
+    },
+    {
+      "name": "Review search matches words across site, note and ID while honoring status",
+      "passed": true
+    },
+    {
+      "name": "SVG or script-like payload MIME cannot enter a field pack",
+      "passed": true
+    },
+    {
+      "name": "Export rejects locally altered originals instead of emitting a misleading hash",
+      "passed": true
+    },
+    {
+      "name": "All three bundled source photographs match the recorded digest and decode as JPEG",
+      "passed": true
+    },
+    {
+      "name": "Reference drafts retain source dates and leave words, readings and coordinates unknown",
+      "passed": true
+    },
+    {
+      "name": "Source day precision never becomes an invented midnight or a shifted local date",
+      "passed": true
+    },
+    {
+      "name": "A historical photo review round-trips with licence, source and unchanged source bytes",
+      "passed": true
+    },
+    {
+      "name": "Public photos cannot be imported as firsthand uploads after stripping attribution",
+      "passed": true
+    },
+    {
+      "name": "Unknown or altered source credits cannot enter the workspace",
+      "passed": true
+    },
+    {
+      "name": "Historical review rejects invented field coordinates, instrument readings or context",
+      "passed": true
+    },
+    {
+      "name": "Historical photo date and site cannot be relabeled as a new visit",
+      "passed": true
+    },
+    {
+      "name": "Reference media cannot be removed or replaced with unrelated bytes",
+      "passed": true
+    },
+    {
+      "name": "Receipt, CSV and graph explicitly distinguish photographer from review author",
+      "passed": true
+    }
+  ]
+}

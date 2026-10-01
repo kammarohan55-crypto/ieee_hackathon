@@ -3,7 +3,7 @@ import { measurementWarnings, type MediaEvidence } from "./field";
 
 // Prefix site values so a real site called "all" is still selectable.
 export const siteFilterValue = (site: string) => `site:${site}`;
-export const isSyntheticRecord = (report: Report) => report.original.synthetic || !!report.field?.media.some((m) => m.origin === "illustration");
+export const isSyntheticRecord = (report: Report) => report.original.synthetic || report.field?.coordinates?.method === "synthetic" || !!report.field?.media.some((m) => m.origin === "illustration");
 export function filterAtlasRecords(reports: Report[], filter: string, includeSynthetic = true) {
   const site = filter.startsWith("site:") ? filter.slice(5) : null;
   const validSite = site !== null && reports.some((r) => r.original.site === site) ? site : null;

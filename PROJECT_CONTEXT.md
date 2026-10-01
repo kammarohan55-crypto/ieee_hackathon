@@ -1,52 +1,57 @@
-# AquaLens — project handoff
+# AquaLens — current project handoff
 
-Updated 2026-09-30, Asia/Kolkata. App checkout: streamcheck/. Former name StreamCheck; storage keys and working lifecycle preserved.
+Updated 2026-10-01. Repository: https://github.com/kammarohan55-crypto/ieee_hackathon. Current branch: `improve/real-evidence-workspace`, based on `d1fbcff`. Read Git for the exact final commit.
 
-## User intent and active constraints
-Competitive OneAquaHealth Track 3 AI-Supported Assessment. Premium aquatic, interactive mobile interface; genuine evidence, no fabricated AI/live data/scientific claims. Preserve working parts, use existing maintained libraries, efficient tokens. Ask only for a required missing credential. User registered; friends may join later.
-LATEST: user personally tests the website. Do not start/restart a server, visit/check the website, take screenshots or run browser QA unless requested again. Source/type/lint/domain/build checks were used for this delivery. No broad planning questions.
-A new AI must receive this workspace and read AGENTS.md + this file; automatic chat memory is not assumed. docs/BUILD_PLAN.md is historical intent, code/results establish status. docs/SOURCES.md records external/user-supplied claims.
+## User goal and instructions
 
-## Track and delivery context
-User rubric: impact30/innovation20/implementation20/usability15/feasibility15. Official deadline extension checked Sept28: Oct4 2026 21:00 PDT = Oct5 09:30 IST; recheck before submission. New user-pasted Sept30 brief emphasizes responsible prompts, checks, explainability and human oversight for Track3; contains contradictory eligibility text, so no fresh eligibility/prize claim. Public source repo delivered Sept30; actual3–5min video and judge-access deployment remain delivery tasks. No promise of winning, organizer endorsement or scientific validation.
+Improve this existing project for OneAquaHealth, debug errors, remove fake data, make the site professional, and identify useful river photos. Primary track remains Track 3 (AI-Supported Assessment). Software/phone-based solution; no new hardware. Do not promise a competition result or fabricate field data, AI output, environmental measurements or validation.
 
-## Architecture and core behavior
-Vinext/React/TypeScript/Zod, Cloudflare Worker routes. app/page.tsx -> components/streamcheck.tsx.
-- Original notes/time/appearance -> limited English rules + optional Gemini text -> explicit clarification/uncertainty/dismissal -> citizen confirmation -> local reviewer/history -> portable receipt.
-- Field Studio: native camera/photo/10s silent video/upload, IndexedDB original Blobs+SHA256, canvas brightness/detail/resolution heuristics, manual ghost guide, instrument metadata, browser dictation with explicit transcript adoption.
-- Optional visual Gemini accepts consented resized JPEG, returns strict enum candidate appearances/region/qualitative uncalibrated confidence. No pollutant identity, instrument readings, pathogens, safety or ecological conclusions. Humans must judge every candidate before final review; new judgment reopens review and retains old decisions.
-- Evidence completeness0–100 is a transparent prototype checklist, never scientific accuracy/water health. JSON/CSV/GeoJSON tested; media separately downloaded. FAIR-oriented metadata, no certification.
-- Browser-local reports: localStorage streamcheck-workspace-v1. Media: IndexedDB aqualens-evidence. Draft: aqualens-draft-v1. Cross-tab refresh supported. Demo roles/history are unauthenticated/unsigned, not a durable team backend.
-- Workbox production precache/navigation after controlled online visit. AI/weather/tiles need network. Modeled city weather remains separate from stream evidence.
-No community consensus, statistical outlier model, forecasting, calibrated ecological model, physical twin, official OneAquaHealth API/FHIR integration or custom training.
+The pre-existing project context explicitly assigned browser/device QA to the user and prohibited starting/restarting a server, visiting the app, screenshots or browser QA unless requested again. This pass respected that preference: source/tests/build only. A future explicit request for browser testing can change it. No broad permission questions were needed for implementation.
 
-## Sept30 observatory / geographic / Evidence Lab delivery
-Existing workflow retained; no new dependency/API/model.
-- components/river-observatory.tsx + lib/river-observatory.ts + app/river.css: default River stories, original illustrated SVG river, actual exact-site counts, selected record chronology, Story/Evidence/Method, retained media/provenance/unknowns, pause/reduced motion. Persistent schematic/not-geographic/no-water-health labels. Matching labels establish no shared waterway.
-- components/geographic-evidence-map.tsx + lib/geographic.ts + app/geographic-map.css: optional real MapLibre/OpenFreeMap map, neutral world with no GPS, exact-coordinate marker groups, date-line-safe fit, coordinate source/accuracy/time dossier, accessible record index, unplotted valid polar/missing/invalid distinctions, retry/network/WebGL fallback. No guessed site markers. Static unmodified licensed worker adapter preserved.
-- components/evidence-lab.tsx + lib/evidence-lab.ts + app/evidence-lab.css: saved-record inspection first, source-highlighted stored checks, AI/rule labels, media/readings and retained decisions; deterministic replay uses creation time when available without changing stored decisions. Separate editable synthetic practice never saves or calls AI. Engineering report is collapsible, labeled software checks.
-- lib/evidence-trail.ts + updated workbench/app/evidence-trail.css: graph separates citizen/rules/AI/human/pending, retains visual disagreements and reading metadata, collision-free graph IDs, keyboard/list inspection and no stale detail from another record.
-- lib/atlas.ts + app/atlas.css: safe exact-site filter including real site named all, synthetic exclusion including illustrative media, immutable chronology, distinct-photo pairing, actual coverage, JSON collection receipts/CSV/GeoJSON. Focus view hides supporting panels (not browser fullscreen). Timeline/missions/comparisons collapsible; removed retired Lab UI/state and42dead CSS rules.
-- pH comparison requires one selected site, three distinct actual instants, one instrument and passing metadata; timezone-equivalent timestamps cannot inflate distinct observations. No environmental trend or significance inference.
-- Reliability: draft epoch guards prevent late AI attaching to reset draft; form/GPS/voice reset by generation; camera pending/late-unmount cleanup; media identity/disposal guards; reviewer note clears between reports.
+## October 1 reference-photo continuation
 
-## Secrets and providers
-Gemini already configured in ignored .dev.vars and prior private Sites secret. Never print/copy key, use it in client code, exports, screenshots or commits. A new key is not needed for this pass. Default/configured gemini-3.8-flash with low thinking; historical text success3/3 Sept29, high-demand failures preserved. Visual success remains unverified after503responses. Free tier is account/quota dependent and inputs may improve Google products; explicit consent retained.
-OpenFreeMap/Open-Meteo keyless prototype usage and attribution in docs/SOURCES.md. Weather is modeled context, not stream sensors.
+User explicitly asked the assistant to take the linked photos, finish the project and push GitHub; GitHub is now connected and reports write permission. Downloaded and visually inspected three Wikimedia 1280px thumbnails (Mutha River/Pune, Scenic Reflection, Sambhaji Bridge), 1.14 MB combined. Actual source dates are 2010-08-03, 2023-06-06 and 2023-06-12, retained at day precision. Credits/licences/source URLs are in `lib/references.ts` and `public/images/references/CREDITS.md`.
 
-## Verification and limitations
-Current86/86 authored domain assertions pass, adding map bounds/provenance, exact source spans, immutable replay, graph source/ID integrity, distinct timestamp/collection behavior. Existing19/19 actual route-contract tests passed earlier in this session using mocked Worker env/fetch; final map/lab pass changed no route and made no provider calls.
-TypeScript/full ESLint0errors0warnings, six stylesheet parses and production build pass. Workbox18assets/5,836,055bytes. Existing>500kB chunk warning remains. Release check162source/84built files, configured-key matches0, required worker/license/PWA/assets present, test assets current. Not a comprehensive security/science/device audit.
-Historical browser core flow/media/range warning/map/transparency/persistence verified before latest manual-only instruction. Basic River smoke: focus/sample toggle/site Evidence and390px no horizontal overflow; later new map/lab/graph not browser-tested. See docs/QA.md for precise separation.
-User must check new UI, keyboard/mobile, camera/video/voice, ghost alignment, successful visual AI, native downloads, two-photo divider, PWA install/offline. Earlier receipt download-event wait timed out; completion unverified. No independent ecological benchmark, ecologist review, assistive-technology study or production security assessment.
-The previously requested dev process was last started as PID13456; this pass did not start/restart/visit it. No current server-health claim. Logs/PID in ignored .sites-runtime.
+Real credited hero photo and a Field kit gallery now lead into an explicit historical-photo review. A user writes their own note; local checks, optional consented live AI, clarification, confirmation, review, graph and receipt reuse the existing workflow. No notes, AI outputs, readings or visits are pre-generated. Source date/site are fixed, media digest is verified on selection, credits travel with packs/exports, and cross-field checks reject stripped or mismatched attribution, changed source dates or invented coordinates/measurements/context. Historical photo reviews are labeled throughout, counted separately and excluded from the field atlas/current weather. Added day-precision validation to avoid inventing a time zone or blocking these reviews. The bundled images and credits are included in the production offline cache.
 
-## Repository / hosting
-Origin: https://github.com/kammarohan55-crypto/ieee_hackathon.git, branch main. GitHub public visibility verified Sept30; user explicitly authorized this destination. Map/lab/observatory implementation commit14c5532 was pushed to origin/main after passing release checks. A documentation follow-up may advance main; inspect git status/log/remote for the exact HEAD. No Sites publication occurred.
-On this Windows host use per-command trust only: git -c safe.directory='C:/Users/Rohan/OneDrive/Desktop/ieee hackathon/streamcheck' … . Do not change global Git trust. Secret/runtime/dependencies/build/outputs ignored. Local ZIP may be refreshed from git archive after commit.
-Existing owner-private Sites project appgprj_6ab966e17e388191a45bd547269c9f45 in .openai/hosting.json, no live URL/deployment confirmed. Earlier automatic approval review rejected Sites source-export/publishing helper: destination not authorized. Do not bypass/retry without explicit Sites destination approval. GitHub authorization does not authorize Sites. No hosting change in this pass.
+## Earlier real-evidence improvements
 
-## Commands and exact next step
-From streamcheck: npm install; npm test; npm run typecheck; npm run lint; npm run build; npm run verify:release. Windows npm fallback: node "C:/Program Files/nodejs/node_modules/npm/bin/npm-cli.js". Build wrapper scripts/build.mjs. npm run dev/npm start only when user requests; respect manual-only website checks.
-docs/FEATURE_AUDIT.md classifies current features; README covers architecture/setup; docs/DEMO_GUIDE.md gives exact demo actions, manual checks and bug template; docs/SUBMISSION_KIT.md has truthful submission draft/rubric evidence.
-Next: user manually walks new River Observatory/Geographic map/Evidence Lab, reports observed issues. Fix source with targeted checks; preserve original/unknowns and user testing preference. Submission still needs actual video, team credits, original-code license choice and verified judge-access deployment. Do not add unvalidated forecasting or duplicate dashboards.
+- Fresh workspace is empty. Removed fixture seeding, sample scenario loaders, synthetic-practice lab, illustrative-image upload and the generated hero PNG. Legacy synthetic records, synthetic coordinates and illustrative media are excluded from active reports. Before migration, an existing local workspace with samples is retained in `aqualens-legacy-samples-v1`. Genuine reports and review histories survive.
+- Editorial contour hero, useful empty state, photo guide and a new Field kit. Review search combines site/note/ID words with workflow filters. Actual photo thumbnails appear in overview rows.
+- Optional One Health citizen context: bank cover, wildlife seen/not seen, nearby human use, and an original note. Unknown remains the default. Confirmation/full receipt and JSON preserve these fields. This is context, not an ecological or health assessment.
+- Portable field packs: reports plus optional original photo/video bytes. Zod validation, SHA-256 checks, import preview, duplicate detection, conflicting-ID preservation, shared-media agreement and atomic IndexedDB additions. Existing receipt/collection exports can be imported. Limits: 500 records, 36 MB embedded media, 64 MB JSON. Missing files are explicitly counted. Import does not prove authenticity or authenticate an observer.
+- Original upload filenames retained. MP4/WebM clip uploads added (15-second/25 MB limits) alongside existing 10-second silent camera capture. First-frame heuristics only; no AI video analysis. Concurrent retain guard added.
+- Fixed unrelated Coimbra weather: no default location or automatic request. Explicitly load current model weather for a saved report's supplied coordinates. Separate coordinate cache, validated units/time, grid/requested coordinate provenance and honest failure. Not historical weather, stream sensor data or water quality.
+- Fixed fresh-install lockfile missing optional @emnapi entries. No dependencies added. Client AI response validated before display. Cross-tab removal now clears the view rather than resurrecting stale records. Reports at the 500-record limit fail before overflowing persistence.
+- Updated README, demo/submission/QA/source docs and added `docs/MEDIA_CHECKLIST.md`. Live-visual smoke script now requires a supplied local file and explicit `--consent`; no synthetic default image, and result stays in ignored runtime storage.
+
+## Architecture and storage
+
+Vinext/React/TypeScript, Zod, Cloudflare Worker routes, optional Gemini. Core citizen → clarification → explicit confirmation → local reviewer/history → receipt remains intact. Original evidence and human disagreements are retained. Existing map, river stories, graph, local replay, measurements, follow-ups, ghost guide and production PWA remain.
+
+Reports: localStorage `streamcheck-workspace-v1`. Draft: `aqualens-draft-v1`. Original media: IndexedDB `aqualens-evidence`. Field packs are file-based handoff, not multi-user synchronization. There is no authenticated reviewer, shared backend, signed provenance, forecast, species/contamination diagnosis, FHIR integration or validated ecological model.
+
+Important additions: `lib/workspace.ts`, `components/collection-tools.tsx`, `components/field-guide.tsx`, `components/site-conditions.tsx`, `app/workspace.css`, `scripts/test-workspace.mjs`.
+
+## Verified in this checkout
+
+- 86/86 authored domain assertions, 28/28 field-pack/source integrity checks, 21/21 mocked route contracts: **135/135**.
+- TypeScript, ESLint, nine stylesheet parses, production build and release asset checks pass.
+- Repaired lockfile passes npm ci validation after the initial clean-install failure.
+- Build contains 23 precached assets, 4,432,233 bytes (approximately 4.43 MB). Existing large-chunk warning remains.
+- No live AI/weather/browser/device verification this session. Fresh clone has no configured Gemini key; historical provider success in another installation does not establish current availability.
+- No server/deployment was started. Camera/video/voice, IndexedDB transaction behavior, actual download completion and responsive interactions still need the user's browser walkthrough.
+
+## Repository delivery / hosting
+
+Earlier improvements are committed locally as `6db1530`; the October 1 reference-photo continuation is staged for the final source delivery. `origin/main` was verified at `d1fbcff2a329360d489b3c3c0a2deb1d39b44bb9` before delivery. The previous CLI credential blocker is resolved by the now-connected GitHub app, which reports push permission. Final update and read-back verification are the next step; do not mistake the old September 30 ZIP/patch under ignored `outputs/` for this latest source set. Existing owner-private Sites project `appgprj_6ab966e17e388191a45bd547269c9f45` is untouched. Earlier context recorded an automatic approval rejection for Sites export/publishing, with no authorized Sites destination; do not retry or bypass it. No judge-access deployment is verified.
+
+## Exact next steps
+
+1. Finish the authorized GitHub push and verify remote tree/commit against this tested source. No additional push permission is needed.
+2. User can run the bundled historical-photo demo immediately: Field kit → Review this photo → original note → checks → confirmation → Review desk → receipt → field pack. No user photos or video are needed for this path. Perform the browser steps in `docs/DEMO_GUIDE.md`; this session did not run a server or browser.
+3. For firsthand field evidence, optionally collect the three original views in `docs/MEDIA_CHECKLIST.md` with actual visit details. Do not relabel public photos as a new visit.
+4. Configure an own server-side Gemini key in ignored `.dev.vars` if demonstrating live AI. Never print or commit it. No live visual success is verified in this checkout.
+5. Verify a judge-access deployment, add real team credits/code licence choice, record the 3–5 minute demo and complete the submission. No hosted deployment or submission is claimed.
+
+Commands: `npm ci`; `npm test`; `npm run typecheck`; `npm run lint`; `npm run build`; `npm run verify:release`. Start dev/preview only when requested. No success claim substitutes for a missing field/deployment/device check.

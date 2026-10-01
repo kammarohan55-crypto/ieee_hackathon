@@ -10,14 +10,14 @@ const directory = path.resolve(".sites-runtime/api-tests");
 await mkdir(directory, { recursive: true });
 await writeFile(path.join(directory, "env.mjs"), "export const env = {};\n");
 const files = [
-  ["lib/field.ts", "field"], ["lib/assessment.ts", "assessment"], ["lib/gemini.ts", "gemini"],
+  ["lib/references.ts", "references"], ["lib/field.ts", "field"], ["lib/assessment.ts", "assessment"], ["lib/gemini.ts", "gemini"],
   ...["assess", "visual", "conditions"].map((name) => [`app/api/${name}/route.ts`, `route-${name}`]),
 ];
 for (const [file, name] of files) {
   const code = ts.transpileModule(await readFile(file, "utf8"), {
     compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
   }).outputText.replaceAll('"cloudflare:workers"', '"./env.mjs"')
-    .replace(/"(?:@\/lib\/|\.\/)(field|assessment|gemini)"/g, '"./$1.mjs"');
+    .replace(/"(?:@\/lib\/|\.\/)(field|assessment|gemini|references)"/g, '"./$1.mjs"');
   await writeFile(path.join(directory, `${name}.mjs`), code);
 }
 const moduleAt = (name) => import(pathToFileURL(path.join(directory, `${name}.mjs`)));
@@ -163,20 +163,39 @@ try {
     }
     assert.equal(calls.length, 6);
   });
+  await test("Weather requires explicit finite coordinates before calling its provider", async () => {
+    calls = [];
+    for (const query of ["", "?lat=&lon=0", "?lat=91&lon=1", "?lat=1&lon=181", "?lat=NaN&lon=0"]) {
+      assert.equal((await weather.GET(new Request(`https://aqualens.test/api/conditions${query}`))).status, 400);
+    }
+    assert.equal(calls.length, 0);
+  });
   await test("Weather rejects unknown units instead of relabeling values", async () => {
-    responder = () => Response.json({ current: { time: "2026-09-29T09:00", interval: 900, temperature_2m: 70, precipitation: 0, wind_speed_10m: 5 }, current_units: { temperature_2m: "°F", precipitation: "mm", wind_speed_10m: "km/h" } });
-    assert.equal((await weather.GET()).status, 503);
+    responder = () => Response.json({ latitude: 18.5, longitude: 73.875, current: { time: "2026-09-29T09:00", interval: 900, temperature_2m: 70, precipitation: 0, wind_speed_10m: 5 }, current_units: { temperature_2m: "°F", precipitation: "mm", wind_speed_10m: "km/h" } });
+    assert.equal((await weather.GET(new Request("https://aqualens.test/api/conditions?lat=18.52&lon=73.85"))).status, 503);
   });
   await test("Weather retains source time, interval and provenance, then uses its cache", async () => {
     calls = [];
-    responder = () => Response.json({ current: { time: "2026-09-29T09:00", interval: 900, temperature_2m: 21, precipitation: 0.2, wind_speed_10m: 5 }, current_units: { temperature_2m: "°C", precipitation: "mm", wind_speed_10m: "km/h" } });
-    const body = await (await weather.GET()).json();
+    responder = () => Response.json({ latitude: 18.5, longitude: 73.875, current: { time: "2026-09-29T09:00", interval: 900, temperature_2m: 21, precipitation: 0.2, wind_speed_10m: 5 }, current_units: { temperature_2m: "°C", precipitation: "mm", wind_speed_10m: "km/h" } });
+    const body = await (await weather.GET(new Request("https://aqualens.test/api/conditions?lat=18.52&lon=73.85"))).json();
     assert.equal(body.time, "2026-09-29T09:00");
     assert.equal(body.interval, 900);
     assert.equal(body.kind, "weather_model_context");
     assert.equal(body.temperature, 21);
-    assert.deepEqual(await (await weather.GET()).json(), body);
+    assert.deepEqual(body.requestedCoordinates, { lat: 18.52, lon: 73.85 });
+    assert.deepEqual(body.gridCoordinates, { lat: 18.5, lon: 73.875 });
+    assert.match(calls[0][0], /latitude=18.5200&longitude=73.8500/);
+    assert.deepEqual(await (await weather.GET(new Request("https://aqualens.test/api/conditions?lat=18.52&lon=73.85"))).json(), body);
     assert.equal(calls.length, 1);
+  });
+  await test("Weather never serves one location's cached data at another location", async () => {
+    calls = [];
+    responder = () => new Response("unavailable", { status: 503 });
+    const result = await weather.GET(new Request("https://aqualens.test/api/conditions?lat=0&lon=0"));
+    assert.equal(result.status, 503);
+    assert.equal((await result.json()).temperature, undefined);
+    assert.equal(calls.length, 1);
+    assert.equal(result.headers.get("Cache-Control"), "no-store");
   });
 } finally { globalThis.fetch = originalFetch; }
 const report = { suite: "AquaLens route contracts", generatedAt: new Date().toISOString(), liveAI: false, providerTests: "Mocked fetch and Worker environment; actual route code. No live service or ecological validation.", passed: results.filter((r) => r.passed).length, total: results.length, results };

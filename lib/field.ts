@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { Report } from "./assessment";
+import { referencePhotos, type ReferencePhoto } from "./references";
 
 export const findingKinds = [
   "brown_appearance",
@@ -43,7 +44,20 @@ export const visualSchema = z
       .max(5),
   })
   .strict();
+export const referenceSchema = z.object({
+  id: z.string(), title: z.string(), site: z.string(), src: z.string(),
+  author: z.string(), sourceUrl: z.string().url(), license: z.string(), licenseUrl: z.string().url(),
+  capturedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), sha256: z.string().regex(/^[a-f0-9]{64}$/), derivative: z.string(),
+}).refine((ref) => referencePhotos.some((photo) => Object.entries(ref).every(([key, value]) => photo[key as keyof ReferencePhoto] === value)),
+  "Reference credit must match the bundled source catalogue.");
 export const fieldSchema = z.object({
+  reference: referenceSchema.optional(),
+  oneHealth: z.object({
+    bank: z.enum(["not_recorded", "vegetated", "bare", "built", "mixed"]),
+    wildlife: z.enum(["not_recorded", "seen", "not_seen"]),
+    humanUse: z.enum(["not_recorded", "walking", "recreation", "water_collection", "other"]),
+    note: z.string().max(1000),
+  }).optional(),
   followupOf: z.string().min(1).max(100).optional(),
   coordinates: z
     .object({
@@ -64,7 +78,8 @@ export const fieldSchema = z.object({
         createdAt: z.string(),
         width: z.number(),
         height: z.number(),
-        origin: z.enum(["camera", "upload", "illustration"]),
+        origin: z.enum(["camera", "upload", "illustration", "public_reference"]),
+        filename: z.string().max(255).optional(),
         quality: z.object({
           brightness: z.number(),
           edgeDetail: z.number(),
@@ -117,6 +132,28 @@ export const newField = (): FieldEvidence => ({
   followups: [],
   dispositions: [],
 });
+export function createReferenceDraft(photo: ReferencePhoto) {
+  return {
+    draft: { site: photo.site, observedAt: photo.capturedDate, note: "", appearance: "unsure" as const, synthetic: false },
+    field: { ...newField(), reference: referenceSchema.parse(photo) },
+  };
+}
+// Cross-field integrity is checked for restored drafts, saved records and every transfer.
+export function assertReferenceRecord(report: Pick<Report, "original" | "field">) {
+  const f = report.field, ref = f?.reference;
+  if (!ref) {
+    if (f?.media.some((m) => m.origin === "public_reference" || referencePhotos.some((p) => p.sha256 === m.sha256)))
+      throw new Error("A public reference photo must retain its source attribution.");
+    return;
+  }
+  referenceSchema.parse(ref);
+  if (report.original.observedAt !== ref.capturedDate || report.original.site !== ref.site)
+    throw new Error("Keep the historical photo's source date and location unchanged.");
+  if (f.coordinates || f.measurements.length || f.oneHealth || f.followupOf)
+    throw new Error("A historical photo review cannot contain new field measurements or visit context.");
+  if (f.media.length !== 1 || f.media[0].origin !== "public_reference" || f.media[0].kind !== "photo" || f.media[0].sha256 !== ref.sha256)
+    throw new Error("A historical photo review must retain its credited source image.");
+}
 export function createFollowupDraft(source: Report) {
   return {
     draft: {
@@ -185,7 +222,7 @@ export function fieldQuestions(
   for (const media of field.media) {
     if (media.quality.warnings.length)
       questions.add(
-        "Image limitations were flagged. What could not be seen clearly, and can you retake from a safe position?",
+        field.reference ? "Image limitations were flagged. What can you see in this historical photo, and what remains unclear?" : "Image limitations were flagged. What could not be seen clearly, and can you retake from a safe position?",
       );
     for (const finding of media.visual?.findings ?? []) {
       const color = finding.kind.replace("_appearance", "");
@@ -286,8 +323,10 @@ export function decisionReceipt(report: Report) {
     identifier: `aqualens:local:${report.id}`,
     quality: observationQuality(report),
     metadata: {
-      title: `Stream observation: ${report.original.site}`,
-      creator: "Local citizen (identity unverified)",
+      title: `${report.field?.reference ? "Historical photo review" : "Stream observation"}: ${report.original.site}`,
+      creator: report.field?.reference ? "Local photo-review author (identity unverified); photographer credited separately" : "Local citizen (identity unverified)",
+      evidenceBasis: report.field?.reference ? "historical_photo_review" : "firsthand_observation",
+      photoAttribution: report.field?.reference,
       license: "Unspecified; author permission required for reuse",
       accessRights: "Browser-local; export controlled by the user",
       spatialReference: "WGS84 / EPSG:4326",
@@ -321,6 +360,7 @@ export function exportCSV(reports: Report[]) {
       "quality_completeness",
       "latitude",
       "longitude",
+      "evidence_basis", "photo_source", "photo_author", "photo_license", "photo_source_date",
     ],
     ...reports.map((r) => [
       r.id,
@@ -333,6 +373,8 @@ export function exportCSV(reports: Report[]) {
       observationQuality(r).value,
       r.field?.coordinates?.lat,
       r.field?.coordinates?.lon,
+      r.field?.reference ? "historical_photo_review" : "firsthand_observation",
+      r.field?.reference?.sourceUrl, r.field?.reference?.author, r.field?.reference?.license, r.field?.reference?.capturedDate,
     ]),
   ];
   return rows.map((r) => r.map(csvCell).join(",")).join("\r\n");

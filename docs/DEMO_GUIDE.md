@@ -1,82 +1,63 @@
-# AquaLens demonstration and manual checks
+# Ready-to-use historical photo demo
 
-Track 3: AI-Supported Assessment. The central story is **citizen evidence → explainable questions → explicit confirmation → human review → portable decision record**.
+The three credited reference photos are included in the repository and production offline cache. You do not need a Google Photos account, a video, or a new field visit for this path. Start the app using the README setup commands.
 
-This guide follows the source, not a claim that every browser, device or provider interaction has been tested. The user performs website checks. Current local changes must be built/published before presenting them as a deployed release.
+1. Open **Field kit** and choose **Review this photo** on any of the three Mutha River frames.
+2. Show the photographer, source page, licence and historical date. Inspect the full frame. The date cannot be silently turned into today; no new GPS or measurements are attached.
+3. Write one or two sentences in your own words about details you can see and anything unclear. Do not read a prepared fake observation. Select **Not observed / unsure** if the water appearance is uncertain.
+4. Optionally enable configured visual AI with consent. Otherwise show the local image checks. An unavailable provider remains visibly unavailable.
+5. Run the text checks. Answer or retain uncertainty for any clarification and evidence follow-up, then confirm the historical-photo review.
+6. Open the full receipt in the **Review desk**. Show the source credit, source date, original note and graph. If visual AI returned candidates, give a reasoned judgment for each. Add your own review note and mark the record reviewed.
+7. Open **Evidence lab** to inspect the saved record or replay local rules without changing it.
+8. In **Field kit**, download a field pack with media. In a second browser/profile, preview and import the file. Show the retained photo, licence and note. The **River observatory** intentionally contains firsthand field observations only.
 
-## Prepare your recording
+This is a photo-review demonstration using real sourced images. It is not current river monitoring or proof of a water condition. No shared backend or authenticated reviewer is claimed. The latest source/build checks pass; the steps above still need the user's browser walkthrough.
 
-- Use one browser profile; records and original media stay on that device. Do not clear browser storage during the demonstration.
-- Start your local copy yourself if needed: from `streamcheck`, run `npm run dev`, then open the address printed by the terminal. See README for installation and optional Gemini setup.
-- Use the visibly labeled synthetic example for a repeatable judge demonstration. Use your own safe, non-identifying photo for a real capture example; keep practice claims marked synthetic.
-- Keep a rules-only path ready. Optional Gemini requests need consent and a working server-side key; a provider error is not an AI finding.
-- To show a geographic marker, prepare a saved record with explicitly supplied coordinates. Sample site names alone do not create locations.
-- To show the comparison divider, retain two distinct photos. Missing local files should show an unavailable-media state, not a replacement image.
+---
 
-## A 3–5 minute judge demonstration
+# AquaLens: real-evidence demonstration
 
-| Time | Actions | What to explain |
+Primary track: **Track 3 — AI-Supported Assessment**. Supporting themes: citizen science UX, inspectable data and One Health awareness. The core journey is citizen evidence → explainable questions → explicit confirmation → human review → portable field pack.
+
+## Prepare
+
+1. Install with `npm ci`, then start `npm run dev`. A fresh workspace is empty.
+2. Collect the three original photos described in [MEDIA_CHECKLIST.md](MEDIA_CHECKLIST.md), plus the real place/time and your own note. Do not invent a problem, instrument value, AI result or ecological conclusion for the video.
+3. If showing AI, configure your own server-side key in ignored `.dev.vars`. Confirm provider availability before recording. Rules work without a key; call them rules.
+4. Keep a second browser/profile ready for an import demonstration. Records are browser-local; there is no cloud team sync.
+
+## A 4–5 minute recording
+
+| Time | Show | Explain |
 | --- | --- | --- |
-| 0:00–0:25 | Show **Overview**; choose **Explore a sample**. | “AquaLens helps people improve stream observations while keeping uncertainty and human judgment visible.” State that the example is synthetic. |
-| 0:25–1:15 | In **Field notebook**, inspect the brown-water note. Optionally choose **Upload photo** or **Try illustrative image**. Select **Find the questions worth asking**. | The original note contains a visible observation and an unsupported sewage conclusion. Local rules ask for evidence; they do not diagnose contamination. An illustrative image remains labeled synthetic. |
-| 1:15–1:50 | Answer a question and select **Confirm clarification**, or choose **Keep as uncertain**. Inspect completeness, confirm the citizen checkbox, then **Save observation for review**. | Answers are appended; the original is retained. Unknown information can remain unknown. The completeness score describes evidence availability, not water health or scientific confidence. |
-| 1:50–2:40 | In **Review desk**, open the new record. Turn on **AI Transparency Mode**; show the evidence graph and history. Enter a **Review note** and choose **Request more detail** or **Record review**. | The reviewer records a reasoned workflow decision. The role is a local demo, not authenticated institutional approval. For retained visual AI candidates, record a human judgment with a reason; disagreements preserve both sources. |
-| 2:40–3:20 | Open **Evidence lab → Saved evidence**. Select the same observation. Show **Checks**, **Media & readings**, then **Decisions**. Click **Replay rules**, compare **Stored** with **Local replay**. | Source quotes, measurement metadata and human decisions can be inspected together. Replay runs current local rules without changing the saved record. Text AI and rule checks remain distinguishable. |
-| 3:20–4:15 | Open **River observatory → River stories**. Select a site and inspect **Story**, **Evidence**, **Method**. Use its older/newer record controls and **Focus view**. Briefly show **Geographic map** if coordinates exist. | The river scene is an illustrative schematic. Site labels do not prove connected waterways. The map places only supplied coordinates; missing coordinates remain missing. Neither display is a sensor feed or environmental forecast. |
-| 4:15–4:45 | Select **Open full evidence**, then **Download Decision Receipt**. Alternatively show collection **JSON receipts**, **CSV** or **GeoJSON**. | The portable record contains originals, check provenance, uncertainty and review history. Media downloads separately. Metadata is FAIR-oriented; receipts are local and unsigned. |
+| 0:00–0:30 | Overview and Field kit | A stream observation should remain useful without overstating what it proves. Counts start at zero and grow only from real entries. |
+| 0:30–1:20 | Field notebook: upload original photos; add real site/time, note and optional One Health context | The app preserves originals. A bank, wildlife and nearby human activity can be recorded without inventing health outcomes. |
+| 1:20–2:00 | Local checks or consented AI, clarification, completeness breakdown, confirmation | Distinguish a visible detail from a cause. Every answer is explicit; unknowns stay unknown. No matched issue is also an honest result. |
+| 2:00–2:50 | Review desk: search, original note/media, source graph, visual-candidate judgment if present, review note | Human decisions stay inspectable. Workflow review is not environmental certification or an authenticated institutional approval. |
+| 2:50–3:30 | Evidence lab and the supplied-coordinate map | Replay rules without changing the saved record. Only supplied locations appear; weather is current model context, loaded explicitly for those coordinates. |
+| 3:30–4:30 | Field kit → Download field pack; choose file in another profile → preview → Import evidence | Reports and original media travel together. Media hashes detect mismatched bytes. Duplicates and conflicting IDs do not overwrite local reports. |
+| 4:30–4:50 | Return to the real report and state next steps | Field-user evaluation, expert feedback, authenticated collaboration and durable hosting are next. No ecological accuracy or competition result is claimed. |
 
-For a shorter recording, omit the optional photo and map branch. Preserve the citizen-to-reviewer flow and Evidence Lab inspection.
+If live AI fails, show the error and continue with local checks. Do not substitute recorded responses or synthetic findings. If you have only a single real observation, demonstrate that one well.
 
-Useful closing sentence: “The prototype improves the inspectability of an observation; it keeps the decision and its limitations available for the next person.”
+## Device checks before recording
 
-## Extra interactions worth showing
+- Fresh browser: zero records and a useful onboarding state; no synthetic scenarios or illustrative evidence upload.
+- Mobile and keyboard: navigation scrolls within its bar, controls remain reachable, focus remains visible, and no page-wide overflow appears.
+- Photo/clip upload: originals and filenames appear; damaged/unsupported/oversized files fail clearly. MP4/WebM clips over 15 seconds are rejected.
+- Camera/GPS refusal: note entry remains usable and no location is guessed.
+- One Health notes: leave unknowns as unknown; confirm and inspect them in the full receipt and exported JSON.
+- AI failure: local evidence is retained; a provider failure never fabricates findings. Review requires a reason for each retained visual candidate.
+- Save/reload: report and media persist. Partial clarification resumes from the saved original draft.
+- Weather: no request without a chosen saved location and explicit click; switching locations never displays a different site's cached result. Errors hide previous readings.
+- Search: combine words from a site and note with the review status filter.
+- Field pack: export with media, import in a second profile, inspect actual restored photos; repeat import and confirm no duplicate records. Modify bytes in a disposable copy and confirm import rejection.
+- Receipt-only import: reports restore with visible missing-media states. It cannot recreate absent photo bytes.
+- Camera/video/voice: check on the actual phone/browser. Feature support varies.
+- Offline: use the production build after an online controlled visit. Local rules/records can work offline; providers and uncached map tiles need network.
 
-- **Evidence lab → Synthetic practice**: choose **Two descriptions, one report**, then **Run transparent checks**. The note says brown while appearance says clear; show the contradiction check. Editing practice text clears the old output; **Restore** reloads the scenario. Nothing is saved and no live AI request is made here.
-- **Repeat-photo guide**: upload a reference, open the camera, adjust **Reference opacity**, then **Remove guide**. This is manual framing assistance, not automatic image registration.
-- **Start a follow-up**: creates a fresh linked draft. Previous measurements, photographs and coordinates are not carried forward as new observations.
-- Expand **Explore the timeline, follow-up missions and photo comparison** only when needed. The comparison uses distinct retained images and exposes viewpoint/lighting limitations.
-- **Include synthetic samples**: switch off to show citizen records only. An empty collection is a valid state, not a reason to invent observations.
-- **Geographic map**: select a marker or location-list record, inspect coordinate source/accuracy and use **Fit locations**. **Not plotted** exposes missing/invalid/out-of-projection records. Coincident marker counts mean identical coordinates, not community agreement; **Retry basemap** retries map access only.
+These device checks have not been performed in this session because the project records the user's preference for manual website testing. Source/type/lint/build and domain/API/transfer tests are separate evidence.
 
-## Manual checks and expected behavior
+## Report an issue
 
-Run these yourself on your normal browser and phone. Report observed behavior rather than assuming a failure from an unsupported device feature.
-
-| Check | Expected behavior |
-| --- | --- |
-| Navigate with keyboard and a narrow viewport | Controls stay reachable, focus is visible, tabs and dialogs work; no clipped primary actions or sideways page scrolling. |
-| Decline camera/GPS permission | A readable error or unavailable state appears; note entry and photo upload remain usable. No invented coordinates. |
-| Capture photo / **10s clip** | Your captured evidence appears with provenance. Video is silent; image heuristics use its first frame. Closing/resetting stops capture. Device support varies. |
-| Upload an unsupported/damaged file | An explanatory error appears; a previous image must not masquerade as the failed upload. |
-| Optional **Ask visual AI** | Requires consent; success shows candidate findings with method/limitations. Failure shows the real error and preserves local evidence. No fabricated fallback AI results. |
-| Add an implausible instrument value | The entered value remains visible with validation questions/warnings. The app does not invent a corrected reading or infer water safety. |
-| Save without citizen confirmation | Saving stays unavailable until explicit confirmation. Uncertainty remains in the saved record. |
-| Review a visual AI candidate | Human judgments require reasons. A new judgment reopens the record for review while retaining earlier decisions. |
-| Evidence Lab replay | Stored originals, answers and history stay unchanged. Replay is visibly separate and identifies its time reference. |
-| Evidence Lab practice edits | Previous results clear when inputs change; practice never adds a saved observation. |
-| Map with no supplied coordinates | Missing locations are explicit; no marker is guessed from a site name. Records remain accessible without WebGL or basemap access. |
-| River site/record selection | Note, media, score and review status all follow the selected observation; schematic labels remain visible. |
-| Photo comparison | Two distinct retained photos are selected; divider works. Missing files show an honest unavailable state. No automatic change measurement. |
-| Export and reload | Inspect downloaded JSON/CSV/GeoJSON. Confirm source/provenance and synthetic labels; reload retains local saved records. Media files are separate. |
-| Offline behavior | Test a production build after an online visit has installed its service worker. Cached app/local rules may work; AI, maps and uncached resources need network. Development mode is not an offline-install proof. |
-
-Browser dictation is optional and device-dependent. Inspect the transcript before explicitly adopting it; it is not an independently verified structured observation.
-
-## Send a useful problem report
-
-```text
-Screen and action:
-Browser / device / viewport:
-Synthetic or citizen record; site and approximate date:
-Exact steps (including permission choices):
-Expected result:
-Actual result / exact error text:
-Does it repeat after reload?
-Screenshot or short recording (remove private information and keys):
-```
-
-Do not include API keys, faces, private GPS coordinates or unrelated personal data. If the problem concerns an export, share a redacted copy that preserves the failing fields.
-
-## Presentation boundaries
-
-This prototype has browser-local storage and a demo reviewer role. It does not provide authenticated team consensus, live stream sensors, a physical digital twin, ecological classification, forecasting, FHIR integration or independent scientific validation. Show these as limitations, not delivered features. Engineering test totals measure implemented checks; they are not model accuracy or competition results.
+Include the screen/action, browser/device, exact reproduction steps, expected vs actual behavior, and error text. A redacted screenshot or short recording helps. Never include an API key.

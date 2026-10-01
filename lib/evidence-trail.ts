@@ -5,7 +5,7 @@ export type TrailNode = {
   id: string;
   label: string;
   detail: string;
-  source: "citizen" | "rules" | "ai" | "human" | "pending";
+  source: "reference" | "citizen" | "rules" | "ai" | "human" | "pending";
   x: number;
   y: number;
 };
@@ -16,12 +16,17 @@ export function evidenceTrail(report: Report) {
   const edges: { id: string; source: string; target: string }[] = [];
   const add = (id: string, label: string, detail: string, source: TrailNode["source"], x: number, y: number) => nodes.push({ id, label, detail, source, x, y });
   const link = (source: string, target: string) => edges.push({ id: `${source}>${target}`, source, target });
-  add("original", "Citizen · original note", report.original.note || "No note supplied.", "citizen", 0, 100);
+  add("original", report.field?.reference ? "Photo reviewer · original note" : "Citizen · original note", report.original.note || "No note supplied.", "citizen", 0, 100);
   add("confirmation", "Citizen · confirmation", `Confirmed at ${report.confirmedAt}. Confirmation records the citizen's approval; it does not establish scientific truth.`, "citizen", 560, 100);
   add("review", report.status === "reviewed" ? "Human · reviewed" : "Human · review pending", report.reviewHistory.length
     ? report.reviewHistory.map((h) => `${h.at} · ${h.action.replaceAll("_", " ")}\n${h.note}`).join("\n\n")
     : "No human review recorded. Local demo roles are not authenticated.", report.status === "reviewed" ? "human" : "pending", 840, 100);
   link("confirmation", "review");
+  const ref = report.field?.reference;
+  if (ref) {
+    add("photo-source", "Public source · historical photo", `${ref.title}\nPhotographer: ${ref.author}\nSource date: ${ref.capturedDate} (date only)\n${ref.sourceUrl}\n${ref.license} · ${ref.licenseUrl}\n${ref.derivative}\nSource metadata is unverified; not a new field visit.`, "reference", -280, 100);
+    link("photo-source", "original");
+  }
   if (report.field?.followupOf) {
     add("predecessor", "Source · earlier observation", `Follow-up source ID: ${report.field.followupOf}. This link does not establish comparable conditions or a shared waterway.`, "citizen", -280, 100);
     link("predecessor", "original");
@@ -38,8 +43,8 @@ export function evidenceTrail(report: Report) {
   let row = Math.max(300, report.assessment.issues.length * 100 + 60);
   (report.field?.media ?? []).forEach((media, i) => {
     const id = `media:${i}`;
-    add(id, `${media.origin === "illustration" ? "Synthetic" : "Citizen"} · ${media.kind}`, `Origin: ${media.origin}\nRetained media metadata: ${media.id}\nSHA-256: ${media.sha256}\n${media.quality.warnings.join("\n") || "No canvas quality warning. This heuristic does not verify authenticity or image accuracy."}`, "citizen", 0, row);
-    link("original", id);
+    add(id, `${media.origin === "public_reference" ? "Public source" : media.origin === "illustration" ? "Synthetic" : "Citizen"} · ${media.kind}`, `Origin: ${media.origin}\nRetained media metadata: ${media.id}\nSHA-256: ${media.sha256}\n${media.quality.warnings.join("\n") || "No canvas quality warning. This heuristic does not verify authenticity or image accuracy."}`, media.origin === "public_reference" ? "reference" : "citizen", 0, row);
+    link(ref ? "photo-source" : "original", id);
     if (media.visual) {
       const visualId = `visual:${i}`, humanId = `judgment:${i}`;
       const findings = media.visual.findings;

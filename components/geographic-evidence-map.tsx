@@ -158,7 +158,7 @@ export function GeographicEvidenceMap({ records, onOpen }: { records: Report[]; 
           <blockquote>{selected.original.note || "No original field note recorded."}</blockquote>
           {selectedGroup && selectedGroup.reports.length > 1 && <div className="geo-same-location"><p>{selectedGroup.reports.length} records at these exact coordinates</p><div>{selectedGroup.reports.toReversed().map((r) => <button type="button" key={r.id} aria-pressed={r.id === selected.id} onClick={() => selectReport(r)}>{observationTime(r)}{syntheticLocation(r) ? " · synthetic" : ""}</button>)}</div></div>}
           <button type="button" className="geo-open-record" onClick={() => onOpen(selected.id)}><FileSearch size={16} /> Open evidence & review <ArrowUpRight size={16} /></button>
-        </> : <div className="geo-dossier-empty"><MapPinOff size={28} /><h3>No local records in this view.</h3><p>Save a citizen observation or include clearly labeled samples to explore the evidence trail.</p></div>}
+        </> : <div className="geo-dossier-empty"><MapPinOff size={28} /><h3>No local records in this view.</h3><p>Save an observation with coordinates to explore its location and evidence trail.</p></div>}
       </aside>
     </div>
     <div className="geo-records-heading"><div><p className="geo-kicker">ACCESSIBLE LOCATION INDEX</p><p>Select a record to inspect its location and provenance.</p></div><div className="geo-list-filter" role="group" aria-label="Location list filter"><button type="button" aria-pressed={listFilter === "all"} onClick={() => setListFilter("all")}>All records ({records.length})</button><button type="button" aria-pressed={listFilter === "unplotted"} onClick={() => setListFilter("unplotted")}>Not plotted ({unplottedCount})</button></div></div>

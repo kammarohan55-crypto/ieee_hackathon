@@ -7,6 +7,7 @@ import "./atlas.css";
 import "./evidence-trail.css";
 import "./evidence-lab.css";
 import "./geographic-map.css";
+import "./workspace.css";
 
 export const metadata: Metadata = {
   title: "AquaLens — Evidence in focus",

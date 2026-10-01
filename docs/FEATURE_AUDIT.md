@@ -1,9 +1,14 @@
-# AquaLens feature audit — 2026-09-30
+# AquaLens feature audit — 2026-10-01
 
 Status comes from source, command results and historical QA. **Working** means implemented behavior has relevant domain/contract or earlier workflow evidence. **Partial** means implemented code has a material provider/device/new-UI check remaining. **Missing** means deliberately unimplemented. No current broken feature is established by code checks; the user may still find browser problems. These are not scientific or production certifications.
 
 | Feature | Status | Evidence / remaining boundary |
 |---|---|---|
+| Historical reference photo review | Partial | Three licensed images, source dates/credits retained in receipts/graph/packs; digest and attribution tests pass; browser walkthrough pending |
+| Empty real-data workspace | Working | No seeding/sample loaders; legacy synthetic records filtered with a recovery copy; synthetic imports rejected |
+| Field kit and One Health notes | Partial | Three-photo guide, optional context, unknown-preserving schema/export; browser check pending |
+| Portable field packs | Partial | 28 integrity/merge checks; original bytes, digest validation, duplicates/conflicts and missing media; IndexedDB/device walkthrough pending |
+| Search and location-specific weather | Partial | Site/note/ID search; 21 API contracts include required coordinates and per-site cache; browser/live weather check pending |
 | Citizen form, originals, confirmation | Working | Existing lifecycle preserved; historical browser flow and domain checks |
 | Contradiction / unsupported-conclusion checks | Working, limited | English rules plus optional strict text AI; no guaranteed detection |
 | Adaptive clarification and uncertainty | Working | Explicit decisions preserve original; unknowns stay unknown |
@@ -17,7 +22,7 @@ Status comes from source, command results and historical QA. **Working** means i
 | Decision Receipt | Partial | Tested serialization/provenance; browser download completion pending |
 | River stories / observatory | Partial | Exact site labels, Story/Evidence/Method and chronology; earlier basic smoke, latest presentation changes await user QA |
 | Geographic evidence map | Partial | Exact coordinates/groups, date-line bounds, dossier and accessible fallback; redesigned UI awaits user QA |
-| Evidence Lab | Partial | Saved-record inspector, source spans, non-mutating replay, separate synthetic practice; helper tests pass, UI awaits user QA |
+| Evidence Lab | Partial | Saved-record inspector, source spans, non-mutating replay, no synthetic practice; helper tests pass, UI awaits user QA |
 | Evidence graph | Partial | Citizen/rules/AI/human/pending nodes and readable list; helper tests pass, new interactions await user QA |
 | Timeline / photo comparison | Partial | Chronology/distinct-photo selection tested; actual two-photo slider pending |
 | Repeat-photo ghost guide | Partial | Reference/opacity controls; physical alignment manual and unverified |
@@ -40,4 +45,8 @@ Existing Vinext/React app, Zod schemas, local stores and lifecycle retained. Ins
 
 ## Latest verification boundary
 
-86/86 authored domain assertions, existing 19/19 mocked API-route contracts, TypeScript, full ESLint, stylesheet parsing and production build pass. These establish software behavior, not ecological accuracy. Latest user instruction assigns website checks to the user: no new browser/server/provider check for the redesigned map/lab. See QA.md and DEMO_GUIDE.md.
+86/86 authored domain assertions, 28/28 workspace integrity checks and 21/21 mocked API-route contracts, TypeScript, full ESLint, nine stylesheet parses and production build pass. These establish software behavior, not ecological accuracy. Latest user instruction assigns website checks to the user: no new browser/server/provider check for the redesigned map/lab. See QA.md and DEMO_GUIDE.md.
+
+## September 30 real-data pass
+
+Removed generated hero PNG, fixture seeding, sample-form loaders, illustrative evidence upload, synthetic-practice lab and sample-inclusion switch. Preserved authored software tests separately. Fixed clean-install lockfile omissions; npm ci validation passes. No new dependencies. Weather now requires explicitly supplied coordinates and an explicit user action. Fresh clone has no API credential. Original media and review history remain browser-local; imports do not authenticate a contributor.
