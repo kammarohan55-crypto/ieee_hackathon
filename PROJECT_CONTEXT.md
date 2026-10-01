@@ -1,6 +1,6 @@
 # AquaLens — current project handoff
 
-Updated 2026-10-01. Repository: https://github.com/kammarohan55-crypto/ieee_hackathon. This visual upgrade was developed on `improve/visual-mission-control`, based on GitHub main `abd7190ecb9234cea374ced2e226e4c589c1dc77`. Read Git for the current branch and final delivered commit.
+Updated 2026-10-01. Repository: https://github.com/kammarohan55-crypto/ieee_hackathon. Current branch: `main`. Visual upgrade delivered as `820b3966423963e80600478008b80ec98a12be01`, with tested tree `8d7284a317d952963a8a9681c20323a586e21802`. This handoff update is documentation only; read Git for its later commit.
 
 ## User goal and authorization
 
@@ -40,7 +40,7 @@ Vinext/React/TypeScript, Zod, Cloudflare Worker API routes, optional Gemini. Rep
 
 ## Delivery and next steps
 
-This change is prepared for the already-authorized GitHub main update. Before claiming delivery, compare the generated remote tree with the tested local tree, update main without force, fetch it and confirm no source diff. Update this delivery paragraph with the verified commit after pushing. Do not deliver stale ZIP/patch outputs from the preceding release.
+Delivered all 28 changed paths to GitHub main as `820b3966423963e80600478008b80ec98a12be01` through the authenticated GitHub app. The generated remote tree exactly matched the tested local tree `8d7284a317d952963a8a9681c20323a586e21802`; main was updated without force from `abd7190`. A fresh CLI fetch verified the remote commit and an empty source diff before this checkout fast-forwarded to main. Local implementation checkpoint `c6c79b0` remains on `improve/visual-mission-control`. Source ZIP/patch in ignored `outputs/` are regenerated from the delivered revision. This subsequent handoff change is documentation only. GitHub delivery is complete; do not redo it or request permission again.
 
 The new demo path is Mission control → inspect/compare source → Review this photo → own note/checks/confirmation → saved-photo human pin/replay → Review desk → Insights → export/import field pack. Exact steps and outstanding manual checks are in `docs/DEMO_GUIDE.md` and `docs/QA.md`. No new user photo/video is needed for the historical-photo demo. Firsthand evidence still requires actual original photos and visit details; see `docs/MEDIA_CHECKLIST.md`.
 
