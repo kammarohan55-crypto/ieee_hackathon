@@ -26,7 +26,13 @@ The production-local launcher passes the root `.dev.vars` path to Wrangler when 
 
 ## Implemented experience
 
-The interface uses a marine field-instrument palette: deep navy, teal, warm ivory and sage, with editorial headings and readable system typography. A real, credited Mutha River photograph anchors the hero and links to capture, review and the field kit. Camera, evidence and reviewer panels share the same visual hierarchy, with responsive controls, visible focus states and reduced-motion support. A fresh workspace starts empty; counts come only from saved records and distinguish field observations from historical-photo reviews. Earlier synthetic records are excluded, with a local migration recovery copy preserved. Three sourced historical photos are available for explicit photo review, with visible dates and attribution. No scripted AI response is offered as evidence.
+The interface uses a dark navy control-room layout with cyan, violet, mint and amber accents. Mission control opens on three real, credited river photographs, with a searchable source rail, inspection canvas and evidence inspector. A fresh collection still contains zero saved records: source photos become historical reviews only after the user writes and confirms a note. No observation, AI response or environmental chart is prefilled.
+
+- **Mission control:** source search, field/historical filters, focus view, real review queue, collection coverage and a supplied-coordinate map. Weather can be explicitly loaded for any saved field location, including records without photos.
+- **Photo desk:** full-frame viewing, zoom, inspection grid and human note pins. Each pin retains its image position, note, category, timestamp and local role without editing image bytes. Notes reopen review and travel in receipts/field packs; restored notes are checked against the correct photo. Recorded visual AI candidates can show their coarse frame regions, visibly distinguished from human notes and detector boxes.
+- **Comparison and replay:** choose two distinct images for wipe or side-by-side inspection; replay the selected record's actual retained events. Different photographs are not registered images or measurements of environmental change.
+- **Evidence flow:** inspect original words, source media, supplied context, assessment, clarification, human review and portable receipts. Before a record exists, it is explicitly a workflow preview.
+- **Insights:** workflow distribution, evidence coverage, 14-day UTC saving activity, retained source counts and an interactive evidence matrix. Every value comes from saved records. Historical reviews are separately filterable and excluded from the GPS denominator. The engineering panel reads four actual generated software-test reports; these are not model-performance or ecological validation scores.
 
 - Credited Wikimedia reference gallery: inspect a real historical frame, write your own note, confirm it, review it, and export the source-linked receipt. Source date stays date-only; no GPS or instrument values are invented. The atlas and weather use field observations only. [Photo credits and licences](public/images/references/CREDITS.md).
 - Citizen note/time/appearance, transparent English checks, optional structured Gemini text suggestions, adaptive questions, uncertainty/dismissal, explicit confirmation.
@@ -55,6 +61,9 @@ The interface uses a marine field-instrument palette: deep navy, teal, warm ivor
 | File | Responsibility |
 |---|---|
 | components/streamcheck.tsx | Existing workspace, local report lifecycle, clarification and confirmation |
+| components/mission-control.tsx + lib/mission-control.ts | Source desk, scopes, real-record metrics, queue and retained-event replay |
+| components/photo-inspector.tsx + components/evidence-visuals.tsx | Image note pins, comparison, source flow and event controls |
+| components/evidence-insights.tsx + app/console.css | Real-record analytics and the dark responsive visual system |
 | components/field-studio.tsx | Camera/media, ghost overlay, dictation, measurements |
 | components/evidence-workbench.tsx | Completeness, review additions, graph, atlas, timeline/comparison |
 | components/river-observatory.tsx | Illustrative site stories and selected observation evidence |
@@ -75,18 +84,18 @@ The interface uses a marine field-instrument palette: deep navy, teal, warm ivor
 
 ## Four-minute demo
 
-1. Open Field kit → Review this photo. The three historical reference photos are bundled; write your own description of a visible detail. For a firsthand field demo, use your own photos with actual place/time instead.
-2. Show the source credit and date. Leave appearance unsure if needed. Reference reviews contain no new GPS, measurements or visit context. A field observation can include actual optional context.
-3. Run local checks, or opt in to configured Gemini. Explain every surfaced question and explicitly confirm the record. If no issue matches, show that honestly.
-4. Open the Review desk: original note, photo, AI/rule provenance and human decisions. Review all visual candidates if present, then add a review note.
-5. Inspect the map only if real coordinates were supplied. Show a linked follow-up and source-preserving rule replay.
-6. Export a field pack with originals. In another browser, preview and import it to demonstrate a real handoff. There is no automatic cloud sync.
+1. Open **Mission control**. Inspect a credited photo, compare two source frames and click through the evidence flow. Explain why saved-record counts are initially zero.
+2. Choose **Review this photo**, write your own visible-detail note and keep uncertainty. Run local checks or explicitly consent to configured AI, then confirm.
+3. Return to Mission control, choose the saved photo, add a human visual-note pin and show the retained-event replay. Original pixels and previous decisions remain intact.
+4. Open the full receipt in **Review desk**, inspect provenance and judge any visual candidates. Add your own review note.
+5. Open **Insights**: filter the evidence matrix, inspect real counts and distinguish software checks from environmental validation. Use the geographic map only for supplied field coordinates.
+6. Export a field pack with originals. Preview and import it in another browser to demonstrate a file-based handoff.
 
 See [the demo guide](docs/DEMO_GUIDE.md) and [photo checklist](docs/MEDIA_CHECKLIST.md). The photo-review demo is ready with bundled images. A firsthand field demo still needs your actual photos and visit details. Team credits, judge-access hosting and the recorded 3–5 minute video remain submission tasks.
 
 ## Verification and boundaries
 
-135/135 software checks pass: 86 domain assertions, 28 field-pack integrity checks and 21 mocked API contracts. Typecheck, lint and production build pass. The repaired lockfile also passes npm ci validation. See docs/QA.md, public/evaluation.json, public/workspace-evaluation.json and public/api-evaluation.json. This session used source/build checks only, respecting the repository’s manual browser-testing preference. Browser downloads, IndexedDB import transactions, camera, video and responsive interaction need a device walkthrough. These tests execute actual domain/route code but do not validate scientific accuracy. `node scripts/test-live-ai.mjs` makes three real synthetic requests; public/live-evaluation.json is an integration smoke report, not a benchmark. Preserve prior results in docs/evaluation-runs/.
+164/164 software checks pass: 86 domain assertions, 28 field-pack integrity checks, 29 visual-workspace checks and 21 mocked API contracts. Typecheck, lint and production build pass. The repaired lockfile also passes npm ci validation. See docs/QA.md, public/evaluation.json, public/workspace-evaluation.json, public/mission-evaluation.json and public/api-evaluation.json. This session used source/build checks only, respecting the repository’s manual browser-testing preference. Browser downloads, IndexedDB import transactions, camera, video and responsive interaction need a device walkthrough. These tests execute actual domain/route code but do not validate scientific accuracy. `node scripts/test-live-ai.mjs` makes three real synthetic requests; public/live-evaluation.json is an integration smoke report, not a benchmark. Preserve prior results in docs/evaluation-runs/.
 
 Real Gemini text calls have succeeded in the development installation. The latest live text run passed 3/3 scenarios. Earlier high-demand failures (0/3 and1/3) are retained. Visual requests still received503 high-demand responses; failure behavior was verified in-browser, but successful visual response remains unverified. These historical results do not establish access or availability for a fresh clone's key. Quota/provider availability may change.
 
@@ -96,7 +105,7 @@ Free-tier Gemini inputs may improve Google products; explicit consent is require
 
 ## Attribution and continuity
 
-MapLibre BSD-3-Clause; React Flow MIT (attribution retained); idb ISC; Workbox/Recharts/React/Radix/shadcn MIT. Basemap credits OpenFreeMap, OpenMapTiles and OpenStreetMap. Open-Meteo modeled weather is CC BY 4.0, not stream sensor data. The generated hero photograph and in-app synthetic fixtures have been removed. The credited hero and reference photos retain their own Creative Commons licences; see public/images/references/CREDITS.md. The labeled schematic river is not observation data. See docs/DEPENDENCIES.md and docs/SOURCES.md.
+MapLibre BSD-3-Clause; React Flow MIT (attribution retained); idb ISC; Workbox/Recharts/React/Radix/shadcn MIT. Basemap credits OpenFreeMap, OpenMapTiles and OpenStreetMap. Open-Meteo modeled weather is CC BY 4.0, not stream sensor data. The generated hero photograph and in-app synthetic fixtures have been removed. The credited reference photos retain their own Creative Commons licences; see public/images/references/CREDITS.md. The labeled schematic river is not observation data. See docs/DEPENDENCIES.md and docs/SOURCES.md.
 
 A new AI should read AGENTS.md and PROJECT_CONTEXT.md, then inspect actual code/tests. These files preserve context; chat memory is not assumed.
 

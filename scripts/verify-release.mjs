@@ -40,7 +40,7 @@ assert.ok(ignoredText.includes(".dev.vars*") && ignoredText.includes(".env*"), "
 for (const file of ["dist/server/index.js", "dist/client/sw.js", "dist/client/manifest.webmanifest", "dist/client/vendor/maplibre/maplibre-gl-worker.mjs", "dist/client/vendor/maplibre/LICENSE.txt"]) {
   assert.ok((await stat(file)).size > 0, `Missing release asset: ${file}`);
 }
-for (const name of ["evaluation", "api-evaluation", "workspace-evaluation"]) {
+for (const name of ["evaluation", "api-evaluation", "workspace-evaluation", "mission-evaluation"]) {
   const content = await readFile(`public/${name}.json`, "utf8");
   const test = JSON.parse(content);
   assert.equal(test.passed, test.total, `${name} has failed tests`);

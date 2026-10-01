@@ -1,0 +1,129 @@
+{
+  "suite": "AquaLens visual workspace logic",
+  "generatedAt": "2026-10-01T07:44:12.800Z",
+  "liveAI": false,
+  "passed": 29,
+  "total": 29,
+  "limitations": [
+    "Authored software fixtures, not environmental measurements or model validation.",
+    "No browser rendering, pointer placement, map, camera or live-provider test."
+  ],
+  "results": [
+    {
+      "name": "An empty collection has no invented metrics or activity",
+      "passed": true
+    },
+    {
+      "name": "Bundled photographs are source frames, not saved observations",
+      "passed": true
+    },
+    {
+      "name": "Scopes exclude synthetic reports, synthetic locations and illustrations",
+      "passed": true
+    },
+    {
+      "name": "Photo desk keeps saved source association and does not treat video as a still",
+      "passed": true
+    },
+    {
+      "name": "Legacy unknown image dimensions use a valid inspection ratio",
+      "passed": true
+    },
+    {
+      "name": "Coordinates coverage excludes historical source reviews",
+      "passed": true
+    },
+    {
+      "name": "Activity uses UTC record creation dates, not historical image dates",
+      "passed": true
+    },
+    {
+      "name": "Outside-window and invalid creation dates do not populate activity bars",
+      "passed": true
+    },
+    {
+      "name": "Workflow distribution counts current states with no seeded segments",
+      "passed": true
+    },
+    {
+      "name": "Uncertainty acknowledges a question without inventing an answer",
+      "passed": true
+    },
+    {
+      "name": "Rule and AI source counts come from retained issue sources",
+      "passed": true
+    },
+    {
+      "name": "Visual candidates remain pending until an explicit human judgment",
+      "passed": true
+    },
+    {
+      "name": "Review queue prioritizes unjudged candidates then older creation dates",
+      "passed": true
+    },
+    {
+      "name": "A visual note preserves evidence and prior decisions while reopening review",
+      "passed": true
+    },
+    {
+      "name": "Notes retain normalized image coordinates, category and explicit uncertainty",
+      "passed": true
+    },
+    {
+      "name": "Notes reject missing media and video references",
+      "passed": true
+    },
+    {
+      "name": "Notes reject out-of-frame, non-finite and malformed positions",
+      "passed": true
+    },
+    {
+      "name": "Notes reject empty or oversized text, invalid categories and invalid timestamps",
+      "passed": true
+    },
+    {
+      "name": "Duplicate note IDs and the per-record limit fail before mutation",
+      "passed": true
+    },
+    {
+      "name": "Older records without annotations remain valid",
+      "passed": true
+    },
+    {
+      "name": "Photo notes and original bytes round-trip together through a field pack",
+      "passed": true
+    },
+    {
+      "name": "Metadata-only receipts preserve notes and honestly mark missing photo bytes",
+      "passed": true
+    },
+    {
+      "name": "Workspace restore, import and export reject notes attached to another record's media",
+      "passed": true
+    },
+    {
+      "name": "Duplicate note IDs are rejected on workspace restore",
+      "passed": true
+    },
+    {
+      "name": "Historical photo notes retain fixed attribution, source date and absence of invented GPS",
+      "passed": true
+    },
+    {
+      "name": "Evidence graph links human visual notes to the photo and human review",
+      "passed": true
+    },
+    {
+      "name": "Replay preserves day-precision source dates and does not fabricate AI events",
+      "passed": true
+    },
+    {
+      "name": "Replay includes retained AI, question decisions, visual notes and review history in order",
+      "passed": true
+    },
+    {
+      "name": "Replay keeps invalid imported times visible at the end without inventing dates",
+      "passed": true
+    }
+  ]
+}

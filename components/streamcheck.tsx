@@ -13,22 +13,20 @@ import {
   ArrowUpRight,
   Check,
   CheckCheck,
-  ChevronRight,
   CircleHelp,
   ClipboardCheck,
   Clock3,
   Compass,
   Eye,
-  FileText,
   Fingerprint,
   FlaskConical,
-  GitBranch,
   Leaf,
   LoaderCircle,
   MapPin,
   Plus,
   Search,
   Backpack,
+  ChartNoAxesCombined,
   ShieldCheck,
   Sparkles,
   Waves,
@@ -66,17 +64,17 @@ import {
   type ObservationInput,
   type Report,
 } from "@/lib/assessment";
+import { MissionControl } from "./mission-control";
+import { EvidenceInsights } from "./evidence-insights";
 import { ReferenceGallery, ReferenceCredit } from "./reference-gallery";
-import { referencePhotos, displayEvidenceTime, type ReferencePhoto } from "@/lib/references";
+import { displayEvidenceTime, type ReferencePhoto } from "@/lib/references";
 import { hashBlob, inspectImage, addMediaBatch } from "@/lib/media-store";
-import { SiteConditions } from "./site-conditions";
 import { CaptureGuide, FieldGuide, OneHealthNotes, OneHealthSummary } from "./field-guide";
 import { CollectionTools } from "./collection-tools";
 import { WORKSPACE_KEY as KEY, LEGACY_ARCHIVE_KEY, MAX_REPORTS, realRecords, parseWorkspace, searchReports, mergeRecords } from "@/lib/workspace";
 import { EvidenceLab } from "./evidence-lab";
 import {
   FieldStudio,
-  EvidenceImage,
   FieldDetails,
   VoiceNote,
   VisualFollowups,
@@ -529,9 +527,9 @@ export default function StreamCheck() {
           </span>
           <span className="brand-wordmark">Aqua<span>Lens</span></span>
           <span className="brand-caption">
-            THE FIELD WORKSPACE
+            RIVER EVIDENCE
             <br />
-            EVIDENCE IN FOCUS
+            HUMAN JUDGMENT
           </span>
         </button>
         <div className="header-right">
@@ -550,7 +548,7 @@ export default function StreamCheck() {
         <div className="navline">
           <TabsList className="main-nav" variant="line">
             <TabsTrigger value="overview">
-              <Compass size={16} /> Overview
+              <Compass size={16} /> Mission control
             </TabsTrigger>
             <TabsTrigger value="observe">
               <Leaf size={16} /> Field notebook
@@ -565,6 +563,7 @@ export default function StreamCheck() {
             <TabsTrigger value="atlas">
               <Waves size={16} /> River observatory
             </TabsTrigger>
+            <TabsTrigger value="insights"><ChartNoAxesCombined size={16} /> Insights</TabsTrigger>
             <TabsTrigger value="kit"><Backpack size={16} /> Field kit</TabsTrigger>
           </TabsList>
           <span className="track-label">
@@ -580,209 +579,13 @@ export default function StreamCheck() {
             }}>Download saved data for recovery</button></div>
           )}
           <TabsContent value="overview" className="view-enter">
-            <div className="overview-heading">
-              <p className="eyebrow">
-                YOUR FIELD WORKSPACE / ONEAQUAHEALTH
-              </p>
-              <span className="overview-state"><span className="live-dot" /> Citizen science, with care.</span>
-            </div>
-            <section className="hero real-evidence-hero">
-              <div className="hero-river-photo" aria-hidden="true" />
-              <div className="hero-shade" />
-              <div className="hero-content">
-                <Tag tone="glass">
-                  <Waves size={14} /> A CLOSER LOOK AT OUR WATER
-                </Tag>
-                <h1>
-                  Every stream
-                  <br />
-                  <em>has a story.</em>
-                </h1>
-                <p>
-                  Start with what you see. Turn a moment by the water
-                  into evidence your community can build on.
-                </p>
-                <div className="hero-actions">
-                  <button className="btn mint" onClick={reset}>
-                    Make an observation <ArrowUpRight size={18} />
-                  </button>
-                  <button className="hero-link" onClick={() => go("kit")}>
-                    Open the field kit <ArrowRight size={16} />
-                  </button>
-                </div>
-              </div>
-              <aside className="hero-workflow" aria-label="Observation workspace shortcuts">
-                <div className="hero-workflow-heading">
-                  <span className="workflow-emblem"><Fingerprint size={24} /></span>
-                  <div><p>EVIDENCE, CONNECTED</p><span>Your observation workspace</span></div>
-                </div>
-                <button className="hero-workflow-row" onClick={reset}>
-                  <span className="workflow-index">01</span>
-                  <span><strong>Observe</strong><small>Capture the scene and your field note</small></span>
-                  <ArrowUpRight size={17} />
-                </button>
-                <button className="hero-workflow-row" onClick={() => go("review")}>
-                  <span className="workflow-index">02</span>
-                  <span><strong>Review</strong><small>Inspect sources. Record your judgment.</small></span>
-                  <ArrowUpRight size={17} />
-                </button>
-                <button className="hero-workflow-row" onClick={() => go("atlas")}>
-                  <span className="workflow-index">03</span>
-                  <span><strong>Connect</strong><small>Explore streams and their evidence stories</small></span>
-                  <ArrowUpRight size={17} />
-                </button>
-                <div className="hero-workflow-footer"><span>{records.length} local records</span><span>{awaiting} awaiting review</span></div>
-              </aside>
-              <span className="image-caption">
-                <span>Scenic Reflection · Sharvarism · 6 Jun 2023 · <a href={referencePhotos[1].licenseUrl} target="_blank" rel="noreferrer">CC BY-SA 4.0</a> · <a href={referencePhotos[1].sourceUrl} target="_blank" rel="noreferrer">Source / display crop</a></span>
-              </span>
-            </section>
-            <div className="metrics">
-              <Metric
-                icon={<FileText />}
-                value={records.length}
-                label="Saved records in this browser"
-                detail={`${records.filter((r) => !r.field?.reference).length} field observations · ${records.filter((r) => r.field?.reference).length} photo reviews`}
-              />
-              <Metric
-                icon={<CircleHelp />}
-                value={records.reduce(
-                  (n, r) => n + r.assessment.issues.length,
-                  0,
-                )}
-                label="Questions made visible"
-                detail="Uncertainty preserved in reports"
-              />
-              <Metric
-                icon={<ClipboardCheck />}
-                value={awaiting}
-                label="Awaiting a human review"
-                detail="Your next opportunity to contribute"
-              />
-              <Metric
-                icon={<Fingerprint />}
-                value={records.length ? "100%" : "—"}
-                label="Original notes retained"
-                detail="Retention, not an accuracy score"
-              />
-            </div>
-            <div className="content-grid">
-              <div>
-                <div className="section-heading">
-                  <div>
-                    <p className="eyebrow">THE FIELD NOTEBOOK</p>
-                    <h2>Small details. A bigger picture.</h2>
-                  </div>
-                  <button className="plain-btn" onClick={() => go("review")}>
-                    View all <ArrowRight size={16} />
-                  </button>
-                </div>
-                {!records.length && <div className="first-observation"><span className="first-observation-icon"><Waves size={35} strokeWidth={1.2} /></span><p className="eyebrow">YOUR NEXT VISIT STARTS HERE</p><h3>A stream. A phone. A first observation.</h3><p>Capture a real photo, add a few words, and keep what you don’t know visible. Your evidence will appear here.</p><div className="button-row"><button className="btn primary" onClick={reset}><Plus size={16} />Create your first record</button><button className="plain-btn" onClick={() => go("kit")}>Review a reference photo <ArrowRight size={15} /></button></div></div>}
-                <div className="observation-list">
-                  {records.slice(0, 3).map((r, i) => (
-                    <button
-                      className="observation-row"
-                      key={r.id}
-                      onClick={() => openReport(r.id)}
-                      style={{ animationDelay: `${i * 75}ms` }}
-                    >
-                      <span className={`site-icon site-${i % 3}`}>
-                        {r.field?.media.find((media) => media.kind === "photo") ? <EvidenceImage media={r.field.media.find((media) => media.kind === "photo")!} className="evidence-img" /> : <Waves size={24} />}
-                      </span>
-                      <div className="observation-info">
-                        <div className="row-title">
-                          <h3>{r.original.site}</h3>
-                          {r.field?.reference && <Tag>Historical photo</Tag>}
-                        </div>
-                        <p>{r.original.note}</p>
-                        <span className="row-meta">
-                          <MapPin size={12} />{" "}
-                          {r.original.appearance === "unsure"
-                            ? "Appearance uncertain"
-                            : `${r.original.appearance} appearance`}
-                          <span>·</span>
-                          {new Date(r.original.observedAt).toLocaleDateString(
-                            "en-GB",
-                            { day: "numeric", month: "short", timeZone: "UTC" },
-                          )}
-                        </span>
-                      </div>
-                      <div className="row-end">
-                        <Tag tone={r.status === "reviewed" ? "green" : "amber"}>
-                          {labels[r.status]}
-                        </Tag>
-                        <ChevronRight size={18} />
-                      </div>
-                    </button>
-                  ))}
-                </div>
-                <div className="journey-strip">
-                  <span className="journey-icon">
-                    <GitBranch size={21} />
-                  </span>
-                  <div>
-                    <h3>Nothing lost between observation and action.</h3>
-                    <p>
-                      Original words → clarification → your confirmation → human
-                      review.
-                    </p>
-                  </div>
-                  <button
-                    className="icon-btn"
-                    onClick={() => go("lab")}
-                    aria-label="Explore the evidence process"
-                  >
-                    <ArrowUpRight />
-                  </button>
-                </div>
-              </div>
-              <aside className="right-column">
-                <SiteConditions records={records.filter((r) => !r.field?.reference)} />
-                <section className="field-tip">
-                  <span className="tip-icon">
-                    <Eye size={20} />
-                  </span>
-                  <div>
-                    <p className="eyebrow">A BETTER FIELD NOTE</p>
-                    <h3>“I don’t know” is useful data.</h3>
-                    <p>
-                      Clear water does not establish safety. Brown water does
-                      not establish a cause. Record the observation; keep the
-                      question open.
-                    </p>
-                    <button className="plain-btn" onClick={() => go("lab")}>
-                      Explore the method <ArrowRight size={15} />
-                    </button>
-                  </div>
-                </section>
-              </aside>
-            </div>
-            <section className="one-health">
-              <div>
-                <span className="eyebrow">ONE HEALTH, ONE CONNECTED WORLD</span>
-                <h2>
-                  A healthier conversation
-                  <br />
-                  between people and nature.
-                </h2>
-              </div>
-              <p>
-                Better observations can support community monitoring and
-                professional investigation. AquaLens connects the evidence
-                people collect with the questions researchers need to ask.
-              </p>
-              <div className="health-links">
-                <span>
-                  <Leaf size={17} /> Ecosystems
-                </span>
-                <span>
-                  <Waves size={17} /> Wildlife habitats
-                </span>
-                <span>
-                  <ShieldCheck size={17} /> Communities
-                </span>
-              </div>
-            </section>
+            <MissionControl records={records} aiReady={aiReady} online={online} onStart={reset}
+              onReviewReference={(photo) => void reviewReference(photo)} onOpen={openReport}
+              onUpdate={(next) => { setRecords((previous) => previous.map((record) => record.id === next.id ? next : record)); toast.success("Visual note saved. Review reopened."); }}
+              onInsights={() => go("insights")} onKit={() => go("kit")} />
+          </TabsContent>
+          <TabsContent value="insights" className="view-enter">
+            <EvidenceInsights records={records} onOpen={openReport} onStart={() => go("kit")} />
           </TabsContent>
 
           <TabsContent value="observe" className="view-enter">
@@ -1468,28 +1271,6 @@ export default function StreamCheck() {
           )}
         </SheetContent>
       </Sheet>
-    </div>
-  );
-}
-function Metric({
-  icon,
-  value,
-  label,
-  detail,
-}: {
-  icon: ReactNode;
-  value: string | number;
-  label: string;
-  detail: string;
-}) {
-  return (
-    <div className="metric">
-      <span className="metric-icon">{icon}</span>
-      <div>
-        <strong>{value}</strong>
-        <h3>{label}</h3>
-        <p>{detail}</p>
-      </div>
     </div>
   );
 }

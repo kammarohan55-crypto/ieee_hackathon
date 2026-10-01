@@ -48,6 +48,7 @@ type EvidenceImageProps = {
   media: MediaEvidence;
   className?: string;
   controls?: boolean;
+  onAvailability?: (available: boolean) => void;
 };
 
 export function EvidenceImage(props: EvidenceImageProps) {
@@ -60,12 +61,14 @@ function LocalEvidenceImage({
   media,
   className = "",
   controls = true,
+  onAvailability,
 }: EvidenceImageProps) {
   const [url, setURL] = useState("");
   const [failed, setFailed] = useState(false);
   useEffect(() => {
     let disposed = false,
       local = "";
+    onAvailability?.(false);
     readMedia(media.id)
       .then((blob) => {
         if (!disposed && blob) {
@@ -78,7 +81,7 @@ function LocalEvidenceImage({
       disposed = true;
       if (local) URL.revokeObjectURL(local);
     };
-  }, [media.id]);
+  }, [media.id, onAvailability]);
   return url && !failed ? (
     media.kind === "video" ? (
       <video
@@ -87,14 +90,16 @@ function LocalEvidenceImage({
         controls={controls}
         playsInline
         muted
-        onError={() => setFailed(true)}
+        onLoadedData={() => onAvailability?.(true)}
+        onError={() => { setFailed(true); onAvailability?.(false); }}
       />
     ) : (
       <img
         className={className}
         src={url}
         alt={`${media.origin === "illustration" ? "Synthetic illustration" : media.origin === "public_reference" ? "Credited historical reference photograph" : "Retained citizen photograph"}; unverified evidence`}
-        onError={() => setFailed(true)}
+        onLoad={() => onAvailability?.(true)}
+        onError={() => { setFailed(true); onAvailability?.(false); }}
       />
     )
   ) : (

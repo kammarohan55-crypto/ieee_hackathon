@@ -1,6 +1,6 @@
 # AquaLens — submission working copy
 
-Updated 2026-09-30. This is a draft, not a submitted entry. Public source: https://github.com/kammarohan55-crypto/ieee_hackathon (verified Sept30). Fill in team details and real demo/video URLs before submission. Recheck the organizer's current rules and deadline in SOURCES.md.
+Updated 2026-10-01. This is a draft, not a submitted entry. Public source: https://github.com/kammarohan55-crypto/ieee_hackathon (source retrieved Oct1). Fill in team details and real demo/video URLs before submission. Recheck the organizer's current rules and deadline in SOURCES.md.
 
 ## Project description
 
@@ -9,6 +9,8 @@ Updated 2026-09-30. This is a draft, not a submitted entry. Public source: https
 AquaLens helps citizens describe what they observed without turning appearance into an unsupported diagnosis. It brings original photos, field notes and instrument readings into a guided assessment, asks focused questions, and makes every AI suggestion and human judgment inspectable.
 
 The prototype supports OneAquaHealth Track 3 through AI-assisted clarification and human oversight. A citizen can retain a photo or short silent video, inspect local image-quality warnings, optionally request visual AI candidates, record instrument metadata, resolve questions and explicitly confirm a report. A reviewer then inspects the original evidence, records agreement, disagreement or uncertainty, and exports a Decision Receipt or a portable field pack with the original media. River stories offer an explicitly illustrative evidence narrative; the geographic map plots supplied coordinates only. Evidence Lab exposes saved source quotes, local rule replay and human decisions without mutating the record. Follow-up missions preserve the source relationship. A field kit guides three useful photo views, optional One Health notes retain bank/wildlife/community context, and a checked import workflow enables file-based handoff between browsers. Fresh workspaces contain no seeded observations.
+
+The dark Mission control workspace now offers source-photo inspection, non-destructive human note pins, a manual comparison slider, an interactive evidence flow and retained-event replay. Insights makes saved-record coverage and pending review visible without manufacturing river measurements. Three credited historical river photos support an immediate photo-review demo; their source dates remain distinct from current visits.
 
 ## What distinguishes it
 
@@ -22,13 +24,13 @@ The prototype supports OneAquaHealth Track 3 through AI-assisted clarification a
 
 React/TypeScript with Vinext, Cloudflare Worker routes, Zod validation, Gemini text/visual adapters, idb for local original-media storage, MapLibre/OpenFreeMap, React Flow, Recharts and Workbox. No shared database or custom model training is required for the prototype.
 
-Engineering checks: 86 authored domain assertions, 28 field-pack integrity checks and 21 mocked route-contract tests pass, with TypeScript and lint checks. These cover evidence preservation, review gates, malformed provider responses, opt-in boundaries, errors, rate limits, exports and provenance. They are development tests, not independent scientific validation.
+Engineering checks: 86 authored domain assertions, 28 field-pack integrity checks, 29 visual-workspace checks and 21 mocked route-contract tests pass, with TypeScript and lint checks. These cover evidence preservation, review gates, malformed provider responses, opt-in boundaries, errors, rate limits, exports and provenance. They are development tests, not independent scientific validation.
 
 The latest recorded real Gemini text smoke run completed 3/3 synthetic scenarios; earlier failures are retained. Successful live visual analysis has not yet been verified because tested requests received provider 503 responses. Keep that distinction in the presentation.
 
 ## Four-minute demonstration
 
-Use the real-photo workflow in [DEMO_GUIDE.md](DEMO_GUIDE.md). The three licensed historical photos are bundled for the photo-review path. For a firsthand field demo, prepare your original stream photos with actual place/time and your own note; [MEDIA_CHECKLIST.md](MEDIA_CHECKLIST.md) gives the exact shot list. Start with the Field kit, create and confirm the observation, inspect its sources and human decisions, then export and restore the field pack in another browser.
+Use the real-photo workflow in [DEMO_GUIDE.md](DEMO_GUIDE.md). The three licensed historical photos are bundled for the photo-review path. For a firsthand field demo, prepare your original stream photos with actual place/time and your own note; [MEDIA_CHECKLIST.md](MEDIA_CHECKLIST.md) gives the exact shot list. Start with Mission control, inspect a source photo and create a confirmed review. Add a human note pin, inspect the replay and evidence flow, then show Insights and export/restore the field pack in another browser.
 
 The app does not contain synthetic sample buttons or a generated evidence image. If the real note produces no clarification, show that result honestly. If optional AI is unavailable, retain the original evidence and continue with local rules. A provider error cannot become an invented AI result.
 

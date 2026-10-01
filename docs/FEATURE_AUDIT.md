@@ -4,6 +4,10 @@ Status comes from source, command results and historical QA. **Working** means i
 
 | Feature | Status | Evidence / remaining boundary |
 |---|---|---|
+| Dark mission control | Partial | Real source gallery, queue, focus and photo/map views implemented; source/build verified, browser walkthrough pending |
+| Photo zoom/grid and human note pins | Partial | Immutable note schema, review reopening, media linkage and pack round trips tested; pointer placement and rendering unverified |
+| Wipe comparison / event replay / flow | Partial | Distinct sources and stored events only; interaction and narrow-screen walkthrough pending |
+| Insights and evidence matrix | Partial | Counts/scopes/UTC dates/denominators tested; software validation loads authored reports, no invented environmental series |
 | Historical reference photo review | Partial | Three licensed images, source dates/credits retained in receipts/graph/packs; digest and attribution tests pass; browser walkthrough pending |
 | Empty real-data workspace | Working | No seeding/sample loaders; legacy synthetic records filtered with a recovery copy; synthetic imports rejected |
 | Field kit and One Health notes | Partial | Three-photo guide, optional context, unknown-preserving schema/export; browser check pending |
@@ -35,7 +39,7 @@ Status comes from source, command results and historical QA. **Working** means i
 | Offline / PWA | Partial | Workbox assets and local drafts; installation/offline device checks pending |
 | JSON / CSV / GeoJSON | Working serialization | Schemas, CSV formula escaping, omission of unknown coordinates; downloads await user QA |
 | FAIR-oriented metadata | Working, limited | Provenance/access/license fields; no certification or registered persistent identifiers |
-| Responsive / accessible controls | Partial | Radix, 44px targets, focus/reduced motion; newest map/lab mobile/assistive checks pending |
+| Responsive / accessible controls | Partial | Radix, visible focus, touch-target and reduced-motion styles; current console/mobile/assistive checks pending |
 | Public source / documentation | Working | Authorized GitHub repo, README, sources, QA, demo guide and handoff |
 | Physical twin / official OAH or FHIR integration | Missing | No verified hydrology/calibration/integration contract; not claimed |
 
@@ -45,7 +49,7 @@ Existing Vinext/React app, Zod schemas, local stores and lifecycle retained. Ins
 
 ## Latest verification boundary
 
-86/86 authored domain assertions, 28/28 workspace integrity checks and 21/21 mocked API-route contracts, TypeScript, full ESLint, nine stylesheet parses and production build pass. These establish software behavior, not ecological accuracy. Latest user instruction assigns website checks to the user: no new browser/server/provider check for the redesigned map/lab. See QA.md and DEMO_GUIDE.md.
+86/86 authored domain assertions, 28/28 workspace integrity checks, 29/29 visual-workspace checks and 21/21 mocked API-route contracts, TypeScript, full ESLint, ten stylesheet parses and production build pass. These establish software behavior, not ecological accuracy. Latest user instruction assigns website checks to the user: no new browser/server/provider check for the new console or redesigned map/lab. See QA.md and DEMO_GUIDE.md.
 
 ## September 30 real-data pass
 

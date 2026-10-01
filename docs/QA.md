@@ -1,19 +1,18 @@
-# Current verification — real-evidence workspace
+# Current verification — visual mission control
 
-2026-10-01, branch `improve/real-evidence-workspace`.
+2026-10-01, branch `improve/visual-mission-control`, based on GitHub main `abd7190`. Read Git and PROJECT_CONTEXT.md for delivery status.
 
-- `npm ci` initially failed: two optional @emnapi entries were absent from the lockfile. `npm install` repaired the lockfile; subsequent `npm ci --dry-run --include=dev --include=optional` passes.
-- `npm test`: 86/86 domain assertions + 28/28 field-pack integrity/merge/source checks + 21/21 mocked API contracts = **135/135**.
-- `npm run typecheck`, `npm run lint`, nine PostCSS stylesheet parses and `git diff --check`: pass.
-- `npm run build`: passes. Production offline asset set: 23 assets, 4,432,233 bytes at this build. Existing >500 kB bundle warning remains; it is not a build failure.
-- `npm run verify:release`: passes; required worker, MapLibre license, PWA assets and all three generated test reports present. No Gemini secret is configured in this fresh clone, so configured-secret matching was not exercised.
-- No server started, browser visited, screenshot taken, live AI call made, or deployment performed. This follows the manual website-testing preference in the existing project instructions.
+- `npm test`: 86/86 domain assertions + 28/28 field-pack/source checks + 29/29 visual-workspace checks + 21/21 mocked API contracts = **164/164**.
+- `npm run typecheck`, `npm run lint`, ten PostCSS stylesheet parses and `git diff --check`: pass.
+- `npm run build`: passes. Production offline cache contains 24 assets (approximately 4.53 MB). The existing >500 kB chunk warning remains.
+- `npm run verify:release`: passes. Worker, map licence, PWA assets, unchanged credited photographs and all four generated test reports are present. This fresh checkout has no Gemini secret configured, so configured-secret matching was not exercised.
+- No server started, app visited, app screenshot taken, live provider called or deployment performed. The supplied visual-reference screenshots were inspected. App/device testing remains assigned to the user by the existing project preference.
 
-New source tests additionally decode all three bundled JPEGs, match their digests, preserve attribution on round-trip, reject missing/changed credits and invented visit context, keep source dates at day precision across time zones, and inspect graph provenance. Release checks verify the built photos and offline-cache entries.
+The 29 new checks cover empty/non-synthetic collection metrics, historical/field separation, valid source frames, UTC saving activity, coverage denominators, retained question/AI counts, review-queue ordering, immutable human photo notes, position/text/media validation, review reopening, old-record compatibility, original-byte field-pack round trips, rejected foreign/duplicate note IDs, graph links and chronological replay. These fixtures run against actual domain code; they are never seeded as observations in the app.
 
-Tests also exercise original-byte round trips, optional context preservation, corrupt bytes/digests/MIME, missing media, receipt compatibility, rejection of synthetic inputs, duplicate/conflict handling, capacity limits, source media ID collisions, search, required weather coordinates, model provenance, unit failures and cross-site cache isolation. They do not execute browser IndexedDB transactions or prove ecological accuracy.
+Earlier source tests decode the three bundled JPEGs, match digests, preserve attribution, reject changed credits or invented visit context, and keep dates at day precision. Existing transfer/API checks cover corrupt bytes, missing media, duplicates/conflicts, capacity, weather coordinates/units/cache separation and provider failures.
 
-Manual checks still required: actual downloads/import in a second profile, phone camera/video/voice/GPS, keyboard/mobile layout, a successful consented visual-AI call, map loading and production offline installation. See DEMO_GUIDE.md.
+Manual checks still required: new photo zoom/grid/pins, keyboard placement, wipe comparison, flow selection, replay controls, Insights filters/matrix, 320/390/1440px layout and focus; actual downloads/import in a second profile; phone camera/video/voice/GPS; consented live AI; map/explicit weather; production offline installation. See DEMO_GUIDE.md. Software checks do not establish these browser outcomes or ecological accuracy.
 
 ---
 

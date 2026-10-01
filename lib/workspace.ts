@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { reportSchema, type Report } from "./assessment";
-import { assertReferenceRecord } from "./field";
+import { assertReferenceRecord, assertPhotoAnnotations } from "./field";
 import { isSyntheticRecord } from "./atlas";
 
 export const WORKSPACE_KEY = "streamcheck-workspace-v1";
@@ -17,6 +17,7 @@ export function realRecords(records: Report[]) {
 export function parseWorkspace(value: unknown): Report[] {
   const records = z.array(reportSchema).max(MAX_REPORTS).parse(value);
   records.forEach(assertReferenceRecord);
+  records.forEach(assertPhotoAnnotations);
   return records;
 }
 
@@ -97,6 +98,7 @@ export async function prepareImport(text: string): Promise<PreparedImport> {
     records = parseWorkspace(value.records.map((entry: unknown) => z.object({ report: reportSchema }).parse(entry).report));
   } else throw new Error("Unsupported backup format or version.");
   records.forEach(assertReferenceRecord);
+  records.forEach(assertPhotoAnnotations);
   if (!records.length) throw new Error("This file has no observations to import.");
   if (records.some(isSyntheticRecord)) throw new Error("This file contains synthetic records or illustrative evidence. Only real observations can be imported.");
   const recordIds = new Set<string>();
@@ -125,6 +127,7 @@ export async function prepareImport(text: string): Promise<PreparedImport> {
 export async function createFieldPack(records: Report[], getMedia: (id: string) => Promise<Blob | undefined>, includeMedia: boolean): Promise<FieldPack> {
   const source = realRecords(records);
   source.forEach(assertReferenceRecord);
+  source.forEach(assertPhotoAnnotations);
   const pack: FieldPack = { format: "aqualens-field-pack", version: "1.0", exportedAt: new Date().toISOString(), records: source, media: [], missingMedia: [] };
   let total = 0;
   for (const [id, metadata] of mediaIndex(source)) {

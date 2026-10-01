@@ -50,7 +50,14 @@ export const referenceSchema = z.object({
   capturedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), sha256: z.string().regex(/^[a-f0-9]{64}$/), derivative: z.string(),
 }).refine((ref) => referencePhotos.some((photo) => Object.entries(ref).every(([key, value]) => photo[key as keyof ReferencePhoto] === value)),
   "Reference credit must match the bundled source catalogue.");
+export const photoAnnotationSchema = z.object({
+  id: z.string().min(1).max(100), mediaId: z.string().min(1),
+  x: z.number().finite().min(0).max(1), y: z.number().finite().min(0).max(1),
+  category: z.enum(["detail", "uncertain", "followup"]),
+  note: z.string().trim().min(1).max(500), at: z.string().datetime(), actor: z.literal("demo_reviewer"),
+});
 export const fieldSchema = z.object({
+  annotations: z.array(photoAnnotationSchema).max(60).optional(),
   reference: referenceSchema.optional(),
   oneHealth: z.object({
     bank: z.enum(["not_recorded", "vegetated", "bare", "built", "mixed"]),
@@ -153,6 +160,28 @@ export function assertReferenceRecord(report: Pick<Report, "original" | "field">
     throw new Error("A historical photo review cannot contain new field measurements or visit context.");
   if (f.media.length !== 1 || f.media[0].origin !== "public_reference" || f.media[0].kind !== "photo" || f.media[0].sha256 !== ref.sha256)
     throw new Error("A historical photo review must retain its credited source image.");
+}
+export type PhotoAnnotation = z.infer<typeof photoAnnotationSchema>;
+export type PhotoAnnotationInput = Pick<PhotoAnnotation, "mediaId" | "x" | "y" | "category" | "note">;
+export function assertPhotoAnnotations(report: Pick<Report, "field">) {
+  const ids = new Set<string>();
+  for (const annotation of report.field?.annotations ?? []) {
+    photoAnnotationSchema.parse(annotation);
+    if (ids.has(annotation.id)) throw new Error("Photo notes must have unique IDs.");
+    ids.add(annotation.id);
+    if (!report.field?.media.some((m) => m.id === annotation.mediaId && m.kind === "photo"))
+      throw new Error("A photo note must refer to a photograph in this record.");
+  }
+}
+export function addPhotoAnnotation(report: Report, input: PhotoAnnotationInput, now = new Date(), id = crypto.randomUUID()): Report {
+  const field = report.field;
+  if (!field?.media.some((m) => m.id === input.mediaId && m.kind === "photo")) throw new Error("Choose a retained photograph before adding a visual note.");
+  if ((field.annotations?.length ?? 0) >= 60) throw new Error("This record has reached its 60-note limit. Export its receipt to continue elsewhere.");
+  const annotation = photoAnnotationSchema.parse({ ...input, id, at: now.toISOString(), actor: "demo_reviewer" });
+  const next: Report = { ...report, status: "awaiting_review", field: { ...field, annotations: [...(field.annotations ?? []), annotation] },
+    history: [...report.history, { at: annotation.at, action: "photo_annotation", detail: `Visual note (${annotation.category}): ${annotation.note} Review reopened. These are human notes, not AI detections or geographic coordinates.` }] };
+  assertPhotoAnnotations(next);
+  return next;
 }
 export function createFollowupDraft(source: Report) {
   return {

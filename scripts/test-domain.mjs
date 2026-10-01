@@ -7,7 +7,7 @@ import ts from "typescript";
 // Compile the real domain code, with no browser or provider involved.
 const dir = path.resolve(".sites-runtime/domain-tests");
 await mkdir(dir, { recursive: true });
-for (const name of ["references", "field", "assessment", "gemini", "atlas", "river-observatory", "evidence-trail", "evidence-lab", "geographic", "workspace"]) {
+for (const name of ["mission-control", "references", "field", "assessment", "gemini", "atlas", "river-observatory", "evidence-trail", "evidence-lab", "geographic", "workspace"]) {
   const source = await readFile(`lib/${name}.ts`, "utf8");
   const output = ts
     .transpileModule(source, {

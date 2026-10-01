@@ -6,7 +6,7 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "test": "node scripts/test-domain.mjs && node scripts/test-workspace.mjs && node scripts/test-api.mjs",
+    "test": "node scripts/test-domain.mjs && node scripts/test-workspace.mjs && node scripts/test-mission.mjs && node scripts/test-api.mjs",
     "typecheck": "tsc --noEmit",
     "install:ci": "node scripts/install-ci.mjs",
     "dev": "node scripts/run-framework.mjs dev",

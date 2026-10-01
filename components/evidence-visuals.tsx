@@ -1,0 +1,58 @@
+"use client";
+import { useEffect, useId, useState } from "react";
+import { ChevronLeft, ChevronRight, Download, FileText, GitBranch, Image as ImageIcon, MapPin, Pause, Play, ShieldCheck, Sparkles } from "lucide-react";
+import type { Report } from "@/lib/assessment";
+import { evidenceReplay, workflowLabels, type EvidenceFrame } from "@/lib/mission-control";
+import { displayEvidenceTime } from "@/lib/references";
+import { FrameImage } from "./photo-inspector";
+
+export function EvidenceFlow({ frame }: { frame: EvidenceFrame }) {
+  const [selection, setSelection] = useState("assessment");
+  const report = frame.report;
+  const mediaCount = report?.field?.media.length ?? 1;
+  const candidates = report?.field?.media.reduce((sum, media) => sum + (media.visual?.findings.length ?? 0), 0) ?? 0;
+  const nodes = [
+    { key: "note", title: "Original words", value: report ? `${report.original.note.length} characters retained` : "Write your own description", icon: FileText, tone: "cyan", detail: report?.original.note || "Review this source photograph to add your own words. No observation note is prefilled." },
+    { key: "media", title: "Photo evidence", value: `${mediaCount} ${report ? "media references" : "credited photograph"}`, icon: ImageIcon, tone: "cyan", detail: frame.reference ? `${frame.reference.title} · ${frame.reference.author} · ${frame.reference.license}. Source date ${frame.reference.capturedDate}.` : "Media bytes live in the originating browser. Digests identify retained bytes; they do not verify the scene." },
+    { key: "context", title: "Field context", value: report?.field?.reference || !report ? "Historical source only" : `${report.field?.coordinates ? "GPS supplied" : "No GPS"} · ${report.field?.measurements.length ?? 0} readings`, icon: MapPin, tone: "violet", detail: report?.field?.reference || !report ? "This historical photo carries its published source details. No field visit, new location or instrument reading is invented." : report.field?.oneHealth?.note || "Only supplied coordinates, instrument readings and citizen context can support this record. Unknowns remain unknown." },
+    { key: "assessment", title: "Assessment", value: report ? report.assessment.mode === "ai" ? "Rules + retained text AI" : "Local rules" : "Review not started", icon: Sparkles, tone: "cyan", detail: report ? `${report.assessment.notice} ${report.assessment.issues.length} text questions; ${candidates} visual AI candidates. Each is retained for human inspection.` : "The flow shows the available review process. Checks run only after you write a note; live AI needs configuration and explicit consent." },
+    { key: "questions", title: "Clarification", value: report ? `${report.assessment.issues.length} questions · ${report.assessment.issues.filter((issue) => issue.decision === "uncertain").length} uncertain` : "No checks run", icon: GitBranch, tone: "violet", detail: report?.assessment.issues.map((issue) => `${issue.title}: ${issue.decision}`).join("\n") || (report ? "No text issue matched the retained assessment. That is not a water-quality conclusion." : "Questions and uncertainty appear here after an assessment.") },
+    { key: "human", title: "Human review", value: report ? workflowLabels[report.status] : "No saved review", icon: ShieldCheck, tone: "mint", detail: report?.reviewHistory.at(-1)?.note || "A local reviewer must inspect the sources and supply their own judgment. No authenticated reviewer or scientific validation is implied." },
+    { key: "receipt", title: "Evidence receipt", value: report ? "Original + history exportable" : "Available after confirmation", icon: Download, tone: "amber", detail: report ? "The record, source credits, human visual notes and decisions can be exported together. A field pack can also carry original media bytes." : "Confirm a real photo review to create a portable receipt. Nothing is saved automatically from this workflow preview." },
+  ];
+  const chosen = nodes.find((node) => node.key === selection)!;
+  function nodeButton(key: string) { const node = nodes.find((item) => item.key === key)!; const Icon = node.icon; return <button type="button" key={key} className={`flow-node flow-${node.tone}${selection === key ? " selected" : ""}`} aria-pressed={selection === key} onClick={() => setSelection(key)}><span className="flow-icon"><Icon size={19} /></span><span><b>{node.title}</b><small>{node.value}</small></span></button>; }
+  return <section className="evidence-flow-console" aria-label="Interactive evidence flow"><div className="mc-panel-heading"><span><GitBranch size={15} /> EVIDENCE FLOW</span><span className="mc-chip">{report ? "SAVED RECORD" : "WORKFLOW PREVIEW"}</span></div>
+    <div className="flow-scene"><svg className="flow-wires" viewBox="0 0 900 370" preserveAspectRatio="none" aria-hidden="true">{[70, 185, 300].map((y) => <path key={`in${y}`} d={`M 210 ${y} C 320 ${y}, 300 185, 445 185`} />)}{[70, 185, 300].map((y) => <path key={`out${y}`} d={`M 455 185 C 600 185, 580 ${y}, 690 ${y}`} />)}<circle cx="450" cy="185" r="70" /><circle cx="450" cy="185" r="91" /></svg>
+      <div className="flow-column">{["note", "media", "context"].map(nodeButton)}</div><div className="flow-center">{nodeButton("assessment")}<span>TRACEABLE ASSISTANCE</span></div><div className="flow-column">{["questions", "human", "receipt"].map(nodeButton)}</div>
+    </div><div className={`flow-inspector flow-${chosen.tone}`} aria-live="polite"><span className="mc-kicker">INSPECTING / {chosen.title}</span><p>{chosen.detail}</p></div><p className="mc-footnote">Connections show provenance and review steps. They do not represent a trained fusion model or causal influence.</p>
+  </section>;
+}
+
+export function EvidenceReplay({ report }: { report: Report }) {
+  const events = evidenceReplay(report), last = Math.max(0, events.length - 1);
+  const [index, setIndex] = useState(0), [playing, setPlaying] = useState(false);
+  const cursor = Math.min(index, last), isPlaying = playing && cursor < last, selected = events[cursor];
+  useEffect(() => {
+    if (!isPlaying) return;
+    const timer = setInterval(() => setIndex((value) => Math.min(value + 1, last)), 1400);
+    return () => clearInterval(timer);
+  }, [isPlaying, last]);
+  const move = (value: number) => { setPlaying(false); setIndex(Math.max(0, Math.min(value, last))); };
+  return <section className="evidence-replay" aria-label="Retained evidence event replay"><div className="mc-panel-heading"><span><Play size={14} /> EVIDENCE REPLAY</span><span className="mc-chip">{events.length} RETAINED EVENTS</span></div><div className="replay-main"><button type="button" className="replay-play" disabled={events.length < 2} aria-label={isPlaying ? "Pause event replay" : "Play retained events"} onClick={() => { if (cursor === last) setIndex(0); setPlaying(!isPlaying); }}>{isPlaying ? <Pause size={20} /> : <Play size={20} />}</button><div className="replay-event" aria-live={isPlaying ? "off" : "polite"}><span>{String(cursor + 1).padStart(2, "0")} / {String(events.length).padStart(2, "0")} · {displayEvidenceTime(selected.at)}</span><h3>{selected.title}</h3><p>{selected.detail}</p></div><div className="replay-step"><button type="button" aria-label="Previous event" disabled={cursor === 0} onClick={() => move(cursor - 1)}><ChevronLeft size={18} /></button><button type="button" aria-label="Next event" disabled={cursor === last} onClick={() => move(cursor + 1)}><ChevronRight size={18} /></button></div></div><input type="range" aria-label="Retained event position" min={0} max={last} step={1} value={cursor} onChange={(event) => move(Number(event.target.value))} disabled={!last} /><div className="replay-track">{events.map((event, i) => <button type="button" key={event.id} aria-label={`Event ${i + 1}: ${event.title}`} aria-current={cursor === i ? "step" : undefined} className={`replay-dot replay-${event.kind}${cursor === i ? " active" : ""}`} onClick={() => move(i)}><span /></button>)}</div><p className="mc-footnote">Event order, not elapsed-time scale. Reads stored history; does not simulate river conditions or change decisions.</p></section>;
+}
+
+export function PhotoCompare({ frames }: { frames: EvidenceFrame[] }) {
+  const id = useId();
+  const unique = frames.filter((frame, index, all) => all.findIndex((other) => (other.media?.sha256 || other.reference?.sha256 || other.key) === (frame.media?.sha256 || frame.reference?.sha256 || frame.key)) === index);
+  const [leftKey, setLeft] = useState(""), [rightKey, setRight] = useState("");
+  const [split, setSplit] = useState(50), [mode, setMode] = useState<"wipe" | "side">("wipe");
+  const left = unique.find((frame) => frame.key === leftKey) ?? unique[0];
+  const right = unique.find((frame) => frame.key === rightKey && frame.key !== left?.key) ?? unique.find((frame) => frame.key !== left?.key);
+  if (!left || !right) return <div className="mc-empty"><ImageIcon size={30} /><h3>Choose two distinct photographs</h3><p>Add another photo or switch the source filter to include the credited collection.</p></div>;
+  return <section className="photo-compare" aria-label="Manual photo comparison"><div className="compare-selectors"><label htmlFor={`${id}-a`}>FRAME A<select id={`${id}-a`} value={left.key} onChange={(event) => setLeft(event.target.value)}>{unique.map((frame) => <option key={frame.key} value={frame.key}>{frame.title} · {frame.date}</option>)}</select></label><label htmlFor={`${id}-b`}>FRAME B<select id={`${id}-b`} value={right.key} onChange={(event) => setRight(event.target.value)}>{unique.filter((frame) => frame.key !== left.key).map((frame) => <option key={frame.key} value={frame.key}>{frame.title} · {frame.date}</option>)}</select></label></div><div className="mc-segmented" role="group" aria-label="Comparison layout"><button type="button" aria-pressed={mode === "wipe"} onClick={() => setMode("wipe")}>Wipe comparison</button><button type="button" aria-pressed={mode === "side"} onClick={() => setMode("side")}>Side by side</button></div>
+    <div className={`compare-stage compare-${mode}`}><div className="compare-image compare-b"><FrameImage key={right.key} frame={right} /></div><div className="compare-image compare-a" style={mode === "wipe" ? { clipPath: `inset(0 ${100 - split}% 0 0)` } : undefined}><FrameImage key={left.key} frame={left} /></div>{mode === "wipe" && <div className="compare-divider" style={{ left: `${split}%` }} aria-hidden="true"><span>↔</span></div>}<span className="compare-label-a">A</span><span className="compare-label-b">B</span></div>
+    {mode === "wipe" && <label className="compare-range">Move comparison divider · {split}%<input type="range" min={0} max={100} value={split} onChange={(event) => setSplit(Number(event.target.value))} /></label>}
+    <div className="compare-credits">{[left, right].map((frame, index) => <div key={frame.key}><span className="mc-kicker">FRAME {index === 0 ? "A" : "B"} · {frame.report ? "SAVED PHOTO" : "HISTORICAL REFERENCE"}</span><strong>{frame.title}</strong><span>{displayEvidenceTime(frame.date)}</span>{frame.reference && <a href={frame.reference.sourceUrl} target="_blank" rel="noreferrer">{frame.reference.author} · {frame.reference.license}</a>}</div>)}</div><p className="mc-footnote">Manual viewing aid. Different dates, lighting and viewpoints are not aligned or comparable measurements of environmental change. Source photos retain their full frame.</p>
+  </section>;
+}

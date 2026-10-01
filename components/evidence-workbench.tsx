@@ -21,6 +21,7 @@ import {
   Minimize2,
 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { PhotoInspector } from "./photo-inspector";
 import { ReferenceCredit } from "./reference-gallery";
 import { OneHealthSummary } from "./field-guide";
 import { RiverObservatory } from "./river-observatory";
@@ -313,7 +314,7 @@ export function EvidenceReceipt({
       )}
       {report.field?.media.map((m) => (
         <section className="receipt-media" key={m.id}>
-          <EvidenceImage media={m} />
+          {m.kind === "photo" ? <PhotoInspector key={m.id} frame={{ key: `${report.id}:${m.id}`, title: report.original.site, date: report.original.observedAt, width: m.width > 0 ? m.width : 4, height: m.height > 0 ? m.height : 3, media: m, report }} /> : <EvidenceImage media={m} />}
           <div className="button-row">
             <span className="tag">
               {m.origin} · {m.kind}

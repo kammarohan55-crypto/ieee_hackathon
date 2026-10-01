@@ -45,6 +45,12 @@ export function evidenceTrail(report: Report) {
     const id = `media:${i}`;
     add(id, `${media.origin === "public_reference" ? "Public source" : media.origin === "illustration" ? "Synthetic" : "Citizen"} · ${media.kind}`, `Origin: ${media.origin}\nRetained media metadata: ${media.id}\nSHA-256: ${media.sha256}\n${media.quality.warnings.join("\n") || "No canvas quality warning. This heuristic does not verify authenticity or image accuracy."}`, media.origin === "public_reference" ? "reference" : "citizen", 0, row);
     link(ref ? "photo-source" : "original", id);
+    const annotations = report.field?.annotations?.filter((note) => note.mediaId === media.id) ?? [];
+    if (annotations.length) {
+      const annotationId = `photo-notes:${i}`;
+      add(annotationId, `Human · ${annotations.length} visual notes`, annotations.map((note) => `${note.category}: ${note.note}\nImage position: ${Math.round(note.x * 100)}%, ${Math.round(note.y * 100)}% · ${note.at}`).join("\n\n") + "\nHuman notes, not model detections or geographic coordinates.", "human", -280, row);
+      link(id, annotationId); link(annotationId, "review");
+    }
     if (media.visual) {
       const visualId = `visual:${i}`, humanId = `judgment:${i}`;
       const findings = media.visual.findings;
