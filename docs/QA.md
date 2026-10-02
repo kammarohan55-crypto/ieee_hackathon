@@ -1,6 +1,6 @@
 # Current verification — Gemini activation and presentation media
 
-2026-10-03 Asia/Kolkata, Windows/main, based on c7f9ca9. Previous implementation/handoff are published; inspect Git and PROJECT_CONTEXT for this pass's final publication state. No app server/browser/device check was performed.
+2026-10-03 Asia/Kolkata, Windows/main, based on c7f9ca9. Gemini/media implementation b0dd07f is pushed; remote SHA matches and the public commit page opens. Final handoff follows separately; inspect Git/PROJECT_CONTEXT for its exact revision. No app server/browser/device check was performed.
 
 - Complete `npm test`: **331/331** —94 domain,42 workspace/recovery/weather,34 Mission control,47 mocked API,15 capture/photo,14 Lab,21 map,15 presentation/visit,20 Decision brief,29 evidence actions. Four bundled reports cover217 checks; another114 run separately through npm test. Authored software checks, not model/environment scores.
 - TypeScript and full ESLint pass with zero warnings. All11 application CSS files parse with PostCSS; normal git diff --check passes. Seven added API regressions cover default Gemini metadata, header-only key, JSON schema, image inline data, actual modelVersion, thought exclusion, stale consent, fail-safe validation and bounded explicit alternate behavior.

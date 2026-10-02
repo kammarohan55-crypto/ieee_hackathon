@@ -1,6 +1,6 @@
 # AquaLens — submission working copy
 
-Updated 2026-10-03. Draft only: no submission, deployment or video is established. Repository: https://github.com/kammarohan55-crypto/ieee_hackathon . Implementation commit cb2d42d is pushed and public access verified; final handoff documentation follows. Inspect the current main revision for exact source. Fill in actual team credits, tested judge-access URL and video link.
+Updated 2026-10-03. Draft only: no submission, deployment or video is established. Repository: https://github.com/kammarohan55-crypto/ieee_hackathon . Gemini/media implementation commit b0dd07f is pushed; origin/main SHA matches, and the public commit page opens. Final handoff documentation follows. Inspect the current main revision for exact source. Fill in actual team credits, tested judge-access URL and video link.
 
 ## Positioning
 
