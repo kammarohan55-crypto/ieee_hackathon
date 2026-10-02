@@ -50,6 +50,7 @@ const configure = (selected = "xai") => {
   env.AI_PROVIDER = selected;
   env.XAI_API_KEY = "test-only-xai-credential";
   if (selected === "groq") env.GROQ_API_KEY = "test-only-groq-credential";
+  if (selected === "gemini") env.GEMINI_API_KEY = "test-only-gemini-credential";
 };
 const candidate = { kind: "surface_foam", confidence: "low", region: "center" };
 try {
@@ -299,7 +300,68 @@ try {
     assert.equal(JSON.parse(calls[1][1].body).model, env.XAI_VISUAL_MODEL);
     assert.ok(calls.every(([url]) => url === "https://api.x.ai/v1/chat/completions"));
   });
-  await test("Legacy Gemini credentials and unknown provider selection never enable implicit routing", async () => {
+  await test("Gemini metadata and default selection disclose recipient/models without credentials", async () => {
+    configure("gemini"); delete env.AI_PROVIDER; calls = [];
+    const body = await (await assess.GET()).json();
+    assert.equal(body.provider, "Google Gemini"); assert.equal(body.liveAI, true);
+    assert.equal(body.model, "gemini-3.5-flash-lite"); assert.ok(!JSON.stringify(body).includes(env.GEMINI_API_KEY));
+    assert.equal(calls.length, 0);
+  });
+  const geminiResponse = (value, overrides = {}) => Response.json({ modelVersion: "gemini-3.5-flash-lite", candidates: [{ finishReason: "STOP", content: { parts: [{ text: JSON.stringify(value) }] } }], ...overrides });
+  await test("Gemini text uses header authentication, generateContent and grounded shared validation", async () => {
+    configure("gemini"); calls = []; responder = () => geminiResponse({ issues: [{ code: "ambiguity", quote: "appearance is unknown" }] });
+    const body = await (await assess.POST(request("assess", { observation, useAI: true }))).json();
+    assert.equal(body.mode, "ai"); assert.equal(body.provider, "gemini"); assert.equal(body.model, "gemini-3.5-flash-lite");
+    const [url, options] = calls[0], payload = JSON.parse(options.body);
+    assert.equal(url, "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent");
+    assert.equal(options.headers["x-goog-api-key"], env.GEMINI_API_KEY); assert.equal(options.headers.Authorization, undefined);
+    assert.equal(payload.generationConfig.responseFormat.text.mimeType, "APPLICATION_JSON");
+    assert.equal(payload.generationConfig.thinkingConfig.thinkingLevel, "low");
+    assert.equal(JSON.parse(payload.contents[0].parts[0].text).site, undefined);
+    assert.equal(JSON.parse(payload.contents[0].parts[0].text).observedAt, undefined);
+  });
+  await test("Gemini visual sends JPEG inline data, ignores thoughts and retains actual model provenance", async () => {
+    configure("gemini"); calls = [];
+    responder = () => geminiResponse({}, { modelVersion: "gemini-3.5-flash-lite-test-version", candidates: [{ finishReason: "STOP", content: { parts: [{ thought: true, text: "Not the answer" }, { text: JSON.stringify({ findings: [candidate, candidate] }) }] } }] });
+    const body = await (await visual.POST(request("visual", image))).json();
+    assert.equal(body.provider, "gemini"); assert.equal(body.model, "gemini-3.5-flash-lite-test-version"); assert.equal(body.findings.length, 1);
+    const payload = JSON.parse(calls[0][1].body);
+    assert.deepEqual(payload.contents[0].parts[0].inlineData, { mimeType: "image/jpeg", data: image.image });
+    assert.equal(payload.messages, undefined);
+  });
+  await test("Gemini incomplete, blocked, ungrounded and unknown-model responses fail without invented results", async () => {
+    for (const response of [
+      { candidates: [{ finishReason: "MAX_TOKENS", content: { parts: [{ text: "{}" }] } }], modelVersion: "gemini-3.5-flash-lite" },
+      { promptFeedback: { blockReason: "SAFETY" } },
+      { candidates: [{ finishReason: "STOP", content: { parts: [{ text: "{}" }] } }] },
+      { candidates: [{ finishReason: "STOP", content: { parts: [{ functionCall: { name: "unsafe" }, text: "{}" }] } }], modelVersion: "gemini-3.5-flash-lite" },
+    ]) {
+      configure("gemini"); responder = () => Response.json(response);
+      assert.equal((await (await assess.POST(request("assess", { observation, useAI: true }))).json()).mode, "rules");
+      assert.equal((await visual.POST(request("visual", image))).status, 503);
+    }
+    responder = () => geminiResponse({ issues: [{ code: "ambiguity", quote: "Invented quotation" }] });
+    assert.equal((await (await assess.POST(request("assess", { observation, useAI: true }))).json()).mode, "rules");
+  });
+  await test("Switching to Gemini invalidates stale text and image recipient consent before transmission", async () => {
+    configure(); const oldScope = aiConsentScope(env); configure("gemini"); calls = [];
+    assert.equal((await assess.POST(request("assess", { observation, useAI: true, consentScope: oldScope }))).status, 409);
+    assert.equal((await visual.POST(request("visual", { ...image, consentScope: oldScope }))).status, 409);
+    assert.equal(calls.length, 0);
+  });
+  await test("Gemini availability fallback is explicit, distinct and retains the provider actually used", async () => {
+    configure("gemini"); env.AI_FALLBACK_PROVIDER = "groq"; env.GROQ_API_KEY = "test-only-groq-credential"; calls = [];
+    responder = (url) => String(url).includes("googleapis.com") ? new Response("private-error", { status: 429 }) : completion({ issues: [] }, "stop", { model: groqModel });
+    const body = await (await assess.POST(request("assess", { observation, useAI: true }))).json();
+    assert.equal(body.mode, "ai"); assert.equal(body.provider, "groq"); assert.equal(body.model, groqModel); assert.equal(calls.length, 2);
+  });
+  await test("Gemini authentication failures do not echo keys, error bodies or bypass refusal", async () => {
+    configure("gemini"); calls = []; responder = () => new Response(env.GEMINI_API_KEY + " private-error", { status: 403 });
+    const body = await (await assess.POST(request("assess", { observation, useAI: true }))).text();
+    assert.ok(!body.includes(env.GEMINI_API_KEY) && !body.includes("private-error"));
+    assert.equal((await visual.POST(request("visual", image))).status, 503);
+  });
+  await test("Nonselected Gemini credentials and unknown provider selection never enable implicit routing", async () => {
     configure(); delete env.XAI_API_KEY; env.GEMINI_API_KEY = "test-only-legacy-credential"; calls = [];
     assert.equal((await (await assess.GET()).json()).liveAI, false);
     assert.equal((await (await assess.POST(request("assess", { observation, useAI: true }))).json()).mode, "rules");
@@ -310,7 +372,7 @@ try {
     assert.equal(calls.length, 0);
   });
   await test("Invalid model configuration and credential-shaped models fail before transmission", async () => {
-    for (const model of ["https://untrusted.test/model", "bad model", "xai-private-key", "gsk_private-key", "test-only-xai-credential"]) {
+    for (const model of ["https://untrusted.test/model", "bad model", "xai-private-key", "gsk_private-key", "AQ.private-key", "AIzaPrivateKey", "test-only-xai-credential"]) {
       configure(); env.XAI_MODEL = model; calls = [];
       const availability = await (await assess.GET()).json();
       assert.equal(availability.liveAI, false); assert.ok(!JSON.stringify(availability).includes(model));

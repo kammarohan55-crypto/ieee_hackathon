@@ -5,7 +5,7 @@ const filename = process.argv[2];
 const status = await fetch("http://localhost:5173/api/assess", { signal: AbortSignal.timeout(10000) });
 if (!status.ok) throw new Error("Provider details are unavailable. No photo was sent.");
 const config = await status.json();
-const labels = new Set(["xAI (Grok)", "Groq"]);
+const labels = new Set(["xAI (Grok)", "Groq", "Google Gemini"]);
 if (config.liveAI !== true || !labels.has(config.visualProvider) || (config.fallbackProvider !== undefined && !labels.has(config.fallbackProvider)) || typeof config.consentScope !== "string" || config.consentScope.length > 1000)
   throw new Error("Live AI is not configured with verifiable recipient details. No photo was sent.");
 const recipients = `${config.visualProvider}${config.fallbackProvider ? `, with ${config.fallbackProvider} as the configured availability fallback` : ""}`;

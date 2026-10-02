@@ -41,7 +41,7 @@ The historical D5.3 PDF is now linked from [About](https://www.oneaquahealth.eu/
 
 ## Implication for AquaLens — project recommendations
 
-The earlier review favored **Track 3: AI-Supported Assessment**. Following the user's authorization to select a broader fit, the current primary decision is **Track 1: Citizen Science UX**, supported by Tracks 3/2/4. Its complete guided local workflow is demonstrable during provider failure. The strongest complement to the official geographic/EO platform remains an inspectable citizen-to-reviewer trail: preserve originals, reference each suggestion, retain unknowns, require acceptance and show disagreements. This decision does not establish winning odds or scientific accuracy.
+The October2 review temporarily favored Track1 while provider access was blocked. **Current October3 primary: Track3, AI-Supported Assessment**, as specified in the supplied project instructions, with citizen UX/context/storytelling supporting it. Bounded Gemini text/image checks now succeeded; local checks and human review still work during provider failure. The strongest complement to the official geographic/EO platform remains an inspectable citizen-to-reviewer trail: preserve originals, reference each suggestion, retain unknowns, require acceptance and show disagreements. This decision does not establish winning odds or scientific accuracy.
 
 Source inspection confirms AquaLens already has photo comparison, supplied-coordinate maps, provenance/replay, weather timestamps, evidence coverage and software-validation views. Improvements should extend those surfaces rather than duplicate the official platform.
 

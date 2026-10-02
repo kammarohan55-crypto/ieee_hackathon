@@ -5,7 +5,7 @@ export const recordedProviderSchema = z.enum(["xai", "groq", "gemini"]);
 export function recordedProviderLabel(provider?: z.infer<typeof recordedProviderSchema>) {
   return provider === "xai" ? "xAI (Grok)" : provider === "groq" ? "Groq" : provider === "gemini" ? "Google Gemini" : "Provider not retained";
 }
-const publicProvider = z.enum(["xAI (Grok)", "Groq", "Unconfigured AI provider"]);
+const publicProvider = z.enum(["xAI (Grok)", "Groq", "Google Gemini", "Unconfigured AI provider"]);
 export const aiStatusSchema = z.object({
   liveAI: z.boolean(), provider: publicProvider, model: z.string().max(160),
   visualProvider: publicProvider, visualModel: z.string().max(160),

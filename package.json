@@ -14,7 +14,9 @@
     "start": "node scripts/start-local.mjs",
     "verify:release": "node scripts/verify-release.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "prepare:media": "node scripts/prepare-presentation-media.mjs",
+    "verify:ai": "node scripts/verify-ai-connection.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

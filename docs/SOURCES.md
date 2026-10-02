@@ -199,7 +199,7 @@ Opened the 50-page public 2024 deliverable and reviewed metadata and relevant ci
 
 https://oneaquahealth-ieee-hackathon.devpost.com/ — the public overview asks each project to belong to **one chosen track**. Track1 covers citizen-science UX, guided workflows, clearer terminology, data accuracy and repeat engagement; Track3 covers responsible AI assessment/validation/explainability/human oversight, Track2 data insights, Track4 storytelling.
 
-The user authorized choosing another primary track and supporting several. **Project decision:** primary Track1, supported by existing Track3/2/4 capabilities. The complete local guided workflow is demonstrable when live AI is unavailable. This is a scope/presentation judgment, not evidence that a track is easier to win or an entry is eligible in multiple categories. Older Track3 decisions in this register are historical, not the current primary selection. No organizer evaluation or account submission was inspected.
+The user authorized choosing another primary track and supporting several. **Project decision:** primary Track1, supported by existing Track3/2/4 capabilities. The complete local guided workflow is demonstrable when live AI is unavailable. This is a scope/presentation judgment, not evidence that a track is easier to win or an entry is eligible in multiple categories. This October2 recommendation was superseded by the October3 Track3 framing in S38; do not treat it as current. No organizer evaluation or account submission was inspected.
 
 ## S31 — Supplied research: accepted proposals and corrected claims (checked 2026-10-02)
 
@@ -228,3 +228,24 @@ https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-f
 ## S35 — Release publication (checked 2026-10-02)
 
 https://github.com/kammarohan55-crypto/ieee_hackathon/commit/cb2d42d011294cebbf30fe553cf8b58116961568 — implementation commit pushed successfully; git ls-remote origin/main exactly matched the full local SHA. The anonymously opened GitHub commit page labels the repository Public and displays the commit/change summary. This verifies source publication, not deployed app behavior, hosting, account submission, scientific accuracy or competition results. Final handoff metadata is committed separately; its exact head is checked with Git and recorded in the source ZIP manifest.
+
+
+## S36 — Current Gemini activation and bounded integration evidence (checked 2026-10-03 local time)
+
+- https://ai.google.dev/gemini-api/docs/api-key — server-side key confidentiality, authorization-key defaults and standard-key restrictions. User-pasted documentation agrees; its contents are not evidence of account quota. No plugin or Interactions migration is needed for the existing generateContent workflow.
+- https://ai.google.dev/api/generate-content and https://ai.google.dev/gemini-api/docs/structured-output — documented REST generation/inline image data, structured response schema, response modelVersion/candidates and finish reasons. Existing REST + Zod adapter reused; x-goog-api-key header and fixed provider host, no query/client key.
+- https://ai.google.dev/gemini-api/docs/models/gemini-3.5-flash-lite and https://ai.google.dev/gemini-api/docs/thinking — current multimodal/structured-output model; low thinking level is documented. No custom training or ecological validation follows from capabilities.
+- https://ai.google.dev/gemini-api/docs/pricing —3.5 Flash-Lite input/output free tier listed; free-tier content marked used to improve products. Account/project/region limits apply; no unlimited, fixed-quota or permanent-price promise. No billing/account changes made.
+
+The supplied key was saved only in ignored .dev.vars; models.list returnedHTTP200 and advertised generateContent for the selected model. Earlier3.8 text/image generation both returned503. After explicitly selecting3.5 Flash-Lite, actual source route handlers (isolated Worker env binding, no app/server/browser) sent one authored synthetic text note and one credited historical Scenic Reflection photo resized to768px JPEG. Both provider HTTP responses were200, route responses200, and strict grounded output validation succeeded. Report timestamp2026-10-02T18:43:51.572Z is October3 in Asia/Kolkata. Text retained one issue; visual retained two candidate appearances. Human review was not performed and no citizen records/approval were created. Sanitized access/failure/success logs stay ignored in .sites-runtime. A single connection check is not a benchmark, ecological validation, deployed-host proof or browser QA; later availability may differ.
+
+## S37 — Presentation media handoff (checked 2026-10-03)
+
+Reuses the three Wikimedia sources/licences recorded in S19 and public/images/references/CREDITS.md; no new Google-image or YouTube reuse right is assumed. SHA-256 checks confirm that packaged images match the existing credited catalogue exactly. The kit includes per-file photographer, source URL, source-supplied day precision, licence/URL and unchanged-thumbnail description. It contains no seeded field data, AI candidates, citizen notes, GPS/readings or human approvals. A Python standard-library ZIP and Node built-in filesystem/crypto reuse existing catalogue data; no additional package/backend is introduced. These are historical presentation sources, not newly captured or independently authenticated scenes. The recording is the user's task.
+
+
+## S38 — Current presentation framing and official overview (checked 2026-10-03)
+
+https://oneaquahealth-ieee-hackathon.devpost.com/ — reopened public overview. Track3 describes responsible AI assistance without replacing human judgment, validation/checks/explainability and human-in-the-loop workflows. The overview still asks for one chosen track and a3–5minute video/source/docs/prototype; header still gives October4,2026 at9PM PDT. Student/team badges and individual-participation body still conflict; registration/team/eligibility are user statements, not verified account facts.
+
+The supplied AGENTS instructions specify primaryTrack3. **Current project/presentation decision: Track3**, with Track1 citizen UX, Track2 context and Track4 storytelling as supporting capabilities. After successful bounded Gemini activation, submission/handoff documents were aligned with those instructions; the October2 Track1 provider-failure recommendation in S30 remains historical. This is a scope decision based on the retained evidence/AI/human-review workflow, not winning probability, ecological accuracy or organizer endorsement. No account/submission/deployment was accessed.

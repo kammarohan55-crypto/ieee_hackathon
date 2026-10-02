@@ -7,9 +7,10 @@ import {
 } from "./assessment";
 import { findingKinds, visualSchema } from "./field";
 
-export type AIProvider = "xai" | "groq";
+export type AIProvider = "xai" | "groq" | "gemini";
 type WorkerConfig = Record<string, string | undefined>;
 type Capability = "text" | "visual";
+type ProviderContent = { text: string; image?: string };
 type ProviderConfig = {
   provider: AIProvider;
   key: string;
@@ -17,14 +18,16 @@ type ProviderConfig = {
   visualModel: string;
 };
 
-// Documented models checked 2026-10-02. Availability and billing depend on the account.
+// Documented models checked 2026-10-03. Availability and billing depend on the account.
+export const GEMINI_MODEL = "gemini-3.5-flash-lite";
 export const XAI_MODEL = "grok-4.20-0309-non-reasoning";
 export const GROQ_MODEL = "qwen/qwen3.8-27b"; // Groq labels this model preview.
 export const providerLabels: Record<AIProvider, string> = {
   xai: "xAI (Grok)",
   groq: "Groq",
+  gemini: "Google Gemini",
 };
-const endpoints: Record<AIProvider, string> = {
+const endpoints: Record<Exclude<AIProvider, "gemini">, string> = {
   xai: "https://api.x.ai/v1/chat/completions",
   groq: "https://api.groq.com/openai/v1/chat/completions",
 };
@@ -78,24 +81,24 @@ const imageSchema = {
 };
 
 function providerName(value: string | undefined): AIProvider | undefined {
-  return value === "xai" || value === "groq" ? value : undefined;
+  return value === "xai" || value === "groq" || value === "gemini" ? value : undefined;
 }
 function validModel(value: string, secrets: string[]): boolean {
   return /^[a-zA-Z0-9][a-zA-Z0-9._/-]{0,159}$/.test(value)
-    && !/^(xai-|gsk_)/i.test(value)
+    && !/^(xai-|gsk_|AQ\.|AIza)/i.test(value)
     && !secrets.some((key) => key.length >= 8 && value.includes(key));
 }
 function providerConfig(config: WorkerConfig, provider: AIProvider): ProviderConfig | undefined {
-  const prefix = provider === "xai" ? "XAI" : "GROQ";
+  const prefix = provider === "xai" ? "XAI" : provider === "groq" ? "GROQ" : "GEMINI";
   const key = config[`${prefix}_API_KEY`]?.trim();
-  const textModel = config[`${prefix}_MODEL`]?.trim() || (provider === "xai" ? XAI_MODEL : GROQ_MODEL);
+  const textModel = config[`${prefix}_MODEL`]?.trim() || (provider === "xai" ? XAI_MODEL : provider === "groq" ? GROQ_MODEL : GEMINI_MODEL);
   const visualModel = config[`${prefix}_VISUAL_MODEL`]?.trim() || textModel;
   const secrets = [config.XAI_API_KEY || "", config.GROQ_API_KEY || "", config.GEMINI_API_KEY || ""].map((secret) => secret.trim());
   if (!key || !validModel(textModel, secrets) || !validModel(visualModel, secrets)) return;
   return { provider, key, textModel, visualModel };
 }
 export function resolveAIConfig(config: WorkerConfig) {
-  const selected = providerName(config.AI_PROVIDER?.trim() || "xai");
+  const selected = providerName(config.AI_PROVIDER?.trim() || "gemini");
   const primary = selected ? providerConfig(config, selected) : undefined;
   const alternate = providerName(config.AI_FALLBACK_PROVIDER?.trim());
   // No implicit routing or key rotation. An alternative must be explicitly selected,
@@ -118,9 +121,9 @@ export function aiAvailability(config: WorkerConfig) {
     liveAI: !!primary,
     consentScope: aiConsentScope(config),
     provider: selected ? providerLabels[selected] : "Unconfigured AI provider",
-    model: primary?.textModel || (selected === "xai" ? XAI_MODEL : selected === "groq" ? GROQ_MODEL : "unconfigured"),
+    model: primary?.textModel || (selected === "xai" ? XAI_MODEL : selected === "groq" ? GROQ_MODEL : selected === "gemini" ? GEMINI_MODEL : "unconfigured"),
     visualProvider: selected ? providerLabels[selected] : "Unconfigured AI provider",
-    visualModel: primary?.visualModel || (selected === "xai" ? XAI_MODEL : selected === "groq" ? GROQ_MODEL : "unconfigured"),
+    visualModel: primary?.visualModel || (selected === "xai" ? XAI_MODEL : selected === "groq" ? GROQ_MODEL : selected === "gemini" ? GEMINI_MODEL : "unconfigured"),
     ...(fallback ? {
       fallbackProvider: providerLabels[fallback.provider],
       fallbackModel: fallback.textModel,
@@ -147,27 +150,52 @@ const completionSchema = z.object({
     }),
   })).length(1),
 });
+const geminiCompletionSchema = z.object({
+  modelVersion: z.string().min(1).max(160),
+  candidates: z.array(z.object({
+    finishReason: z.literal("STOP"),
+    content: z.object({ parts: z.array(z.object({
+      text: z.string().max(32000).optional(), thought: z.boolean().optional(),
+      functionCall: z.never().optional(), inlineData: z.never().optional(),
+    })).min(1) }),
+  })).length(1),
+});
 async function requestJSON(
   config: ProviderConfig,
   capability: Capability,
-  content: unknown,
+  content: ProviderContent,
   signal: AbortSignal,
   secrets: string[],
   fetcher: typeof fetch,
 ) {
+  const configModel = capability === "text" ? config.textModel : config.visualModel;
   let response: Response;
   try {
     signal.throwIfAborted();
-    response = await fetcher(endpoints[config.provider], {
+    response = await fetcher(config.provider === "gemini" ? `https://generativelanguage.googleapis.com/v1beta/models/${configModel}:generateContent` : endpoints[config.provider], {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${config.key}` },
+      headers: config.provider === "gemini" ? { "Content-Type": "application/json", "x-goog-api-key": config.key } : { "Content-Type": "application/json", Authorization: `Bearer ${config.key}` },
       signal,
       redirect: "error",
-      body: JSON.stringify({
+      body: JSON.stringify(config.provider === "gemini" ? {
+        systemInstruction: { parts: [{ text: capability === "text" ? textInstructions : visualInstructions }] },
+        contents: [{ role: "user", parts: [
+          ...(content.image ? [{ inlineData: { mimeType: "image/jpeg", data: content.image } }] : []),
+          { text: content.text },
+        ] }],
+        generationConfig: {
+          responseFormat: { text: { mimeType: "APPLICATION_JSON", schema: capability === "text" ? textSchema : imageSchema } },
+          maxOutputTokens: capability === "text" ? 1600 : 1800, temperature: 0.1,
+          ...(configModel.startsWith("gemini-3") ? { thinkingConfig: { thinkingLevel: "low" } } : {}),
+        },
+      } : {
         model: capability === "text" ? config.textModel : config.visualModel,
         messages: [
           { role: "system", content: capability === "text" ? textInstructions : visualInstructions },
-          { role: "user", content },
+          { role: "user", content: content.image ? [
+            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${content.image}` } },
+            { type: "text", text: content.text },
+          ] : content.text },
         ],
         response_format: {
           type: "json_schema",
@@ -205,6 +233,13 @@ async function requestJSON(
       raw += decoder.decode(chunk.value, { stream: true });
     }
     raw += decoder.decode();
+    if (config.provider === "gemini") {
+      const parsed = geminiCompletionSchema.parse(JSON.parse(raw));
+      if (!validModel(parsed.modelVersion, secrets)) throw new ProviderFailure();
+      const text = parsed.candidates[0].content.parts.filter((part) => !part.thought && typeof part.text === "string").map((part) => part.text).join("");
+      if (!text) throw new ProviderFailure();
+      return { value: JSON.parse(text) as unknown, model: parsed.modelVersion };
+    }
     const parsed = completionSchema.parse(JSON.parse(raw));
     if (!validModel(parsed.model, secrets)) throw new ProviderFailure();
     return { value: JSON.parse(parsed.choices[0].message.content) as unknown, model: parsed.model };
@@ -215,7 +250,7 @@ async function requestJSON(
 async function runAI<T>(
   config: WorkerConfig,
   capability: Capability,
-  content: unknown,
+  content: ProviderContent,
   validate: (value: unknown, model: string) => T,
   fetcher: typeof fetch,
 ) {
@@ -245,7 +280,7 @@ export async function assessWithAI(
     notice: "Instruction-like text was isolated. Only rule-based checks were used.",
   };
   try {
-    const result = await runAI(config, "text", JSON.stringify({ note: input.note, appearance: input.appearance, attachments: [] }), (value, model) => mergeAI(base, input, value, model), fetcher);
+    const result = await runAI(config, "text", { text: JSON.stringify({ note: input.note, appearance: input.appearance, attachments: [] }) }, (value, model) => mergeAI(base, input, value, model), fetcher);
     return {
       ...result.value,
       provider: result.provider,
@@ -261,10 +296,7 @@ export async function assessWithAI(
   }
 }
 export async function inspectWithAI(image: string, config: WorkerConfig, fetcher: typeof fetch = fetch) {
-  const result = await runAI(config, "visual", [
-    { type: "image_url", image_url: { url: `data:image/jpeg;base64,${image}` } },
-    { type: "text", text: "Identify only candidate visual observations as JSON. Human verification will follow." },
-  ], (value) => visualSchema.parse(value), fetcher);
+  const result = await runAI(config, "visual", { image, text: "Identify only candidate visual observations as JSON. Human verification will follow." }, (value) => visualSchema.parse(value), fetcher);
   const findings = result.value.findings.filter((finding, index, all) => all.findIndex((candidate) => candidate.kind === finding.kind) === index);
   return { provider: result.provider, model: result.model, at: new Date().toISOString(), findings };
 }

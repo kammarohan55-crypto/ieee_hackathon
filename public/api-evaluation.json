@@ -1,10 +1,10 @@
 {
   "suite": "AquaLens route contracts",
-  "generatedAt": "2026-10-02T05:29:56.406Z",
+  "generatedAt": "2026-10-02T18:46:00.859Z",
   "liveAI": false,
   "providerTests": "Mocked fetch and Worker environment; actual route code. No live service or ecological validation.",
-  "passed": 40,
-  "total": 40,
+  "passed": 47,
+  "total": 47,
   "results": [
     {
       "name": "Configuration exposes capability, never the key",
@@ -111,7 +111,35 @@
       "passed": true
     },
     {
-      "name": "Legacy Gemini credentials and unknown provider selection never enable implicit routing",
+      "name": "Gemini metadata and default selection disclose recipient/models without credentials",
+      "passed": true
+    },
+    {
+      "name": "Gemini text uses header authentication, generateContent and grounded shared validation",
+      "passed": true
+    },
+    {
+      "name": "Gemini visual sends JPEG inline data, ignores thoughts and retains actual model provenance",
+      "passed": true
+    },
+    {
+      "name": "Gemini incomplete, blocked, ungrounded and unknown-model responses fail without invented results",
+      "passed": true
+    },
+    {
+      "name": "Switching to Gemini invalidates stale text and image recipient consent before transmission",
+      "passed": true
+    },
+    {
+      "name": "Gemini availability fallback is explicit, distinct and retains the provider actually used",
+      "passed": true
+    },
+    {
+      "name": "Gemini authentication failures do not echo keys, error bodies or bypass refusal",
+      "passed": true
+    },
+    {
+      "name": "Nonselected Gemini credentials and unknown provider selection never enable implicit routing",
       "passed": true
     },
     {

@@ -1,8 +1,8 @@
-# AquaLens demonstration and user QA — October 2, 2026
+# AquaLens demonstration and user QA — October 3, 2026
 
-Primary submission decision: **Track 1 — Citizen Science UX**, with supporting capabilities relevant to Tracks 3, 2 and 4. Select one primary track on submission. This is positioning based on the guided workflow, not known winning odds. Current browser/device testing belongs to the user; terminal verification is separate evidence.
+Primary submission decision: **Track 3 — AI-Supported Assessment**, with supporting capabilities relevant to Tracks 1, 2 and 4. Select one primary track on submission. This follows the supplied project instructions and responsible-assessment workflow, not known winning odds. Current browser/device testing belongs to the user; terminal verification is separate evidence.
 
-Keep the project stopped until the user requests startup. Current xAI access failed a billing/credits-related HTTP403; the local workflow remains usable. To demonstrate live AI, first restore usable xAI access or configure a Groq key locally and verify an actual response. Never describe a recorded Gemini result as a current xAI/Groq response.
+Keep the project stopped until the user requests startup. Gemini 3.5 Flash-Lite is selected and the supplied key is in ignored `.dev.vars`. A bounded terminal check through the actual route code returned real HTTP200 and valid text/image results. Browser/device operation still needs your walkthrough; quota may change. Earlier 3.8 returned503 and xAI403. No recorded AI response is prefilled into the workspace.
 
 In **Mission control → Geographic map**, expect a neutral world view with zero observations: no site/grade/marker is invented. **NASA satellite** shows a requested UTC day, date stepping/apply and regional Terra/MODIS limits. **Landscape · 2021** is an annual historical Sentinel-2 RGB median with 10 m source bands, not a current scene or numerical reflectance. At broad zoom use **Zoom to landscape detail**; its offered range is zoom 6–14 and latitude −60° to 83°. Inspect cloud/gap/artifact and attribution notes. It does not implement NDWI or grade water. Try loading/error/retry and explicit street fallback. New coordinate sets refit; unchanged-location date/background/retry preserves camera and selection. Five organizer-city links are context, not imported monitoring data.
 
@@ -14,12 +14,12 @@ Use the 3–5 minute sequence below: credited or actual photo → uncertain note
 
 # Ready-to-use historical photo demo
 
-The three credited reference photos are included in the repository and production offline cache. You do not need a Google Photos account, a video, or a new field visit for this path. Start the app using the README setup commands.
+The three credited reference photos are included in the repository and production offline cache. A checked copy with credits, dates, hashes and a recording sequence is ready in `outputs/presentation-media/` and `outputs/aqualens-presentation-media.zip`. This is presentation media, not an importable field pack. No Google Photos account, YouTube download or new field visit is needed. Start the app using the README setup commands when you are ready. Use **Review this photo**, rather than uploading a historical image as your own new field visit.
 
 1. Open **Mission control**. The three licensed river photos appear immediately; saved-record counts remain zero. Select a source, toggle its grid and zoom, then try **Compare** (wipe or side by side) and **Evidence flow**. Comparison now has explicit **Review A / Review B** or saved-photo receipt actions; the unrelated single-frame inspector is hidden. The preview is not a saved review or environmental change analysis.
 2. Select **Photo desk → Review this photo**. Show the photographer, source page, licence and historical date. The source date stays unchanged; no new GPS or measurements are attached.
 3. Write one or two sentences in your own words about visible details and uncertainty. Do not read a prepared fake observation. Select **Not observed / unsure** if appropriate.
-4. Optionally enable configured visual AI with consent. Otherwise show local image checks. An unavailable provider remains unavailable.
+4. Optionally consent to the displayed Google Gemini recipient and run visual AI. Show the actual candidate appearances, coarse regions, uncalibrated confidence and review status; an empty response is valid. Free-tier inputs may be used to improve Google products. Otherwise show local image checks. A failed request must stay a real error, with local checks still available.
 5. Run text checks. Answer or retain uncertainty for clarifications and evidence follow-ups, then explicitly confirm the photo review.
 6. Return to **Mission control**, select the newly saved source, then **Add visual note**. Click a detail, or use **place at center** with the keyboard. Enter your own description and save. Show the numbered human note, unchanged original photo and reopened review. Notes can also be inspected from the text list.
 7. Use **Evidence replay** to step through the retained source date, decisions and visual-note event. Its spacing represents event order, not elapsed time. Inspect the saved record's **Evidence flow** nodes.
@@ -35,7 +35,7 @@ This is a photo-review demonstration using real sourced images. It is not curren
 
 # AquaLens: real-evidence demonstration
 
-Primary submission decision: **Track 1 — Citizen Science UX**. AI-supported assessment, data-to-insight and awareness/storytelling are supporting capabilities. The core journey is citizen evidence → explainable questions → explicit confirmation → human review → portable evidence.
+Primary submission decision: **Track 3 — AI-Supported Assessment**. Citizen-science UX, data-to-insight and awareness/storytelling support the assessment trail. The core journey is citizen evidence → explainable questions → explicit confirmation → human review → portable evidence.
 
 ## Prepare
 

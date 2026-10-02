@@ -1,10 +1,10 @@
 # AquaLens — submission working copy
 
-Updated 2026-10-02. Draft only: no submission, deployment or video is established. Repository: https://github.com/kammarohan55-crypto/ieee_hackathon . Implementation commit cb2d42d is pushed and public access verified; final handoff documentation follows. Inspect the current main revision for exact source. Fill in actual team credits, tested judge-access URL and video link.
+Updated 2026-10-03. Draft only: no submission, deployment or video is established. Repository: https://github.com/kammarohan55-crypto/ieee_hackathon . Implementation commit cb2d42d is pushed and public access verified; final handoff documentation follows. Inspect the current main revision for exact source. Fill in actual team credits, tested judge-access URL and video link.
 
 ## Positioning
 
-**Primary project decision: Track 1 — Citizen Science UX.** Track 3 assessment, Track 2 context and Track 4 storytelling support this workflow. The official overview asks for one chosen track; this framing is not evidence of winning odds or eligibility in several categories. The user authorized reconsidering the original Track 3 focus. See SOURCES S30.
+**Primary project decision: Track 3 — AI-Supported Assessment.** Track 1 citizen UX, Track 2 context and Track 4 storytelling support this workflow. The official overview asks for one chosen track; this framing is not evidence of winning odds or eligibility in several categories. The supplied project instructions specify Track 3. October3 framing follows these instructions and live Gemini activation; the October2 Track 1 recommendation in SOURCES S30 is historical. See S38 for the current boundary.
 
 **Tagline:** Keep stream evidence and uncertainty together, from the first photograph to the next visit.
 
@@ -28,9 +28,9 @@ Three licensed historical Wikimedia photographs support a clearly labeled review
 
 ## Architecture and verification
 
-React/TypeScript, Vinext, Cloudflare Worker API routes and Zod; ignored server-only xAI/Groq credentials; idb/IndexedDB for original bytes and localStorage for records; existing Radix, MapLibre, React Flow, Recharts and Workbox. No new package or custom model training for this pass. Dependency/data notices are in DEPENDENCIES and SATELLITE_CONTEXT.
+React/TypeScript, Vinext, Cloudflare Worker API routes and Zod; ignored server-only Gemini credentials with optional existing xAI/Groq adapters; idb/IndexedDB for original bytes and localStorage for records; existing Radix, MapLibre, React Flow, Recharts and Workbox. No new package or custom model training for this pass. Dependency/data notices are in DEPENDENCIES and SATELLITE_CONTEXT.
 
-Read QA.md and PROJECT_CONTEXT.md for final current software check/build/release counts. These are authored development tests with explicit mocks, not independent model accuracy or ecological validation. The October2 synthetic xAI smoke returned HTTP403 categorized as billing/credits-related; rule fallback worked. Successful current xAI/Groq text/image responses remain unverified. Earlier Gemini smoke results are historical and do not establish current availability.
+Read QA.md and PROJECT_CONTEXT.md for final current software check/build/release counts. These are authored development tests with explicit mocks, not independent model accuracy or ecological validation. October3 local-time check through actual source route handlers used the supplied Gemini key: one synthetic text note and one credited historical photo both returnedHTTP200 and passed strict validation with3.5 Flash-Lite. No user approval/review was generated. This establishes bounded integration access, not scientific accuracy, deployment or browser behavior. Earlier3.8 returned503 and xAI403; their failures are retained. Quota may change.
 
 The app stayed stopped during this implementation. Browser/device responsiveness, camera/video/voice, WebGL, downloads/import, keyboard/assistive use and installed offline behavior still need the user's walkthrough. No successful deployment is recorded.
 

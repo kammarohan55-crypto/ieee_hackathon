@@ -2,7 +2,7 @@
 
 [Source repository](https://github.com/kammarohan55-crypto/ieee_hackathon) · OneAquaHealth hackathon prototype
 
-AquaLens evolved from StreamCheck without rebuilding its tested workflow: citizen evidence → explicit uncertainty → human review → portable Decision Receipt. **Primary submission decision: Track 1 — Citizen Science UX**, with supporting capabilities relevant to Tracks 3, 2 and 4. This reflects demonstrable guided workflows, not known winning odds or organizer endorsement. The [official challenge](https://oneaquahealth-ieee-hackathon.devpost.com/) asks entrants to select one primary track. Appearance, satellite context and human review do not establish water safety, pollutants, species or ecological health.
+AquaLens evolved from StreamCheck without rebuilding its tested workflow: citizen evidence → explicit uncertainty → human review → portable Decision Receipt. **Primary submission decision: Track 3 — AI-Supported Assessment**, with supporting capabilities relevant to Tracks 1, 2 and 4. This follows the supplied project instructions and the implemented AI/checks/human-review evidence trail; it does not establish winning odds or organizer endorsement. The [official challenge](https://oneaquahealth-ieee-hackathon.devpost.com/) asks entrants to select one primary track. Appearance, satellite context and human review do not establish water safety, pollutants, species or ecological health.
 
 ## Setup
 
@@ -21,9 +21,15 @@ npm start
 
 Development: http://localhost:5173. Production preview: use the URL printed by npm start. If the Windows npm launcher is broken, use `node "C:/Program Files/nodejs/node_modules/npm/bin/npm-cli.js"` in place of npm. Direct build: `node scripts/build.mjs`.
 
-Optional live AI: copy `.dev.vars.example` to ignored `.dev.vars` only if no configured file exists. Set `AI_PROVIDER="xai"` plus `XAI_API_KEY`, or `AI_PROVIDER="groq"` plus `GROQ_API_KEY`; see the example for configurable text/vision models. Groq's current vision model is Preview and Free Plan limits apply. xAI needs usable account access/billing. Restart after changing configuration. Never use client/public environment variables or commit keys. No key is needed for local checks, NASA satellite context, street maps or modeled weather. `AI_FALLBACK_PROVIDER` optionally names a different, separately configured provider; no key rotation. The consent UI names all configured recipients, and stale provider/model scopes are rejected before any provider call.
+Optional live AI: copy `.dev.vars.example` to ignored `.dev.vars` only if no configured file exists. Default: `AI_PROVIDER="gemini"`, server-only `GEMINI_API_KEY` and `GEMINI_MODEL="gemini-3.5-flash-lite"`; the visual model defaults to the same model. This installation's supplied key is saved locally. Google documents a limited free tier and use of free-tier content to improve its products; availability/quota are account-dependent. Optional xAI/Groq adapters and their own keys remain supported. Restart after changing configuration. Never use client/public environment variables or commit keys. No key is needed for local checks, maps or modeled weather. `AI_FALLBACK_PROVIDER` optionally names a different, separately configured provider; it is disabled here. The consent UI names recipients; stale provider/model scopes are rejected before transmission. See [Google pricing/privacy labels](https://ai.google.dev/gemini-api/docs/pricing).
 
 The production-local launcher passes the root `.dev.vars` path to Wrangler when it exists; it never copies secrets into `dist`. Hosted secrets must be configured separately. `verify:release` checks required build assets, passing authored test reports and accidental inclusion of all locally configured Gemini/xAI/Groq keys; it is not a comprehensive security audit.
+
+## Presentation media and connection check
+
+Three licensed historical river photographs are ready in **Mission control → Photo desk → Review this photo**. This path preserves source dates and credits; it does not invent new field visits. The checked local kit is `outputs/presentation-media/`, with a ZIP at `outputs/aqualens-presentation-media.zip`. These ignored outputs are not included in source-only archives. Recreate the folder with `npm test` then `npm run prepare:media`. Read [the demo guide](docs/DEMO_GUIDE.md) before recording.
+
+For an explicitly authorized terminal integration check without starting the app, run `node scripts/test-api.mjs` then `npm run verify:ai -- --consent`. This sends exactly one authored synthetic note and one credited historical photo through the actual route code with an isolated Worker environment binding. It saves a sanitized ignored result; it is excluded from npm test, and does not create approved records or benchmark scientific accuracy. The app/browser remain stopped until requested.
 
 ## Implemented experience
 
@@ -37,10 +43,10 @@ The interface uses a dark navy control-room layout with cyan, violet, mint and a
 - **Presentation mode:** **Present this evidence** opens a read-only four-chapter view of original evidence, checks/clarification, human judgment and Decision Receipt. Actual review reasons, gaps and uncertainty stay visible. Export JSON or a readable Markdown brief with unchanged original text; the brief contains metadata, not original media bytes. Opening it never analyzes or approves the record.
 
 - Credited Wikimedia reference gallery: inspect a real historical frame, write your own note, confirm it, review it, and export the source-linked receipt. Source date stays date-only; no GPS or instrument values are invented. The atlas and weather use field observations only. [Photo credits and licences](public/images/references/CREDITS.md).
-- Citizen note/time/appearance, transparent English checks, optional structured xAI/Groq text suggestions, adaptive questions, uncertainty/dismissal, explicit confirmation.
+- Citizen note/time/appearance, transparent English checks, optional structured Gemini/xAI/Groq text suggestions, adaptive questions, uncertainty/dismissal, explicit confirmation.
 - Camera photos, ten-second silent video capture, original photo and MP4/WebM uploads (up to 15 seconds), manual repeat-photo ghost guide. Original Blobs in IndexedDB; SHA-256 digests in records. Video quality checks sample the first frame; video AI is not implemented.
 - Local luminance, edge-detail and resolution checks. These are uncalibrated heuristics, not scientific quality assessment.
-- Visual xAI/Groq endpoint returns only enumerated candidate appearances, frame regions and low/medium/high uncalibrated model confidence. Explicit consent sends a resized JPEG only. No inferred instrument measurements or diagnoses.
+- Visual Gemini/xAI/Groq endpoint returns only enumerated candidate appearances, frame regions and low/medium/high uncalibrated model confidence. Explicit consent sends a resized JPEG only. No inferred instrument measurements or diagnoses.
 - Instrument readings with units, instrument/calibration metadata and broad input plausibility checks. Implausible values are retained and flagged, never silently corrected.
 - Transparent 100-point evidence-completeness rubric, human visual judgments/disagreement with reasons, retained original suggestions, review trail and Decision Receipt. The interactive evidence graph distinguishes citizen, public photo source, rules, AI, human and pending sources, with a keyboard-readable list.
 - River schematic: an explicitly illustrative scene, site labels, chronology and Story/Evidence/Method views. Available under **Field kit → Additional evidence views**; matching labels do not establish connected waterways or a physical twin.
@@ -83,7 +89,7 @@ The interface uses a dark navy control-room layout with cyan, violet, mint and a
 | lib/references.ts + components/reference-gallery.tsx | Credited historical photo catalogue, source dates and review entry point |
 | components/field-guide.tsx | Photo guide, visit checklist, optional One Health notes |
 | components/site-conditions.tsx | User-triggered weather for actual supplied coordinates |
-| app/api/assess + app/api/visual | Server-side xAI/Groq, consent binding and strict response validation |
+| app/api/assess + app/api/visual | Server-side Gemini/xAI/Groq, consent binding and strict response validation |
 | app/api/conditions | Cached Open-Meteo modeled weather, separately labeled |
 | scripts/prepare-map-worker.mjs | Unmodified licensed MapLibre Worker assets, avoiding framework dev injection |
 | scripts/build-offline.mjs | Workbox production service worker |
@@ -101,9 +107,9 @@ See [satellite limits](docs/SATELLITE_CONTEXT.md), [official platform review](do
 
 ## Verification and boundaries
 
-Latest complete suite: **324/324** authored checks; TypeScript, full lint and production build pass. The build precaches 24 assets / 4,625,396 bytes; existing large-chunk and Vinext route-classification notices remain. Final release results are recorded in [QA](docs/QA.md). Four bundled reports cover 210 checks; another 114 regressions run through npm test. None measure ecological or model accuracy. Hooks/recorders/MapLibre/timers are doubled; contrast uses source colors. Current browser/device rendering and performance remain user QA. Optional `node scripts/test-live-ai.mjs --consent` makes synthetic requests against a separately running app; it is excluded from npm test and is not a benchmark. Keep the server stopped until startup is requested.
+Latest complete suite: **331/331** authored checks; TypeScript, full lint and production build pass. The build precaches 24 assets / 4,626,706 bytes; existing large-chunk and Vinext route-classification notices remain. Final release results are recorded in [QA](docs/QA.md). Four bundled reports cover 217 checks; another 114 regressions run through npm test. None measure ecological or model accuracy. Hooks/recorders/MapLibre/timers are doubled; contrast uses source colors. Current browser/device rendering and performance remain user QA. Optional `node scripts/test-live-ai.mjs --consent` makes synthetic requests against a separately running app; it is excluded from npm test and is not a benchmark. Keep the server stopped until startup is requested.
 
-Before the provider switch, real Gemini text calls succeeded in the development installation. The latest live text run passed 3/3 scenarios. Earlier high-demand failures (0/3 and1/3) are retained. Visual requests still received503 high-demand responses; failure behavior was verified in-browser, but successful visual response remains unverified. These historical results do not establish access or availability for a fresh clone's key. Quota/provider availability may change. October2 xAI terminal smoke received HTTP403 with a billing/credits-related rejection; local rules fallback worked. No successful xAI/Groq visual output is verified. Historical Gemini results are not current xAI/Groq results.
+October3 local-time integration check: Google accepted the supplied key; actual text and image route handlers both received HTTP200 from Gemini 3.5 Flash-Lite and passed the shared strict validation. Inputs were one authored synthetic note and one credited historical Scenic Reflection photo resized for the request. No citizen confirmation or human review was created. This is connection evidence, not model accuracy, a field study or browser verification. Earlier 3.8 requests returned503, and October2 xAI received403; sanitized local logs retain these failures. Availability and quota may change. Successful xAI/Groq image output remains unverified.
 
 This is a browser-local prototype, not a production service: no authenticated community/reviewer identities, shared database, signed history, physical digital twin, FHIR integration, held-out ecological evaluation or FAIR certification. Storage can be evicted; export backups. Production needs authentication, durable storage, access control, durable rate limits and expert validation. Per-isolate AI throttles are best-effort, not a billing cap.
 
@@ -117,5 +123,5 @@ A new AI should read AGENTS.md and PROJECT_CONTEXT.md, then inspect actual code/
 
 See docs/SUBMISSION_KIT.md for a submission draft, rubric evidence and a four-minute recording script. Deployed judge access and the recorded video remain delivery tasks.
 
-For the exact remaining inputs and user-owned checks, use [the completion checklist](docs/COMPLETION_CHECKLIST.md). Live AI access, firsthand evidence, actual team/review facts, intended code licence, device results and submission links must come from real inputs; they are not generated by the app.
+For the exact remaining inputs and user-owned checks, use [the completion checklist](docs/COMPLETION_CHECKLIST.md). Gemini access is configured and terminal-verified here. You still supply actual review decisions, team/credit facts, intended code licence, device results and video/submission links. Firsthand evidence is optional for the historical-photo demo and required only when presenting a new field visit.
 

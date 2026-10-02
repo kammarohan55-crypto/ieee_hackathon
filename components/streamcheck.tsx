@@ -813,6 +813,7 @@ export default function StreamCheck() {
                           appearance to {aiRecipients(aiStatus)} for additional
                           clarification. Avoid personal data. Provider terms apply;
                           no coordinates, instrument readings or media are sent.
+                          {aiRecipients(aiStatus).includes("Google Gemini") && " Google free-tier inputs may be used to improve its products."}
                         </label>
                       )}
                     </div>

@@ -1,5 +1,7 @@
 # Review of the supplied deep-research recommendation
 
+Historical October2 review. Current Track3 framing and successful bounded Gemini connection are in PROJECT_CONTEXT and SOURCES S36–S38; the provider-failure/Track1 recommendation below is retained as history.
+
 Checked **2026-10-02** against primary documentation, the current project handoff and the earlier October 2 rendered official-platform review. The supplied report did not inspect this repository. Its recommendations are useful proposals, not implementation or scientific-validation evidence. No AquaLens browser/server, private account or live AI was used for this review.
 
 ## What to carry forward

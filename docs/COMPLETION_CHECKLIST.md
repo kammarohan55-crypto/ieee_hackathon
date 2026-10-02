@@ -1,13 +1,13 @@
 # AquaLens — final completion checklist
 
-Updated 2026-10-02. This is a readiness checklist, not a completed field study, device test, deployment or submission. Current primary decision: Track1, supporting3/2/4. Use FEATURE_AUDIT for implementation boundaries and QA for measured software checks.
+Updated 2026-10-03. This is a readiness checklist, not a completed field study, device test, deployment or submission. Current primary decision: Track3, supporting1/2/4. Use FEATURE_AUDIT for implementation boundaries and QA for measured software checks.
 
 ## What the user needs to provide
 
 | Item | Exact input | Why / status |
 | --- | --- | --- |
-| Usable AI access | Save `GROQ_API_KEY="..."` and `AI_PROVIDER="groq"` in ignored `.dev.vars`, or restore usable xAI access. Reply saved; never paste the key into chat. | Required to finish verifying live text/image AI. Existing xAI synthetic smoke returned403. Local rules/review remain usable. No further map/weather key is currently needed. |
-| Firsthand evidence | Suggested three original photos: wide site, surface detail, bank context; actual site/landmark, date/local time/time zone, file mapping, direct note and photographer/use permission. Fill VISIT_NOTES_TEMPLATE.txt. | Recommended for a real field demo. Bundled historical images already support a credited photo-review demo. Unknown time/context must not be invented. |
+| AI access | No additional key is currently needed. The supplied Gemini key is saved in ignored `.dev.vars`, with `AI_PROVIDER="gemini"` and Gemini 3.5 Flash-Lite. | Actual text/image source-route checks returnedHTTP200 and passed strict validation. Browser use/quota remain separate checks; local rules/review survive provider failure. No map/weather key is needed. |
+| Firsthand evidence | Suggested three original photos: wide site, surface detail, bank context; actual site/landmark, date/local time/time zone, file mapping, direct note and photographer/use permission. Fill VISIT_NOTES_TEMPLATE.txt. | Recommended for a real field demo. Three bundled historical images and the checked presentation-media ZIP already support a credited photo-review demo; use Photo desk → Review this photo. Unknown time/context must not be invented. |
 | Map location, if demonstrated | Actual WGS84 latitude/longitude and source/uncertainty, or device GPS when safely available. | Optional observation metadata. Enables your real site on the map; no fabricated marker. No water instruments or hardware required. |
 | Actual human review | A person inspects the source, records agreement/disagreement/uncertainty and their own reason. A separate reviewer can provide approved name/role/method/date/feedback. | Same-person citizen/reviewer demo is permitted by this app and must be disclosed. No authenticated reviewer or expert-validation claim. |
 | Device walkthrough | Desktop + intended phone/browser, steps and actual results using the checks below. | The user owns website/device testing. Code tests do not establish rendering, camera, browser storage or offline behavior. |

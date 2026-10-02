@@ -560,6 +560,7 @@ export function FieldStudio({
           Visual AI unavailable; photo review and local image checks remain usable.
         </p>
       )}
+      {aiReady && aiRecipients.includes("Google Gemini") && <p className="helper-copy">Google free-tier inputs may be used to improve its products. Send only a photo you are permitted to share.</p>}
       {error && (
         <p className="notice error" role="alert">
           {error}

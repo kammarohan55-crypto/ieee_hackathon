@@ -1,15 +1,16 @@
-# AquaLens feature audit — 2026-10-02
+# AquaLens feature audit — 2026-10-03
 
 Source and command results establish the status below. Working means implemented and supported by relevant authored software tests or earlier documented workflow checks. Partial means provider/device/rendering evidence is still missing. Missing means deliberately unimplemented. Broken describes a currently observed failed access path. None establishes ecological accuracy, production certification or a competition outcome.
 
-Primary submission decision: **Track 1 — Citizen Science UX**, with supporting capabilities for Tracks 3/2/4. This reflects demonstrable guided workflows, not known winning odds; the challenge asks for one primary track. Existing Track 3 assessment remains intact.
+Primary submission decision: **Track 3 — AI-Supported Assessment**, with supporting capabilities for Tracks 1/2/4. This follows the supplied project instructions; the challenge asks for one primary track. Real AI candidates, explicit uncertainty and human oversight are implemented; no winning odds or independent scientific validation are established.
 
 | Planned feature | Status | Verified implementation / remaining boundary |
 |---|---|---|
 | Mission control and professional photo/map views | Partial | Source gallery, real queues, filters, focus/compare/flow present; current rendering/mobile QA assigned to user |
 | Live camera, photo/video capture and uploads | Partial | Original media retained; recorder lifecycle/frame race mocked regressions pass; physical device permissions/codecs untested |
 | Local image-quality checks | Working | Canvas exposure/detail heuristics with method labels; not calibrated scientific image quality |
-| xAI/Groq text and visual adapters | Partial | Strict output schema/quotes, deadlines, consent binding, explicit fallback and provenance tested; successful new-provider output unverified |
+| Gemini text and visual integration | Working connection / partial device QA | Actual source routes returnedHTTP200 with validated text/image results on3.5 Flash-Lite; strict schemas, consent, deadlines, grounded quotes and retained provider/model tested. Not scientific accuracy or current browser evidence |
+| Optional xAI/Groq adapters | Partial | Existing schema/consent/failure contracts tested; successful current live outputs unverified. Disabled as recipients in this installation |
 | Supplied xAI live account access | Broken | October2 synthetic text and model-list returned HTTP403 with billing/credits-related rejection; local rule fallback works |
 | Measurement validation | Working | Units/plausibility/instrument/calibration metadata checked; original values retained, no readings inferred |
 | Contradiction detection and adaptive questions | Working | English rules plus enumerated fixed visual/text follow-ups; optional AI remains provider-dependent |
@@ -45,4 +46,4 @@ Primary submission decision: **Track 1 — Citizen Science UX**, with supporting
 
 Reused installed MapLibre (BSD-3-Clause), React Flow/Radix/Recharts/Workbox (MIT), Lucide/idb (ISC), Zod and existing stores/components. No package, model training, copied Google imagery or unauthorized official dataset added. See DEPENDENCIES.md and SOURCES.md. Primary navigation is Mission control, Field notebook, Review desk, Evidence Lab, Insights and Field kit; advanced schematic and diagnostics remain behind explicit controls.
 
-Latest complete suite: **324/324** authored checks (94 domain, 42 workspace, 34 mission, 40 mocked API, 15 capture/photo, 14 Lab, 21 map, 15 presentation/visit, 20 Decision brief, 29 evidence actions). TypeScript, full lint and production build pass; release details are in QA.md. Four bundled reports cover 210 checks; another 114 run through npm test. Mock hooks/recorders/MapLibre/timers and source colors do not establish browser outcomes or model accuracy. The user owns website/device QA; app stays stopped. See REAL_DATA_READINESS.md, DEMO_GUIDE.md and PROJECT_CONTEXT.md for remaining actions.
+Latest complete suite: **331/331** authored checks (94 domain, 42 workspace, 34 mission, 47 mocked API, 15 capture/photo, 14 Lab, 21 map, 15 presentation/visit, 20 Decision brief, 29 evidence actions). TypeScript, full lint and production build pass; release details are in QA.md. Four bundled reports cover 217 checks; another 114 run through npm test. Mock hooks/recorders/MapLibre/timers and source colors do not establish browser outcomes or model accuracy. The user owns website/device QA; app stays stopped. See REAL_DATA_READINESS.md, DEMO_GUIDE.md and PROJECT_CONTEXT.md for remaining actions.
