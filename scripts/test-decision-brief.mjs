@@ -134,6 +134,7 @@ function componentFixture() {
     if (name === "./field-studio") return { EvidenceImage: "retained-image" };
     if (name === "@/lib/atlas") return { isSyntheticRecord: (record) => record.original.synthetic };
     if (name.startsWith("@/lib/")) return library(`lib/${name.slice(6)}.ts`);
+    if (name === "./demonstration-note") return { DemonstrationNote: "DemonstrationNote" }; // Example provenance; no event handler.
     throw new Error(`Unmocked import: ${name}`);
   }, { fetch: (url, options) => new Promise((resolve, reject) => requests.push({ url, options, resolve, reject })) });
   const tree = runtime.render(EvidenceLab, { records: [], onOpen() {} });

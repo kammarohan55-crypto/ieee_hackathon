@@ -336,7 +336,7 @@ export function EvidenceReceipt({
               </p>
               {m.visual && (
                 <p className="micro-copy">
-                  Visual method: {recordedProviderLabel(m.visual.provider)} · {m.visual.model} · {m.visual.at}. Candidate
+                  {m.visual.recorded ? "Recorded visual method" : "Visual method"}: {recordedProviderLabel(m.visual.provider)} · {m.visual.model} · {m.visual.at}. Candidate
                   regions refer to image layout, not geographic positions.
                 </p>
               )}

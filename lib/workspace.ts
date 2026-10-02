@@ -11,7 +11,7 @@ const MAX_MEDIA_BYTES = 36 * 1024 * 1024;
 const safeMime = /^(image\/(jpeg|png|webp)|video\/(webm|mp4|ogg))(;codecs=[\w., -]+)?$/i;
 
 export function realRecords(records: Report[]) {
-  return records.filter((report) => !isSyntheticRecord(report));
+  return records.filter((report) => !isSyntheticRecord(report) && !report.demonstration);
 }
 
 export function parseWorkspace(value: unknown): Report[] {
@@ -132,6 +132,7 @@ export async function prepareImport(text: string): Promise<PreparedImport> {
   records.forEach(assertPhotoAnnotations);
   if (!records.length) throw new Error("This file has no observations to import.");
   if (records.some(isSyntheticRecord)) throw new Error("This file contains synthetic records or illustrative evidence. Only real observations can be imported.");
+  if (records.some((report) => report.demonstration)) throw new Error("Presentation examples stay in the presentation workspace. Open /showcase to explore them; your personal collection accepts your own observations.");
   const recordIds = new Set<string>();
   for (const record of records) {
     if (!record.id.trim() || record.id.length > 200 || recordIds.has(record.id)) throw new Error("The file has missing or duplicate record IDs.");

@@ -53,6 +53,7 @@ export type Assessment = {
   version: string;
 };
 export type Report = {
+  demonstration?: { packageId: "europe-river-walkthrough-v1" | "europe-river-walkthrough-v2"; authorship: "AI-authored example inputs and initial review decisions" | "User-authored input in presentation workspace"; purpose: "Software demonstration; no field visit or expert validation" };
   field?: FieldEvidence;
   schemaVersion: "1.0";
   id: string;
@@ -373,6 +374,11 @@ const issueSchema = z.object({
   decidedAt: z.string().optional(),
 });
 export const reportSchema = z.object({
+  demonstration: z.object({
+    packageId: z.enum(["europe-river-walkthrough-v1", "europe-river-walkthrough-v2"]),
+    authorship: z.enum(["AI-authored example inputs and initial review decisions", "User-authored input in presentation workspace"]),
+    purpose: z.literal("Software demonstration; no field visit or expert validation"),
+  }).strict().optional(),
   field: fieldSchema.optional(),
   schemaVersion: z.literal("1.0"),
   id: z.string(),

@@ -285,3 +285,21 @@ https://github.com/kammarohan55-crypto/ieee_hackathon/commit/d64cce67600aabfb68e
 ## S44 — Worker redirect compatibility and browser access (checked 2026-10-03)
 
 https://developers.cloudflare.com/workers/runtime-apis/request/ documents redirect modes follow/error/manual and warns that automatic follow may forward sensitive headers to a redirected host. The installed local workerd runtime nonetheless threw TypeError for redirect:error before HTTP; an isolated ignored probe returned redirect-message:true, abort method present and no provider status. This is an observed local compatibility limit, not a claim that all hosted Workers reject this mode. Manual mode plus rejecting every non-2xx preserves the no-follow credential boundary. Authored route regression covers301/302/303/307/308 for all three providers and no fallback/extra transmission. Actual production-browser Gemini text/photo calls succeeded after the change. Same configured-key models.list returnedHTTP200 and advertised the selected model; separate Node source-route text/photo checks returned200. Neither access result proves scientific accuracy, sustained quota or deployed behavior.
+
+
+## S45 — Expanded European source portfolio and professional consent (checked 2026-10-03)
+
+Primary source metadata checked using https://commons.wikimedia.org/w/api.php (imageinfo/extmetadata +1280px thumbnail URLs). Six new unmodified thumbnails were downloaded and inspected; source licence/author/day and retained-byte SHA-256 are in lib/references.ts and public/images/references/CREDITS.md:
+
+- https://commons.wikimedia.org/wiki/File:Coimbra_2021_(11).jpg — Joseolgon, CC BY-SA4.0, source day2021-08-20.
+- https://commons.wikimedia.org/wiki/File:Parque_Verde_do_Mondego_-_Coimbra_-_Portugal_(6970758957).jpg — Vitor Oliveira, CC BY-SA2.0,2012-03-10; portrait/watermark retained. No AI transmission for this people-visible frame.
+- https://commons.wikimedia.org/wiki/File:Toulouse_garonne_with_pont_neuf.jpg — Phillip Maiwald (Nikopol), CC BY3.0,2010-06-18.
+- https://commons.wikimedia.org/wiki/File:Vue_sur_les_rives_d%E2%80%99Empalot_et_la_promenade_le_long_de_la_Garonne.jpg — Joachim Hocine, CC BY-SA4.0,2019-06-18.
+- https://commons.wikimedia.org/wiki/File:Hoffselva_ved_Engebrets_vei.jpg — Jan-Tore Egge, CC BY-SA4.0,2016-05-25.
+- https://commons.wikimedia.org/wiki/File:Hoffselva_ved_Nedre_Sk%C3%B8yen_vei_8.jpg — Helge Høifødt, CC BY-SA4.0,2020-04-26.
+
+API metadata and licences are source-supplied, not independent authentication of camera dates/sites. Six assets plus the existing three form the nine-source catalogue. Historical sources do not establish current conditions, paired repeat viewpoints or official sampling sites. No photographer/organizer endorsement is implied. Reused existing MapLibre/Recharts/React Flow/Radix/Zod/idb/Workbox and native HTML details; no dependency/model training/backend added. S42 records the earlier visualization-library licence checks.
+
+Five new authorized Gemini visual requests through the actual source-route code returnedHTTP200 with valid findings. Three previous recorded responses were preserved, including their original timestamps; total eight analyses/ten candidates. Request derivatives are1024px JPEG; originals are unchanged. No calibration or expert validation follows from provider success. Initial presentation notes/review decisions/pin are expressly AI-authored examples in a separate workspace, not external facts or citizen field observations.
+
+https://ai.google.dev/gemini-api/terms — Google’s current unpaid-service terms describe content use for product/model improvement and possible human processing; paid-service terms differ and regional conditions apply. The material disclosure remains in expandable AI & data use beside separate note/photo consent. The account's billing category is not independently established. The terms state Paid Services are required when making API clients available in the EEA/Switzerland/UK; this matters before any European hosted judge access, which has not been deployed or verified. Public source photographs from Europe do not themselves establish the API user's region.

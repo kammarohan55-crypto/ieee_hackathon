@@ -55,10 +55,13 @@ for (const photo of sourceCatalogue.allReferencePhotos) {
   assert.ok(offlineWorker.includes(photo.src.slice(1)), "Reference photograph missing from offline cache");
 }
 const contextSource = await readFile("public/european-context.json", "utf8");
-const { europeanBundleSchema } = await import(pathToFileURL(path.resolve(".sites-runtime/api-tests/european-sites.mjs")));
+const { europeanBundleSchema, EUROPEAN_CONTEXT_ASSET } = await import(pathToFileURL(path.resolve(".sites-runtime/api-tests/european-sites.mjs")));
 europeanBundleSchema.parse(JSON.parse(contextSource));
 assert.equal(await readFile("dist/client/european-context.json", "utf8"), contextSource, "Rebuild changed recorded context assets");
 assert.ok(offlineWorker.includes("european-context.json"), "Recorded source context must remain labeled offline");
+assert.equal(await readFile(`public${EUROPEAN_CONTEXT_ASSET}`, "utf8"), contextSource, "Versioned and legacy context must agree");
+assert.equal(await readFile(`dist/client${EUROPEAN_CONTEXT_ASSET}`, "utf8"), contextSource, "Versioned context must ship unchanged");
+assert.ok(offlineWorker.includes(EUROPEAN_CONTEXT_ASSET.slice(1)), "Versioned source context must be cached for the new presentation");
 assert.ok((await stat("dist/client/images/references/CREDITS.md")).size > 0, "Photograph licence notice must ship with the images");
 await mkdir(".sites-runtime", { recursive: true });
 await writeFile(".sites-runtime/source-files.json", JSON.stringify(source, null, 2));

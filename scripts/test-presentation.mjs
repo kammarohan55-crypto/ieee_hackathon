@@ -94,6 +94,7 @@ function fixture(report) {
     if (name === "radix-ui") return { Dialog: new Proxy({}, { get: (_, key) => `Dialog.${String(key)}` }), Tabs: new Proxy({}, { get: (_, key) => `Tabs.${String(key)}` }) };
     if (name === "lucide-react") return icons;
     if (name === "./field-studio") return { EvidenceImage: "EvidenceImage" };
+    if (name === "./demonstration-note") return { DemonstrationNote: "DemonstrationNote" }; // Provenance disclosure; no mutation handler.
     if (name.startsWith("@/lib/")) { const lib = library(name.slice(6)); return name === "@/lib/field" ? { ...lib, downloadFile: (...args) => exports.push(args) } : lib; }
     throw new Error(`Unexpected import ${name}`);
   });

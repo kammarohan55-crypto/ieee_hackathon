@@ -1,4 +1,5 @@
 "use client";
+import { AIDataUse } from "./ai-data-use";
 /* Browser-local Blob URLs must remain local; they cannot use the server image optimizer. */
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useEffectEvent, useRef, useState } from "react";
@@ -551,16 +552,14 @@ export function FieldStudio({
           onCheckedChange={(v) => setConsentedScope(v === true && aiConsentScope ? aiConsentScope : null)}
           disabled={!aiReady}
         />
-        Send the selected resized photo to {aiRecipients} for candidate visual
-        observations. Avoid faces or private information. Provider terms apply;
-        coordinates, readings and video are not sent.
+        Send this resized photo to {aiRecipients} for candidate findings.
       </label>
       {!aiReady && (
         <p className="micro-copy">
           Visual AI unavailable; photo review and local image checks remain usable.
         </p>
       )}
-      {aiReady && aiRecipients.includes("Google Gemini") && <p className="helper-copy">Google free-tier inputs may be used to improve its products. Send only a photo you are permitted to share.</p>}
+      {aiReady && <AIDataUse recipients={aiRecipients} kind="photo" />}
       {error && (
         <p className="notice error" role="alert">
           {error}

@@ -59,6 +59,7 @@ function component(file, runtime, overrides = {}, globals = {}) {
     if (name === "zod") return require(name);
     if (name.startsWith("@/lib/")) return library(`lib/${name.slice(6)}.ts`);
     if (name.startsWith("@/components/ui/")) return new Proxy({}, { get: (_, value) => `ui:${String(value)}` });
+    if (name === "./ai-data-use") return { AIDataUse: "ai-data-use" }; // Disclosure only; consent event logic remains the real component.
     throw new Error(`Unmocked component import: ${name}`);
   }, globals);
 }

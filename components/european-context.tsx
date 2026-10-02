@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Area, AreaChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ArrowUpRight, CloudRain, Clock3, Download, Fingerprint, RefreshCw, Sparkles, Thermometer, Wind } from "lucide-react";
-import { europeanBundleSchema, type EuropeanBundle, type EuropeanPlace } from "@/lib/european-sites";
+import { europeanBundleSchema, EUROPEAN_CONTEXT_ASSET, type EuropeanBundle, type EuropeanPlace } from "@/lib/european-sites";
 import { weatherContextSchema, weatherSeries, type WeatherContext } from "@/lib/weather-context";
 import { referencePhotos, displayEvidenceTime } from "@/lib/references";
 import { downloadFile, findingLabels } from "@/lib/field";
@@ -32,7 +32,7 @@ export function EuropeanContext({ place, weatherEnabled = true, onBundle }: { pl
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/european-context.json", { signal: controller.signal }).then(async (response) => {
+    fetch(EUROPEAN_CONTEXT_ASSET, { signal: controller.signal }).then(async (response) => {
       if (!response.ok) throw new Error();
       const value = europeanBundleSchema.parse(await response.json());
       if (!controller.signal.aborted) { setBundle(value); onBundle?.(value); setSourceError(""); }

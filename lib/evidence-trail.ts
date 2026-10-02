@@ -17,10 +17,12 @@ export function evidenceTrail(report: Report) {
   const review = labDecisionBrief(report);
   const nodes: TrailNode[] = [];
   const edges: { id: string; source: string; target: string }[] = [];
-  const add = (id: string, label: string, detail: string, source: TrailNode["source"], x: number, y: number) => nodes.push({ id, label, detail, source, x, y });
+  const add = (id: string, label: string, detail: string, source: TrailNode["source"], x: number, y: number) => nodes.push({ id,
+    label: report.demonstration ? label.replace(/^(Citizen|Photo reviewer|Human) · /, "Example · ").replace("human reviewed", "workflow review recorded") : label,
+    detail: report.demonstration ? `${report.demonstration.authorship}. Software demonstration; no expert validation.\n${detail}` : detail, source, x, y });
   const link = (source: string, target: string) => edges.push({ id: `${source}>${target}`, source, target });
   add("original", report.field?.reference ? "Photo reviewer · original note" : "Citizen · original note", report.original.note || "No note supplied.", "citizen", 0, 100);
-  add("confirmation", review.confirmed ? "Citizen · confirmation" : "Citizen · confirmation unavailable", `Timestamp as recorded: ${report.confirmedAt}. ${review.confirmed ? "Confirmation records the citizen's approval; it does not establish scientific truth." : "A usable confirmation timestamp is not retained; inspect the original record."}`, review.confirmed ? "citizen" : "pending", 560, 100);
+  add("confirmation", review.confirmed ? "Citizen · confirmation" : "Citizen · confirmation unavailable", `Timestamp as recorded: ${report.confirmedAt}. ${report.demonstration ? "Presentation workspace confirmation; not evidence of a citizen field visit or expert verification." : review.confirmed ? "Confirmation records the citizen's approval; it does not establish scientific truth." : "A usable confirmation timestamp is not retained; inspect the original record."}`, review.confirmed ? "citizen" : "pending", 560, 100);
   add("review", `Human · ${review.label.toLowerCase()}`, (report.reviewHistory.length
     ? report.reviewHistory.map((h) => `${h.at} · ${h.action.replaceAll("_", " ")}\n${h.note}`).join("\n\n")
     : "No human review recorded.") + `\nCurrent review completeness: ${review.label}. Local demo roles are not authenticated.`, review.reviewComplete ? "human" : "pending", 840, 100);

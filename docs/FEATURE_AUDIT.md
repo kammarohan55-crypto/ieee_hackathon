@@ -4,9 +4,21 @@ Source and command results establish the status below. Working means implemented
 
 Primary submission decision: **Track 3 — AI-Supported Assessment**, with supporting capabilities for Tracks 1/2/4. This follows the supplied project instructions; the challenge asks for one primary track. Real AI candidates, explicit uncertainty and human oversight are implemented; no winning odds or independent scientific validation are established.
 
+## European presentation collection — current additions
+
+| Feature | Status | Evidence / limit |
+|---|---|---|
+| Nine licensed European river frames, three per city | Working | Real unchanged Commons thumbnails; credits/dimensions/SHA-256 verified. Historical source dates only. |
+| Separate populated presentation collection | Working | /showcase, own record/draft keys and media IDs; nine AI-authored example inputs/initial decisions. Personal data preserved. |
+| Recorded visual assessment | Working | Eight actual Gemini responses, ten unverified candidates; local-only people-visible frame. Model/time/hash retained; no expert review. |
+| Photographic city portfolio + chronology | Working | City/status filters operate on saved records; original photo chronology explicitly does not establish environmental change. |
+| Example decisions and receipt provenance | Working | Distinct badges, graph/pin labels and JSON/CSV metadata; personal import rejects examples. |
+| Compact provider disclosure | Working | Explicit send consent plus expandable AI & data use; material disclosure retained. |
+| Production/device guarantees | Partial | Automated checks and focused browser QA; physical camera/mic/GPS, installed offline use and native downloads remain device checks. |
+
 | Planned feature | Status | Verified implementation / remaining boundary |
 |---|---|---|
-| European photo/recorded AI preview | Working contracts / partial device QA |3 licensed historical frames, genuine recorded Gemini results with exact photo hashes, coarse overlays and pending human review |
+| European photo/recorded AI preview | Working contracts / partial device QA |9 licensed historical frames, genuine recorded Gemini results with exact photo hashes, coarse overlays and pending human review |
 | European city map source layer | Working events / partial device QA |Sourced city overview markers, river cards, fit/focus/dossiers; counts stay separate from citizen data; Actual street/NASA tiles and city selection rendered in the production browser; coverage/other-device limits remain |
 | Hourly city weather visualizations | Working API/data / partial device QA |Real snapshots, strict units/UTC/aligned series, live refresh and optional15minute polling, metric/window/table/source export; no river-health forecasting |
 | Three-clocks provenance | Working contracts / partial device QA |Separate historical-photo, recorded-AI and model/retrieval time; no manufactured human approvals |
@@ -50,4 +62,4 @@ Primary submission decision: **Track 3 — AI-Supported Assessment**, with suppo
 
 Reused installed MapLibre (BSD-3-Clause), React Flow/Radix/Recharts/Workbox (MIT), Lucide/idb (ISC), Zod and existing stores/components. No package, model training, copied Google imagery or unauthorized official dataset added. See DEPENDENCIES.md and SOURCES.md. Primary navigation is Mission control, Field notebook, Review desk, Evidence Lab, Insights and Field kit; advanced schematic and diagnostics remain behind explicit controls.
 
-Latest complete suite: **352/352** authored checks (94 domain, 43 workspace, 34 mission, 52 mocked API, 17 capture/photo, 14 Lab, 24 map, 15 presentation/visit, 20 Decision brief, 29 evidence actions,10 European context). TypeScript, full lint and production build pass; release details are in QA.md. Four bundled reports cover 223 checks; another 129 run through npm test. Mock hooks/recorders/MapLibre/timers and source colors do not establish browser outcomes or model accuracy. Latest user authorized agent browser QA; tested flows/fixes are in QA.md. The app is running; physical-device and native-download limits remain. See REAL_DATA_READINESS.md, DEMO_GUIDE.md and PROJECT_CONTEXT.md for remaining actions.
+Latest complete suite: **362/362** authored checks (94 domain, 43 workspace, 34 mission, 52 mocked API, 17 capture/photo, 14 Lab, 24 map, 15 presentation/visit, 20 Decision brief, 29 evidence actions,10 European context,10 presentation workspace). TypeScript, full lint and production build pass; release details are in QA.md. Four bundled reports cover 223 checks; another 139 run through npm test. Mock hooks/recorders/MapLibre/timers and source colors do not establish browser outcomes or model accuracy. Latest user authorized agent browser QA; tested flows/fixes are in QA.md. The app is running; physical-device and native-download limits remain. See REAL_DATA_READINESS.md, DEMO_GUIDE.md and PROJECT_CONTEXT.md for remaining actions.

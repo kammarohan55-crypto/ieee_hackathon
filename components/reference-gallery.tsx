@@ -1,6 +1,7 @@
 "use client";
 /* Bundled, credited thumbnails are served directly and retained byte-for-byte. */
 /* eslint-disable @next/next/no-img-element */
+import { useState } from "react";
 import { ArrowUpRight, Camera, LoaderCircle } from "lucide-react";
 import { referencePhotos, referenceDimensions, displayEvidenceTime, type ReferencePhoto } from "@/lib/references";
 import type { FieldEvidence } from "@/lib/field";
@@ -16,10 +17,13 @@ export function ReferenceCredit({ reference }: { reference: NonNullable<FieldEvi
 }
 
 export function ReferenceGallery({ onReview, loading }: { onReview: (photo: ReferencePhoto) => void; loading: string }) {
+  const [city, setCity] = useState("All cities");
+  const photos = referencePhotos.filter((photo) => city === "All cities" || photo.site.includes(city));
   return <section className="reference-gallery" aria-labelledby="reference-heading">
     <div className="section-heading"><div><p className="eyebrow">ONEAQUAHEALTH / EUROPE</p><h2 id="reference-heading">Three waterways. One evidence trail.</h2></div><span className="tag"><Camera size={14} /> Real, credited photographs</span></div>
     <p className="reference-intro">Explore Coimbra’s Mondego, Toulouse’s Garonne and Oslo’s Hoffselva through credited historical photographs. Choose a frame, write what you can see, and follow it through checks, human review and an evidence receipt.</p>
-    <div className="reference-grid">{referencePhotos.map((photo) => <article className="reference-card" key={photo.id}>
+    <div className="reference-filters" aria-label="Filter source photographs">{["All cities", "Coimbra", "Toulouse", "Oslo"].map((label) => <button type="button" key={label} aria-pressed={city === label} onClick={() => setCity(label)}>{label}</button>)}</div>
+    <div className="reference-grid">{photos.map((photo) => <article className="reference-card" key={photo.id}>
       <a className="reference-photo" href={photo.src} target="_blank" rel="noreferrer" aria-label={`Open full frame: ${photo.title}`}><img src={photo.src} alt={photo.alt} width={referenceDimensions(photo).width} height={referenceDimensions(photo).height} loading="lazy" /><span>Open full frame <ArrowUpRight size={15} /></span></a>
       <div className="reference-body"><p className="eyebrow">{photo.role}</p><h3>{photo.title}</h3><p className="reference-date">{displayEvidenceTime(photo.capturedDate)}</p>
         <p className="reference-attribution">By {photo.author} · <a href={photo.licenseUrl} target="_blank" rel="noreferrer">{photo.license}</a></p>

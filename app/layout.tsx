@@ -11,6 +11,7 @@ import "./workspace.css";
 import "./console.css";
 import "./european-context.css";
 import "./presentation.css";
+import "./showcase.css";
 
 export const metadata: Metadata = {
   title: "AquaLens — Evidence in focus",

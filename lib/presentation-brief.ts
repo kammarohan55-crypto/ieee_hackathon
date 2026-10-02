@@ -37,6 +37,7 @@ export function presentationBrief(report: Report): string {
   const brief = labDecisionBrief(report);
   const lines = [
     "# AquaLens — evidence and human judgment", `Record: ${report.id}`,
+    ...(report.demonstration ? ["", "## Presentation example", report.demonstration.authorship, report.demonstration.purpose, `Preset: ${report.demonstration.packageId}`] : []),
     `Workflow: ${presentationWorkflow(report)}`, `Stored workflow flag: ${report.status}`,
     `Source: ${ref ? "Historical credited photograph review" : "Citizen field observation"}`,
     `Site label: ${report.original.site}`, `Observation/source time as recorded: ${report.original.observedAt}`,
@@ -54,7 +55,7 @@ export function presentationBrief(report: Report): string {
   for (const media of report.field?.media ?? []) {
     lines.push(`\nMedia metadata: ${media.filename || media.id} · ${media.kind}`, `SHA-256 as recorded: ${media.sha256}`);
     if (!media.visual) { lines.push("No visual AI response retained for this file."); continue; }
-    lines.push(`Visual method: ${recordedProviderLabel(media.visual.provider)} · ${media.visual.model} · ${media.visual.at}`);
+    lines.push(`${media.visual.recorded ? "Recorded visual method" : "Visual method"}: ${recordedProviderLabel(media.visual.provider)} · ${media.visual.model} · ${media.visual.at}`);
     for (const finding of media.visual.findings) {
       const judgment = report.field?.dispositions.filter((item) => item.mediaId === media.id && item.finding === finding.kind).at(-1);
       lines.push(`${findingLabels[finding.kind]} · ${finding.region} · ${finding.confidence} uncalibrated model confidence`, judgment ? `Current human judgment: ${judgment.decision} · ${judgment.at} · local demo reviewer` : "Current human judgment: not recorded");

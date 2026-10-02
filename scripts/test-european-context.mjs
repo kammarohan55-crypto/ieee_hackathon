@@ -10,7 +10,7 @@ import { referencePhotos, archivedReferencePhotos } from "../.sites-runtime/api-
 const bundle = JSON.parse(await readFile("public/european-context.json", "utf8")), results = [];
 async function test(name, callback) { try { await callback(); results.push({ name, passed: true }); } catch (error) { results.push({ name, passed: false, error: error.message }); } }
 await test("Active European images and recorded source analyses preserve real byte digests and pending review", async () => {
-  assert.equal(referencePhotos.length, 3); assert.equal(archivedReferencePhotos.length, 3);
+  assert.equal(referencePhotos.length, 9); assert.equal(archivedReferencePhotos.length, 3);
   assert.ok(referencePhotos.every((photo) => !photo.site.includes("Pune")));
   const checked = europeanBundleSchema.parse(bundle);
   for (const photo of referencePhotos) {

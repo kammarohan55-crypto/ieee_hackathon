@@ -2,12 +2,16 @@
 
 Updated 2026-10-03. This is a readiness checklist, not a completed field study, device test, deployment or submission. Current primary decision: Track3, supporting1/2/4. Use FEATURE_AUDIT for implementation boundaries and QA for measured software checks.
 
+## Presentation data prepared
+
+The /showcase route now supplies nine real, credited historical European photos and completed authored example inputs, covering the review workflow and populated city analytics. Initial example decisions are not genuine human validation; eight recorded AI analyses remain unverified. No additional API key is needed for the current local app. Your personal collection and drafts stay separate. Use DEMO_GUIDE.md for the presentation; genuine field evidence, expert review and team/submission decisions remain your inputs if you intend to claim them.
+
 ## What the user needs to provide
 
 | Item | Exact input | Why / status |
 | --- | --- | --- |
 | AI access | No additional key is currently needed. The supplied Gemini key is saved in ignored `.dev.vars`, with `AI_PROVIDER="gemini"` and Gemini 3.5 Flash-Lite. | Actual text/image source-route checks returnedHTTP200 and passed strict validation. Fresh production-browser text/photo calls also succeeded; future quota remains uncertain; local rules/review survive provider failure. No map/weather key is needed. |
-| Firsthand evidence | Suggested three original photos: wide site, surface detail, bank context; actual site/landmark, date/local time/time zone, file mapping, direct note and photographer/use permission. Fill VISIT_NOTES_TEMPLATE.txt. | Recommended for a real field demo. Three bundled European historical images and the checked presentation-media ZIP already support a credited photo-review demo; use Photo desk → Review this photo. Unknown time/context must not be invented. |
+| Firsthand evidence | Suggested three original photos: wide site, surface detail, bank context; actual site/landmark, date/local time/time zone, file mapping, direct note and photographer/use permission. Fill VISIT_NOTES_TEMPLATE.txt. | Recommended for a real field demo. Nine bundled European historical images and the checked presentation-media ZIP already support a credited photo-review demo; use Photo desk → Review this photo. Unknown time/context must not be invented. |
 | Map location, if demonstrated | Actual WGS84 latitude/longitude and source/uncertainty, or device GPS when safely available. | Optional observation metadata. Enables your real site on the map; no fabricated marker. No water instruments or hardware required. |
 | Actual human review | A person inspects the source, records agreement/disagreement/uncertainty and their own reason. A separate reviewer can provide approved name/role/method/date/feedback. | Same-person citizen/reviewer demo is permitted by this app and must be disclosed. No authenticated reviewer or expert-validation claim. |
 | Device walkthrough | Desktop + intended phone/browser, steps and actual results using the checks below. | Agent exercised production-browser workflow/maps/Lab/presentation/320–1440px layouts; see QA.md. Physical capture/voice/GPS, native download completion and installed offline behavior remain device checks. |

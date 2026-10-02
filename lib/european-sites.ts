@@ -2,6 +2,9 @@ import { z } from "zod";
 import { referencePhotos } from "./references";
 import { visualSchema } from "./field";
 import { weatherContextSchema } from "./weather-context";
+// Change the revision when changing this recorded dataset, so an older offline
+// worker cannot substitute earlier analysis for a newly shipped presentation kit.
+export const EUROPEAN_CONTEXT_ASSET = "/european-context-v2.json";
 
 // Wikidata CC0 city overview coordinates, not camera positions or research stations.
 export const europeanPlaces = [
@@ -17,7 +20,7 @@ export const sourceAnalysisSchema = visualSchema.extend({
 }).refine((value) => referencePhotos.some((photo) => photo.id === value.photoId && photo.sha256 === value.sha256), "Source analysis must match the retained photo bytes");
 export const europeanBundleSchema = z.object({
   kind: z.literal("recorded_public_context"), generatedAt: z.string().datetime(),
-  analyses: z.array(sourceAnalysisSchema).max(3),
+  analyses: z.array(sourceAnalysisSchema).max(referencePhotos.length),
   weather: z.array(z.object({ placeId: z.string(), snapshot: weatherContextSchema }).refine((entry) => {
     const place = europeanPlaces.find((p) => p.id === entry.placeId);
     return !!place && Math.abs(entry.snapshot.requestedCoordinates.lat - place.lat) < .0001 && Math.abs(entry.snapshot.requestedCoordinates.lon - place.lon) < .0001;

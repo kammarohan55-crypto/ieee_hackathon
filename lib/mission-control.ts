@@ -27,13 +27,14 @@ export function scopedRecords(records: Report[], scope: EvidenceScope) {
 export function evidenceFrames(records: Report[]): EvidenceFrame[] {
   const saved = scopedRecords(records, "all").flatMap((report) => (report.field?.media ?? [])
     .filter((media) => media.kind === "photo").map((media) => ({
-      key: `record:${report.id}:${media.id}`, title: report.original.site,
+      key: `record:${report.id}:${media.id}`, title: report.field?.reference?.title ?? report.original.site,
       date: report.original.observedAt,
       width: media.width > 0 && media.height > 0 ? media.width : 4,
       height: media.width > 0 && media.height > 0 ? media.height : 3,
       report, media, reference: allReferencePhotos.find((p) => p.id === report.field?.reference?.id),
     })));
-  const sources = referencePhotos.map((reference) => ({
+  const represented = new Set(saved.map((frame) => frame.reference?.id));
+  const sources = referencePhotos.filter((reference) => !represented.has(reference.id)).map((reference) => ({
     key: `source:${reference.id}`, title: reference.title, date: reference.capturedDate,
     ...referenceDimensions(reference), reference,
   }));

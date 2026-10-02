@@ -74,7 +74,11 @@ import { displayEvidenceTime, referencePhotos, type ReferencePhoto } from "@/lib
 import { hashBlob, inspectImage, addMediaBatch, removeMediaBatch } from "@/lib/media-store";
 import { CaptureGuide, FieldGuide, OneHealthNotes, OneHealthSummary } from "./field-guide";
 import { CollectionTools } from "./collection-tools";
-import { WORKSPACE_KEY as KEY, LEGACY_ARCHIVE_KEY, MAX_REPORTS, realRecords, parseWorkspace, searchReports, mergeRecords } from "@/lib/workspace";
+import { DemonstrationNote } from "./demonstration-note";
+import { AIDataUse } from "./ai-data-use";
+import { PRESENTATION_KEY, PRESENTATION_DRAFT_KEY, presentationProvenance } from "@/lib/presentation-workspace";
+import { preparePresentation } from "@/lib/load-presentation";
+import { WORKSPACE_KEY, LEGACY_ARCHIVE_KEY, MAX_REPORTS, realRecords, parseWorkspace, searchReports, mergeRecords } from "@/lib/workspace";
 import { EvidenceLab } from "./evidence-lab";
 import {
   FieldStudio,
@@ -143,9 +147,18 @@ function download(report: Report) {
   toast.success("Evidence download requested");
 }
 
-export default function StreamCheck() {
+export default function StreamCheck({ presentation = false }: { presentation?: boolean }) {
+  const KEY = presentation ? PRESENTATION_KEY : WORKSPACE_KEY;
+  const draftKey = presentation ? PRESENTATION_DRAFT_KEY : "aqualens-draft-v1";
+  const selectWorkspaceRecords = useCallback((incoming: Report[]) => {
+    if (!presentation) return realRecords(incoming);
+    if (incoming.some((report) => !report.demonstration)) throw new Error("Personal records cannot be loaded into the presentation collection.");
+    return incoming;
+  }, [presentation]);
   const [field, setField] = useState<FieldEvidence>(newField);
   const [draftLoaded, setDraftLoaded] = useState(false);
+  const [loadedDraftKey, setLoadedDraftKey] = useState<string | null>(null);
+  const [loadedWorkspaceKey, setLoadedWorkspaceKey] = useState<string | null>(null);
   const [captureBusy, setCaptureBusy] = useState(false);
   const [referenceLoading, setReferenceLoading] = useState("");
   const [referenceRetry, setReferenceRetry] = useState<ReferencePhoto | null>(null);
@@ -211,8 +224,9 @@ export default function StreamCheck() {
     // Browser-local storage is unavailable during server rendering.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setWhen(localTime());
+    setDraft(empty); setField(newField()); setStage(0); setAssessment(null); setSnapshot(null); setConfirm(false);
     try {
-      const savedDraft = localStorage.getItem("aqualens-draft-v1");
+      const savedDraft = localStorage.getItem(draftKey);
       if (savedDraft) {
         const d = JSON.parse(savedDraft);
         if (typeof d.pendingReferenceId === "string") {
@@ -235,45 +249,52 @@ export default function StreamCheck() {
       }
     } catch { toast.error("A saved draft could not be restored. Existing confirmed reports are unaffected."); }
     setDraftLoaded(true);
-    try {
-      const saved = localStorage.getItem(KEY);
-      if (saved) {
-        const parsed = parseWorkspace(JSON.parse(saved));
-        const genuine = realRecords(parsed);
-        if (genuine.length !== parsed.length && !localStorage.getItem(LEGACY_ARCHIVE_KEY))
-          localStorage.setItem(LEGACY_ARCHIVE_KEY, saved);
-        setRecords(genuine);
-      }
-    } catch {
-      setStorageError(
-        "Saved records could not be read. Your saved data has not been overwritten. Download the recovery file before trying a restore.",
-      );
-    }
-    setLoaded(true);
+    setLoadedDraftKey(draftKey);
+    const controller = new AbortController();
+    void (async () => {
+      try {
+        const saved = localStorage.getItem(KEY);
+        if (saved) {
+          const parsed = parseWorkspace(JSON.parse(saved)), genuine = selectWorkspaceRecords(parsed);
+          if (!presentation && genuine.length !== parsed.length && !localStorage.getItem(LEGACY_ARCHIVE_KEY)) localStorage.setItem(LEGACY_ARCHIVE_KEY, saved);
+          if (!controller.signal.aborted) setRecords(genuine);
+        } else if (presentation) {
+          const examples = await preparePresentation(controller.signal);
+          if (!controller.signal.aborted) {
+            // Another tab may have prepared/edited the collection while images loaded.
+            const latest = localStorage.getItem(KEY);
+            const initial = latest ? selectWorkspaceRecords(parseWorkspace(JSON.parse(latest))) : examples;
+            localStorage.setItem(KEY, JSON.stringify(initial)); setRecords(initial);
+          }
+        }
+      } catch (error) {
+        if (!controller.signal.aborted) setStorageError(presentation ? `Presentation preparation stopped: ${error instanceof Error ? error.message : "source or storage unavailable"}. Reload to retry. Your personal records are unchanged.` : "Saved records could not be read. Your saved data has not been overwritten. Download the recovery file before trying a restore.");
+      } finally { if (!controller.signal.aborted) { setLoaded(true); setLoadedWorkspaceKey(KEY); } }
+    })();
     loadAIStatus();
     const sync = (e: StorageEvent) => {
       if (e.key !== KEY) return;
       try {
-        setRecords(e.newValue ? realRecords(parseWorkspace(JSON.parse(e.newValue))) : []);
+        setRecords(e.newValue ? selectWorkspaceRecords(parseWorkspace(JSON.parse(e.newValue))) : []);
       } catch {
         setStorageError("An update from another tab could not be read.");
       }
     };
     window.addEventListener("storage", sync);
-    return () => { invalidateAIStatus(); window.removeEventListener("storage", sync); };
-  }, [loadAIStatus, invalidateAIStatus]);
+    return () => { controller.abort(); invalidateAIStatus(); window.removeEventListener("storage", sync); };
+  }, [loadAIStatus, invalidateAIStatus, KEY, draftKey, presentation, selectWorkspaceRecords]);
   useEffect(() => {
-    if (!draftLoaded) return;
+    if (!draftLoaded || loadedDraftKey !== draftKey) return;
     try {
       const pendingReferenceId = referenceLoading || referenceRetry?.id;
       // A source selection is not a completed evidence record until its bytes
       // are retained. Store its catalogue ID so reload can offer an honest retry.
-      localStorage.setItem("aqualens-draft-v1", JSON.stringify(pendingReferenceId ? { pendingReferenceId } : { draft, field, when }));
+      localStorage.setItem(draftKey, JSON.stringify(pendingReferenceId ? { pendingReferenceId } : { draft, field, when }));
     }
     catch { toast.error("Draft storage is unavailable. Keep this tab open until you export the confirmed report."); }
-  }, [draftLoaded, draft, field, when, referenceLoading, referenceRetry]);
+  }, [draftLoaded, loadedDraftKey, draft, field, when, referenceLoading, referenceRetry, draftKey]);
   useEffect(() => {
-    if (!loaded || storageError) return;
+    if (!loaded || loadedWorkspaceKey !== KEY || storageError) return;
     try {
       localStorage.setItem(KEY, JSON.stringify(records));
     } catch {
@@ -283,7 +304,7 @@ export default function StreamCheck() {
         "Browser storage is full or unavailable. Export your records before leaving.",
       );
     }
-  }, [records, loaded, storageError]);
+  }, [records, loaded, loadedWorkspaceKey, storageError, KEY]);
   useEffect(() => {
     const doc = document as Document & {
       modelContext?: {
@@ -318,6 +339,7 @@ export default function StreamCheck() {
           section: s.tab,
           total: s.records.length,
           synthetic: s.records.filter((r) => r.original.synthetic).length,
+          presentationExamples: s.records.filter((r) => !!r.demonstration).length,
           awaitingReview: s.records.filter(
             (r) => r.status === "awaiting_review",
           ).length,
@@ -484,6 +506,7 @@ export default function StreamCheck() {
   }
   function submit() {
     if (!snapshot || !assessment || !confirm) return;
+    if (!loaded || loadedWorkspaceKey !== KEY || storageError) { setFormError("Wait for this workspace to finish loading and resolve any storage error before saving."); return; }
     try {
       const unanswered = fieldQuestions(field, snapshot.appearance).some(
         (q) => !field.followups.find((a) => a.question === q)?.answer.trim(),
@@ -499,6 +522,7 @@ export default function StreamCheck() {
       });
       assertReferenceRecord(report);
       if (!realRecords([report]).length) throw new Error("Only real observations can be saved. Start a fresh field note.");
+      if (presentation) report.demonstration = { ...presentationProvenance, authorship: "User-authored input in presentation workspace" };
       setRecords((prev) => [report, ...prev]);
       setSelectedId(report.id);
       setStage(0);
@@ -536,9 +560,10 @@ export default function StreamCheck() {
   }, []);
   const list = searchReports(records, search, filter);
   function importRecords(incoming: Report[]) {
+    if (presentation || incoming.some((report) => report.demonstration)) throw new Error("Presentation examples remain in their separate workspace.");
     if (storageError) throw new Error("Resolve the workspace storage error before importing.");
     const stored = localStorage.getItem(KEY);
-    const current = stored ? realRecords(parseWorkspace(JSON.parse(stored))) : stateRef.current.records;
+    const current = stored ? selectWorkspaceRecords(parseWorkspace(JSON.parse(stored))) : stateRef.current.records;
     const merged = mergeRecords(current, incoming);
     localStorage.setItem(KEY, JSON.stringify(merged.records));
     setRecords(merged.records);
@@ -575,9 +600,10 @@ export default function StreamCheck() {
           </span>
         </button>
         <div className="header-right">
+          <a className="workspace-switch" href={presentation ? "/" : "/showcase"}>{presentation ? "My observations" : "Presentation collection"}<ArrowUpRight size={14} /></a>
           <span className="workspace-label">
             <span className="live-dot" />{" "}
-            {online ? "Local workspace" : "Offline · local rules"}
+            {presentation ? "Presentation workspace" : online ? "Local workspace" : "Offline · local rules"}
           </span>
           <button className="btn primary small" onClick={reset} aria-label="New observation">
             <Plus size={17} />
@@ -610,6 +636,7 @@ export default function StreamCheck() {
           </span>
         </div>
         <main id="workspace-content" className="main">
+          {presentation && <aside className="presentation-workspace-banner" aria-label="Presentation collection provenance"><span className="showcase-emblem"><Waves size={23} /></span><div><strong>{loaded ? `${records.length} European river examples, ready to explore.` : "Preparing European river evidence…"}</strong><p>Real, credited photos · recorded AI candidates · example descriptions and initial review decisions. No field visit or expert validation. Your edits stay in this separate collection.</p></div><button type="button" onClick={() => go("insights")} disabled={!loaded}><ChartNoAxesCombined size={16} /> Explore insights <ArrowRight size={15} /></button></aside>}
           {storageError && (
             <div className="notice error" role="alert"><p>{storageError}</p><button className="plain-btn" onClick={() => {
               const saved = localStorage.getItem(KEY);
@@ -809,13 +836,10 @@ export default function StreamCheck() {
                             checked={useAI}
                             onCheckedChange={(v) => setUseAI(v === true)}
                           />{" "}
-                          Send the original note and selected
-                          appearance to {aiRecipients(aiStatus)} for additional
-                          clarification. Avoid personal data. Provider terms apply;
-                          no coordinates, instrument readings or media are sent.
-                          {aiRecipients(aiStatus).includes("Google Gemini") && " Google free-tier inputs may be used to improve its products."}
+                          Send this note and selected appearance to {aiRecipients(aiStatus)} for clarification.
                         </label>
                       )}
+                      {aiReady && <AIDataUse recipients={aiRecipients(aiStatus)} kind="note" />}
                     </div>
                     {formError && (
                       <p className="notice error" role="alert">
@@ -1093,7 +1117,7 @@ export default function StreamCheck() {
                       {labels[r.status]}
                     </Tag>
                   </div>
-                  <h3>{r.original.site}</h3>
+                  <h3>{r.original.site}</h3>{r.demonstration && <Tag>Presentation example</Tag>}
                   <p className="review-excerpt">{r.original.note}</p>
                   <div className="review-card-meta">
                     <span>
@@ -1135,7 +1159,7 @@ export default function StreamCheck() {
           <TabsContent value="kit" className="view-enter">
             <ReferenceGallery onReview={(photo) => void reviewReference(photo)} loading={referenceLoading} />
             <FieldGuide onStart={reset} />
-            <CollectionTools records={records} onImport={importRecords} disabled={!loaded || !!storageError} />
+            <CollectionTools records={records} onImport={importRecords} allowImport={!presentation} disabled={!loaded || !!storageError} />
             <details className="kit-advanced"><summary>Additional evidence views</summary><p>The river view groups retained field reports in a labeled schematic. It is not a physical model or a geographic map.</p><button type="button" className="btn secondary" onClick={() => go("atlas")}><Waves size={16} /> Open schematic evidence view</button></details>
           </TabsContent>
           <TabsContent value="lab" className="view-enter">
@@ -1175,6 +1199,7 @@ export default function StreamCheck() {
           </SheetHeader>
           {active && (
             <div className="sheet-body">
+              <DemonstrationNote report={active} />
               <div className="button-row">
                 <Tag tone={active.status === "reviewed" ? "green" : "amber"}>
                   {labels[active.status]}

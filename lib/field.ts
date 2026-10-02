@@ -96,6 +96,7 @@ export const fieldSchema = z.object({
         }),
         visual: z
           .object({
+            recorded: z.boolean().optional(),
             model: z.string(),
             provider: recordedProviderSchema.optional(),
             at: z.string(),
@@ -355,14 +356,14 @@ export function decisionReceipt(report: Report) {
     quality: observationQuality(report),
     metadata: {
       title: `${report.field?.reference ? "Historical photo review" : "Stream observation"}: ${report.original.site}`,
-      creator: report.field?.reference ? "Local photo-review author (identity unverified); photographer credited separately" : "Local citizen (identity unverified)",
+      creator: report.demonstration ? report.demonstration.authorship : report.field?.reference ? "Local photo-review author (identity unverified); photographer credited separately" : "Local citizen (identity unverified)",
+      demonstration: report.demonstration,
       evidenceBasis: report.field?.reference ? "historical_photo_review" : "firsthand_observation",
       photoAttribution: report.field?.reference,
       license: "Unspecified; author permission required for reuse",
       accessRights: "Browser-local; export controlled by the user",
       spatialReference: "WGS84 / EPSG:4326",
-      provenance:
-        "Citizen input, labeled rule/AI suggestions, explicit local demo reviewer decisions",
+      provenance: report.demonstration ? `${report.demonstration.authorship}; labeled rule checks and recorded AI; no expert validation` : "Citizen input, labeled rule/AI suggestions, explicit local demo reviewer decisions",
       conformsTo:
         "AquaLens prototype schema 1.1; not an official OneAquaHealth or FHIR profile",
       fairStatus:
@@ -392,6 +393,7 @@ export function exportCSV(reports: Report[]) {
       "latitude",
       "longitude",
       "evidence_basis", "photo_source", "photo_author", "photo_license", "photo_source_date",
+      "demonstration_package", "input_authorship", "demonstration_purpose",
     ],
     ...reports.map((r) => [
       r.id,
@@ -406,6 +408,7 @@ export function exportCSV(reports: Report[]) {
       r.field?.coordinates?.lon,
       r.field?.reference ? "historical_photo_review" : "firsthand_observation",
       r.field?.reference?.sourceUrl, r.field?.reference?.author, r.field?.reference?.license, r.field?.reference?.capturedDate,
+      r.demonstration?.packageId, r.demonstration?.authorship, r.demonstration?.purpose,
     ]),
   ];
   return rows.map((r) => r.map(csvCell).join(",")).join("\r\n");
@@ -413,6 +416,7 @@ export function exportCSV(reports: Report[]) {
 export function exportGeoJSON(reports: Report[]) {
   return {
     type: "FeatureCollection",
+    demonstrationRecords: reports.filter((report) => !!report.demonstration).length,
     features: reports
       .filter((r) => r.field?.coordinates)
       .map((r) => ({
@@ -429,6 +433,7 @@ export function exportGeoJSON(reports: Report[]) {
           status: r.status,
           appearance: r.original.appearance,
           coordinateMethod: r.field!.coordinates!.method,
+          demonstration: r.demonstration,
         },
       })),
     omittedWithoutCoordinates: reports.filter((r) => !r.field?.coordinates)

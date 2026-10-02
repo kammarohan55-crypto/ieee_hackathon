@@ -31,9 +31,11 @@ await writeFile(path.join(directory, "manifest.json"), JSON.stringify({
 }, null, 2) + "\n");
 await writeFile(path.join(directory, "START_HERE.md"), `# AquaLens presentation media
 
-Three real, credited historical photographs of the Mondego in Coimbra, Garonne in Toulouse and Hoffselva in Oslo. These are the same unchanged thumbnail bytes already bundled in the app. They are not current field evidence or photographs taken by your team. Read CREDITS.md and manifest.json; dates and licences differ.
+Nine real, credited historical photographs of the Mondego in Coimbra, Garonne in Toulouse and Hoffselva in Oslo. These are the same unchanged thumbnail bytes already bundled in the app. They are not current field evidence or photographs taken by your team. Read CREDITS.md and manifest.json; dates and licences differ.
 
 ## Show the working demo
+
+For a prepared collection, open http://localhost:5173/showcase and follow docs/DEMO_GUIDE.md. It prepares nine separate, visibly labelled software examples using these photos and real recorded AI candidates. The initial descriptions, confirmations, decisions and pin are AI-authored; they are not expert validation or field visits. Your personal collection is separate. This media folder itself contains only the credited source files, not those records.
 
 1. Start the app using npm run dev in the streamcheck folder when you are ready. Open http://localhost:5173/.
 2. Mission control → Photo desk → select a European river photograph → Review this photo. The app retains the historical source date and credits. Use this route rather than uploading the photo as a new field visit.

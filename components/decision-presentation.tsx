@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Dialog, Tabs } from "radix-ui";
 import { ArrowLeft, ArrowRight, Camera, CheckCheck, Download, FileText, Fingerprint, Play, ShieldCheck, Sparkles, X } from "lucide-react";
 import { exportReport, type Report } from "@/lib/assessment";
+import { DemonstrationNote } from "./demonstration-note";
 import { recordedProviderLabel } from "@/lib/ai-metadata";
 import { isSyntheticRecord } from "@/lib/atlas";
 import { labDecisionBrief, labRecordSummary } from "@/lib/evidence-lab";
@@ -29,7 +30,8 @@ export function DecisionPresentation({ report }: { report: Report }) {
   return <Dialog.Root open={open} onOpenChange={(next) => { setOpen(next); if (next) { setStage("evidence"); setMediaIndex(0); } }}>
     <Dialog.Trigger asChild><button type="button" className="btn presentation-trigger"><Play size={16} /> Present this evidence <ArrowRight size={16} /></button></Dialog.Trigger>
     <Dialog.Portal><Dialog.Overlay className="dp-overlay" /><Dialog.Content className="dp-dialog">
-      <header className="dp-header"><div><p className="dp-eyebrow">AQUALENS / EVIDENCE STORY</p><Dialog.Title>{report.original.site || "Recorded observation"}</Dialog.Title><Dialog.Description>A read-only story of original evidence and retained human decisions.</Dialog.Description></div><Dialog.Close asChild><button type="button" className="dp-icon-button" aria-label="Close evidence presentation"><X size={22} /></button></Dialog.Close></header>
+      <header className="dp-header"><div><p className="dp-eyebrow">AQUALENS / EVIDENCE STORY</p><Dialog.Title>{report.original.site || "Recorded observation"}</Dialog.Title><Dialog.Description>A read-only story of original evidence and retained decisions.</Dialog.Description></div><Dialog.Close asChild><button type="button" className="dp-icon-button" aria-label="Close evidence presentation"><X size={22} /></button></Dialog.Close></header>
+      <DemonstrationNote report={report} />
       <Tabs.Root className="dp-story" value={stage} onValueChange={(value) => { if (presentationStages.includes(value as PresentationStage)) setStage(value as PresentationStage); }}>
         <Tabs.List className="dp-stages" aria-label="Evidence story chapters">{presentationStages.map((key, step) => <Tabs.Trigger key={key} value={key}><span>{String(step + 1).padStart(2, "0")}</span>{presentationLabels[key]}</Tabs.Trigger>)}</Tabs.List>
         <div className="dp-layout">
