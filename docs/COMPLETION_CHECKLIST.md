@@ -38,7 +38,7 @@ Shared accounts/community voting, authenticated reviewers, a calibrated physical
 
 ## Source handoff
 
-Gemini/media implementation commit b0dd07f is published: push and origin/main SHA match checked. Final handoff follows separately; use the current Git revision. A source ZIP can be made with mature `git archive` from a named verified commit; it must exclude ignored credentials/runtime/browser evidence. The ZIP is source, not a deployed application or a media field pack. PROJECT_CONTEXT records the actual final verification, publication state and exact next step for another AI.
+European-explorer implementation d64cce6 is published: push/origin SHA match and anonymous commit API verified. Final handoff follows separately; use the current Git revision. The local source ZIP uses mature `git archive` from final HEAD, with exact commit/digests in outputs/aqualens-source-manifest.json. It excludes ignored credentials/runtime/media kits. The ZIP is source, not a deployed application or media field pack. PROJECT_CONTEXT records actual verification, publication state and the next step for another AI.
 
 
 Current European source examples are Coimbra/Mondego, Toulouse/Garonne and Oslo/Hoffselva, with photographer/licence/source date retained. City overview coordinates are sourced context, not camera/GPS/station metadata. Real recorded Gemini candidates and Open-Meteo weather snapshots remain separate from citizen notes/confirmation/human reviews. Test the map selectors/focus/dossier, source regions, Three clocks, weather refresh/metric/window/table/export and fallback. No extra key is needed; no current field visit is fabricated.
