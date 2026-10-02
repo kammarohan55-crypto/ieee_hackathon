@@ -4,7 +4,7 @@ Latest browser debug pass (2026-10-03): fixed local Worker AI request compatibil
 
 [Source repository](https://github.com/kammarohan55-crypto/ieee_hackathon) · OneAquaHealth hackathon prototype
 
-AquaLens evolved from StreamCheck without rebuilding its tested workflow: citizen evidence → explicit uncertainty → human review → portable Decision Receipt. **Primary submission decision: Track 3 — AI-Supported Assessment**, with supporting capabilities relevant to Tracks 1, 2 and 4. This follows the supplied project instructions and the implemented AI/checks/human-review evidence trail; it does not establish winning odds or organizer endorsement. The [official challenge](https://oneaquahealth-ieee-hackathon.devpost.com/) asks entrants to select one primary track. Appearance, satellite context and human review do not establish water safety, pollutants, species or ecological health.
+AquaLens evolved from StreamCheck without rebuilding its tested workflow: citizen evidence → explicit uncertainty → human review → portable Decision Receipt. **Primary submission decision: Track 3 — AI-Supported Assessment**, with supporting capabilities relevant to Tracks 1, 2 and 4. This follows the supplied project instructions and the implemented AI/checks/human-review evidence trail; it does not establish winning odds or organizer endorsement. The [organizer extension](https://oneaquahealth-ieee-hackathon.devpost.com/updates/46660-deadline-extended-to-october-4-keep-innovating-keep-submitting) explicitly permits naturally spanning multiple tracks; leading with Track 3 remains this project's presentation decision. Appearance, satellite context and human review do not establish water safety, pollutants, species or ecological health.
 
 ## Presentation collection
 
