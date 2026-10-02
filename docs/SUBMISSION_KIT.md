@@ -1,6 +1,6 @@
 # AquaLens — submission working copy
 
-Updated 2026-10-03. Draft only: no submission, deployment or video is established. Repository: https://github.com/kammarohan55-crypto/ieee_hackathon . European-explorer implementation d64cce6 is pushed; local/remote SHA match and anonymous GitHub commit API returns200 with the expected revision/title. Final handoff documentation follows separately; inspect current main for exact source. Fill in actual team credits, tested judge-access URL and video link.
+Updated 2026-10-03. Draft only: no submission, deployment or video is established. Repository: https://github.com/kammarohan55-crypto/ieee_hackathon . Verified application-code baseline202ead3 contains the nine-photo presentation collection and current workflow. Subsequent documentation commits may exist; inspect main and PROJECT_CONTEXT.md for exact current source. Fill in actual team credits, tested judge-access URL and video link.
 
 ## Positioning
 
