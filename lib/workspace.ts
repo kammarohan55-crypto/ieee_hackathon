@@ -69,6 +69,37 @@ export async function digestBlob(blob: Blob) {
     .map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
+// IndexedDB and localStorage cannot share a transaction. Compensate only our
+// successful new-media write if the later report commit fails.
+export async function commitImportMedia(
+  files: { id: string; blob: Blob }[],
+  store: { add: (files: { id: string; blob: Blob }[]) => Promise<void>; rollback: (ids: string[]) => Promise<void> },
+  commitRecords: () => void,
+) {
+  if (!files.length) { commitRecords(); return; }
+  await store.add(files);
+  try { commitRecords(); }
+  catch (error) {
+    try { await store.rollback(files.map((file) => file.id)); }
+    catch {
+      throw new Error("Reports could not be saved and temporary media cleanup was unavailable. Keep your field pack and retry after resolving the storage error. Existing reports were not overwritten.");
+    }
+    throw error;
+  }
+}
+
+export function unreferencedMediaIds(ids: string[], records: Report[]) {
+  const referenced = new Set(records.flatMap((record) => record.field?.media.map((media) => media.id) ?? []));
+  return ids.filter((id) => !referenced.has(id));
+}
+
+// All current-version tabs use the same native lock across retention, report
+// commit and compensation. Without cross-tab isolation, never delete evidence.
+export async function withImportLock<T>(operation: (exclusive: boolean) => Promise<T>, locks?: Pick<LockManager, "request">) {
+  if (!locks) return operation(false);
+  return locks.request("aqualens-field-pack-import", { mode: "exclusive", signal: AbortSignal.timeout(30000) }, () => operation(true));
+}
+
 function mediaIndex(records: Report[]) {
   const index = new Map<string, NonNullable<Report["field"]>["media"][number]>();
   for (const report of records) for (const media of report.field?.media ?? []) {

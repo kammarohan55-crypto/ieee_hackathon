@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 // Public historical photographs, never seeded citizen observations.
 // Source metadata was checked against the Wikimedia Commons file pages.
 export const referencePhotos = [
@@ -49,12 +51,34 @@ export const referencePhotos = [
 ] as const;
 export type ReferencePhoto = (typeof referencePhotos)[number];
 
-// Source dates have day precision; never invent midnight or apply local offsets.
+const evidenceDateSchema = z.string().date();
+const recordedTimestampSchema = z.string().datetime({ offset: true });
+const localTimestampSchema = z.string().datetime({ local: true });
+const recordedTimestampFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/;
+const localTimestampFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?$/;
+export type EvidenceTimePrecision = "date_only" | "timestamp" | "zone_unknown" | "missing" | "invalid";
+
+/** Require an actual ISO calendar/clock and supplied zone; Date.parse alone normalizes impossible days. */
+export function validRecordedTimestamp(value: string) {
+  return recordedTimestampFormat.test(value) && recordedTimestampSchema.safeParse(value).success
+    && Number.isFinite(Date.parse(value));
+}
+export function evidenceTimePrecision(value: string): EvidenceTimePrecision {
+  if (!value.trim()) return "missing";
+  if (evidenceDateSchema.safeParse(value).success) return "date_only";
+  if (validRecordedTimestamp(value)) return "timestamp";
+  if (localTimestampFormat.test(value) && localTimestampSchema.safeParse(value).success) return "zone_unknown";
+  return "invalid";
+}
+
+// Source dates have day precision. Unknown zones and invalid inputs never acquire a device-local instant.
 export function displayEvidenceTime(value: string) {
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value))
+  const precision = evidenceTimePrecision(value);
+  if (precision === "date_only")
     return new Date(`${value}T12:00:00Z`).toLocaleDateString("en-GB", { dateStyle: "medium", timeZone: "UTC" }) + " · date only";
-  const time = Date.parse(value);
-  return Number.isFinite(time)
-    ? new Date(time).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }) + " UTC"
+  if (precision === "zone_unknown") return `${value.replace("T", " ")} · time zone unknown`;
+  if (precision === "invalid") return "Time not available · invalid date or time";
+  return precision === "timestamp"
+    ? new Date(value).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }) + " UTC"
     : "Time not available";
 }

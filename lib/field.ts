@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Report } from "./assessment";
 import { referencePhotos, type ReferencePhoto } from "./references";
+import { recordedProviderSchema } from "./ai-metadata";
 
 export const findingKinds = [
   "brown_appearance",
@@ -96,6 +97,7 @@ export const fieldSchema = z.object({
         visual: z
           .object({
             model: z.string(),
+            provider: recordedProviderSchema.optional(),
             at: z.string(),
             findings: visualSchema.shape.findings,
           })

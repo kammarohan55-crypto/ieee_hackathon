@@ -1,6 +1,15 @@
-# Copy to .dev.vars and add a key from https://aistudio.google.com/apikey
-# Use a Google project on the Free Tier. No paid provider is selected by the app.
-# Never paste keys into chat or commit them. Restart npm run dev after saving.
-GEMINI_API_KEY=""
-GEMINI_MODEL="gemini-3.8-flash"
+# Copy to ignored .dev.vars and add a server-side credential.
+# xAI (Grok): https://console.x.ai/ — not promised free; confirm account billing.
+# Groq: https://console.groq.com/ — separate service/key; account limits apply.
+# Never paste keys into chat or commit them. Restart the dev server after saving.
+AI_PROVIDER="xai"
+XAI_API_KEY=""
+XAI_MODEL="grok-4.20-0309-non-reasoning"
+XAI_VISUAL_MODEL=""
+GROQ_API_KEY=""
+# This current Groq vision + structured-output model is marked preview.
+GROQ_MODEL="qwen/qwen3.8-27b"
+GROQ_VISUAL_MODEL=""
+# Optional distinct configured provider; never retries by rotating provider keys.
+AI_FALLBACK_PROVIDER=""
 

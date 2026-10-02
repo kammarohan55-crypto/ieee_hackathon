@@ -1,8 +1,9 @@
 "use client";
 /* Browser-local Blob URLs must remain local; they cannot use the server image optimizer. */
 /* eslint-disable @next/next/no-img-element */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useEffectEvent, useRef, useState } from "react";
 import { z } from "zod";
+import { recordedProviderSchema, recordedProviderLabel } from "@/lib/ai-metadata";
 import {
   Camera,
   Video,
@@ -43,13 +44,16 @@ import {
   saveMedia,
   videoPoster,
 } from "@/lib/media-store";
+import type { ImageDimensions } from "@/lib/mission-control";
 
 type EvidenceImageProps = {
   media: MediaEvidence;
   className?: string;
   controls?: boolean;
   onAvailability?: (available: boolean) => void;
+  onDimensions?: (dimensions: ImageDimensions | null) => void;
 };
+type VideoRecordingSession = { recorder: MediaRecorder; timer: ReturnType<typeof setTimeout> | null; failed: boolean };
 
 export function EvidenceImage(props: EvidenceImageProps) {
   // Changing evidence must discard the previous preview, even if the next file
@@ -62,13 +66,15 @@ function LocalEvidenceImage({
   className = "",
   controls = true,
   onAvailability,
+  onDimensions,
 }: EvidenceImageProps) {
   const [url, setURL] = useState("");
   const [failed, setFailed] = useState(false);
+  const resetAvailability = useEffectEvent(() => { onAvailability?.(false); onDimensions?.(null); });
   useEffect(() => {
     let disposed = false,
       local = "";
-    onAvailability?.(false);
+    resetAvailability();
     readMedia(media.id)
       .then((blob) => {
         if (!disposed && blob) {
@@ -81,7 +87,7 @@ function LocalEvidenceImage({
       disposed = true;
       if (local) URL.revokeObjectURL(local);
     };
-  }, [media.id, onAvailability]);
+  }, [media.id]);
   return url && !failed ? (
     media.kind === "video" ? (
       <video
@@ -98,8 +104,8 @@ function LocalEvidenceImage({
         className={className}
         src={url}
         alt={`${media.origin === "illustration" ? "Synthetic illustration" : media.origin === "public_reference" ? "Credited historical reference photograph" : "Retained citizen photograph"}; unverified evidence`}
-        onLoad={() => onAvailability?.(true)}
-        onError={() => { setFailed(true); onAvailability?.(false); }}
+        onLoad={(event) => { onDimensions?.({ width: event.currentTarget.naturalWidth, height: event.currentTarget.naturalHeight }); onAvailability?.(true); }}
+        onError={() => { setFailed(true); onDimensions?.(null); onAvailability?.(false); }}
       />
     )
   ) : (
@@ -115,17 +121,23 @@ export function FieldStudio({
   value,
   onChange,
   aiReady,
+  aiRecipients = "the configured AI provider",
+  aiConsentScope,
+  onConsentChanged,
   onBusy,
 }: {
   value: FieldEvidence;
   onChange: (value: FieldEvidence) => void;
   aiReady: boolean;
+  aiRecipients?: string;
+  aiConsentScope?: string | null;
+  onConsentChanged?: () => void;
   onBusy: (busy: boolean) => void;
 }) {
   const video = useRef<HTMLVideoElement>(null),
     stream = useRef<MediaStream | null>(null),
-    recorder = useRef<MediaRecorder | null>(null),
-    timer = useRef<ReturnType<typeof setTimeout> | null>(null),
+    recordingSession = useRef<VideoRecordingSession | null>(null),
+    recordingStart = useRef<object | null>(null),
     latest = useRef(value),
     mounted = useRef(true),
     opening = useRef(false),
@@ -133,28 +145,36 @@ export function FieldStudio({
   useEffect(() => { latest.current = value; }, [value]);
   const [live, setLive] = useState(false),
     [starting, setStarting] = useState(false),
+    [clipStarting, setClipStarting] = useState(false),
     [recording, setRecording] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
-    [consent, setConsent] = useState(false),
+    [consentedScope, setConsentedScope] = useState<string | null>(null),
     [ghost, setGhost] = useState(""),
     [opacity, setOpacity] = useState(35),
     [aiId, setAIId] = useState("");
-  useEffect(() => { onBusy(busy || !!aiId || recording || starting); return () => onBusy(false); }, [busy, aiId, recording, starting, onBusy]);
+  const consent = !!aiConsentScope && consentedScope === aiConsentScope;
+  useEffect(() => { onBusy(busy || !!aiId || recording || starting || clipStarting); return () => onBusy(false); }, [busy, aiId, recording, starting, clipStarting, onBusy]);
+  function stopRecording() {
+    recordingStart.current = null;
+    const session = recordingSession.current;
+    if (session && session.timer !== null) { clearTimeout(session.timer); session.timer = null; }
+    if (session?.recorder.state === "recording") session.recorder.stop();
+  }
   const stop = () => {
-    if (recorder.current?.state === "recording") recorder.current.stop();
+    stopRecording();
+    setClipStarting(false);
     stream.current?.getTracks().forEach((t) => t.stop());
     stream.current = null;
     setLive(false);
-    if (timer.current) clearTimeout(timer.current);
   };
   useEffect(() => {
     mounted.current = true;
     return () => {
       mounted.current = false;
+      stopRecording();
       stream.current?.getTracks().forEach((t) => t.stop());
-      if (recorder.current?.state === "recording") recorder.current.stop();
-      if (timer.current) clearTimeout(timer.current);
+      stream.current = null;
     };
   }, []);
   useEffect(
@@ -245,8 +265,8 @@ export function FieldStudio({
     }
   }
   async function frame() {
-    const v = video.current!;
-    if (!v.videoWidth) throw new Error("Wait for the camera image to appear.");
+    const v = video.current;
+    if (!v?.videoWidth || !v.videoHeight) throw new Error("Wait for the camera image to appear.");
     const c = document.createElement("canvas");
     c.width = v.videoWidth;
     c.height = v.videoHeight;
@@ -267,30 +287,50 @@ export function FieldStudio({
     }
   }
   async function record() {
-    if (recording) {
-      recorder.current?.stop();
+    if (recordingSession.current) {
+      stopRecording();
       return;
     }
+    if (recordingStart.current || retaining.current || latest.current.media.length >= 4) return;
+    // Acquire the guard before canvas capture yields. Closing invalidates it.
+    const token = {};
+    recordingStart.current = token;
+    setClipStarting(true);
+    setError("");
+    let session: VideoRecordingSession | undefined;
     try {
       if (!window.MediaRecorder || !stream.current)
         throw new Error(
           "Video recording is unavailable. Take a photo instead.",
         );
+      const recordingStream = stream.current;
       const poster = await frame(),
         chunks: Blob[] = [];
-      const rec = new MediaRecorder(stream.current);
-      recorder.current = rec;
+      if (!mounted.current || recordingStart.current !== token || stream.current !== recordingStream) return;
+      const rec = new MediaRecorder(recordingStream);
+      const active: VideoRecordingSession = { recorder: rec, timer: null, failed: false };
+      session = active;
+      recordingSession.current = active;
+      const finish = () => {
+        if (active.timer !== null) { clearTimeout(active.timer); active.timer = null; }
+        if (recordingSession.current === active) {
+          recordingSession.current = null;
+          if (mounted.current) setRecording(false);
+        }
+      };
       rec.ondataavailable = (e) => {
         if (e.data.size) chunks.push(e.data);
       };
       rec.onerror = () => {
-        setError("Video capture failed. Try a photo.");
-        setRecording(false);
+        active.failed = true;
+        if (mounted.current) setError("Video capture failed. Try a photo.");
+        if (rec.state === "recording") rec.stop();
+        finish();
       };
       rec.onstop = () => {
-        if (timer.current) clearTimeout(timer.current);
-        if (!mounted.current) return;
-        setRecording(false);
+        finish();
+        if (!mounted.current || active.failed) return;
+        if (!chunks.length) { setError("The clip contained no recorded data. Try again or take a photo."); return; }
         void retain(
           new Blob(chunks, { type: rec.mimeType || "video/webm" }),
           "camera",
@@ -300,14 +340,25 @@ export function FieldStudio({
       };
       rec.start(1000);
       setRecording(true);
-      timer.current = setTimeout(() => {
+      active.timer = setTimeout(() => {
         if (rec.state === "recording") rec.stop();
       }, 10000);
     } catch (e) {
-      setError((e as Error).message);
+      if (session) {
+        session.failed = true;
+        if (session.timer !== null) clearTimeout(session.timer);
+        if (recordingSession.current === session) recordingSession.current = null;
+      }
+      if (mounted.current && recordingStart.current === token) { setRecording(false); setError((e as Error).message); }
+    } finally {
+      if (recordingStart.current === token) {
+        recordingStart.current = null;
+        if (mounted.current) setClipStarting(false);
+      }
     }
   }
   async function visual(media: MediaEvidence) {
+    if (!consent) { setError("Give consent for the displayed AI provider before sending a photo."); return; }
     setAIId(media.id);
     setError("");
     try {
@@ -317,17 +368,21 @@ export function FieldStudio({
       const r = await fetch("/api/visual", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image, consent }),
-        signal: AbortSignal.timeout(29000),
+        body: JSON.stringify({ image, consent, consentScope: aiConsentScope }),
+        signal: AbortSignal.timeout(30000),
       });
       const raw: unknown = await r.json();
+      if (r.status === 409 && z.object({ code: z.literal("consent_changed") }).safeParse(raw).success) {
+        setConsentedScope(null);
+        onConsentChanged?.();
+      }
       if (!r.ok)
         throw new Error(
           z.object({ error: z.string() }).safeParse(raw).data?.error ||
             "Visual AI unavailable",
         );
       const result = visualSchema
-        .extend({ model: z.string(), at: z.string().datetime() })
+        .extend({ model: z.string(), at: z.string().datetime(), provider: recordedProviderSchema.optional() })
         .parse(raw);
       const parsed = visualSchema.parse({ findings: result.findings });
       if (!mounted.current) return;
@@ -337,7 +392,7 @@ export function FieldStudio({
           m.id === media.id
             ? {
                 ...m,
-                visual: { ...parsed, model: result.model, at: result.at },
+                visual: { ...parsed, model: result.model, provider: result.provider, at: result.at },
               }
             : m,
         ),
@@ -421,7 +476,7 @@ export function FieldStudio({
               aria-label="Capture photo"
               className="shutter"
               onClick={capture}
-              disabled={busy || recording || value.media.length >= 4}
+              disabled={busy || recording || clipStarting || value.media.length >= 4}
             >
               <Camera />
             </button>
@@ -429,10 +484,10 @@ export function FieldStudio({
               type="button"
               className="btn glass"
               onClick={record}
-              disabled={busy || value.media.length >= 4}
+              disabled={busy || clipStarting || (!recording && value.media.length >= 4)}
             >
-              {recording ? <Square size={16} /> : <Video size={16} />}
-              {recording ? "Stop" : "10s clip"}
+              {recording ? <Square size={16} /> : clipStarting ? <LoaderCircle size={16} className="spin" /> : <Video size={16} />}
+              {recording ? "Stop" : clipStarting ? "Preparing clip…" : "10s clip"}
             </button>
           </div>
         )}
@@ -444,7 +499,7 @@ export function FieldStudio({
             className="sr-only"
             type="file"
             accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
-            disabled={busy || value.media.length >= 4}
+            disabled={busy || recording || clipStarting || value.media.length >= 4}
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) void retain(f, "upload", f.type.startsWith("video/") ? "video" : "photo");
@@ -493,12 +548,12 @@ export function FieldStudio({
       <label className="consent-row">
         <Checkbox
           checked={consent}
-          onCheckedChange={(v) => setConsent(v === true)}
+          onCheckedChange={(v) => setConsentedScope(v === true && aiConsentScope ? aiConsentScope : null)}
           disabled={!aiReady}
         />
-        Send selected photo to Gemini for candidate observations. Avoid faces or
-        private information; free-tier inputs may be used to improve Google
-        products.
+        Send the selected resized photo to {aiRecipients} for candidate visual
+        observations. Avoid faces or private information. Provider terms apply;
+        coordinates, readings and video are not sent.
       </label>
       {!aiReady && (
         <p className="micro-copy">
@@ -595,7 +650,7 @@ export function FieldStudio({
                     </p>
                   )}
                   <small>
-                    {m.visual.model} · {m.visual.at}
+                    {recordedProviderLabel(m.visual.provider)} · {m.visual.model} · {m.visual.at}
                   </small>
                 </div>
               )}

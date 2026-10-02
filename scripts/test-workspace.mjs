@@ -5,7 +5,8 @@ import { createReport, assess, decideIssue, validObservationTime, exportReport }
 import { referencePhotos, displayEvidenceTime } from "../.sites-runtime/domain-tests/references.mjs";
 import { evidenceTrail } from "../.sites-runtime/domain-tests/evidence-trail.mjs";
 import { newField, decisionReceipt, createReferenceDraft, assertReferenceRecord, exportCSV } from "../.sites-runtime/domain-tests/field.mjs";
-import { prepareImport, createFieldPack, mergeRecords, realRecords, digestBlob, searchReports, parseWorkspace } from "../.sites-runtime/domain-tests/workspace.mjs";
+import { prepareImport, createFieldPack, mergeRecords, realRecords, digestBlob, searchReports, parseWorkspace, commitImportMedia, unreferencedMediaIds, withImportLock } from "../.sites-runtime/domain-tests/workspace.mjs";
+import { weatherFreshness } from "../.sites-runtime/domain-tests/weather-freshness.mjs";
 
 // Authored test fixtures. They are never seeded into the website or described as real observations.
 const now = new Date("2026-09-29T10:00:00Z");
@@ -23,6 +24,90 @@ async function test(name, callback) {
 
 await test("No records are invented for an empty workspace", () => {
   assert.deepEqual(realRecords(parseWorkspace([])), []);
+});
+await test("Failed report commit removes only this import's new media", async () => {
+  const files = new Map([["existing", blob]]), storageError = new Error("Report quota exceeded");
+  await assert.rejects(() => commitImportMedia([{ id: "new", blob }], {
+    add: async (items) => { for (const item of items) files.set(item.id, item.blob); },
+    rollback: async (ids) => { for (const id of ids) files.delete(id); },
+  }, () => { throw storageError; }), (error) => error === storageError);
+  assert.deepEqual([...files.keys()], ["existing"]);
+});
+await test("Successful report commit retains media and does not compensate", async () => {
+  const order = [];
+  await commitImportMedia([{ id: "new", blob }], {
+    add: async () => { order.push("media"); },
+    rollback: async () => { throw new Error("Unexpected compensation"); },
+  }, () => { order.push("reports"); });
+  assert.deepEqual(order, ["media", "reports"]);
+});
+await test("An atomic media write failure never attempts the report commit or rollback", async () => {
+  await assert.rejects(() => commitImportMedia([{ id: "new", blob }], {
+    add: async () => { throw new Error("Media quota exceeded"); },
+    rollback: async () => { assert.fail("Failed atomic batch has nothing to compensate"); },
+  }, () => { assert.fail("Reports cannot precede retained originals"); }), /Media quota/);
+});
+await test("Cleanup failure explicitly retains a retryable field pack", async () => {
+  await assert.rejects(() => commitImportMedia([{ id: "new", blob }], {
+    add: async () => {}, rollback: async () => { throw new Error("Storage denied"); },
+  }, () => { throw new Error("Report quota exceeded"); }), /temporary media cleanup was unavailable.*Keep your field pack/);
+});
+await test("Metadata-only import does not open media storage", async () => {
+  let committed = false;
+  await commitImportMedia([], {
+    add: async () => { assert.fail("No media should be written"); },
+    rollback: async () => { assert.fail("No media should be removed"); },
+  }, () => { committed = true; });
+  assert.equal(committed, true);
+});
+await test("Report failure preserves newly restored bytes referenced by an existing record", async () => {
+  const files = new Map();
+  await assert.rejects(() => commitImportMedia([{ id: media.id, blob }, { id: "unused", blob }], {
+    add: async (items) => { for (const item of items) files.set(item.id, item.blob); },
+    rollback: async (ids) => { for (const id of unreferencedMediaIds(ids, [withMedia])) files.delete(id); },
+  }, () => { throw new Error("Report quota exceeded"); }), /quota/);
+  assert.deepEqual([...files.keys()], [media.id]);
+});
+await test("Cleanup protects references saved by another tab without touching unrelated IDs", () => {
+  assert.deepEqual(unreferencedMediaIds([media.id, "unused"], [base, withMedia]), ["unused"]);
+  assert.deepEqual(unreferencedMediaIds([], [withMedia]), []);
+});
+await test("Imports serialize through retention, report commit and cleanup", async () => {
+  let tail = Promise.resolve(), release;
+  const events = [], gate = new Promise((resolve) => { release = resolve; });
+  const locks = { request: (name, options, callback) => {
+    assert.equal(name, "aqualens-field-pack-import"); assert.equal(options.mode, "exclusive");
+    assert.ok(options.signal instanceof AbortSignal);
+    const next = tail.then(callback); tail = next.catch(() => {}); return next;
+  } };
+  const first = withImportLock(async (exclusive) => { assert.equal(exclusive, true); events.push("A retained"); await gate; events.push("A cleanup"); }, locks);
+  const second = withImportLock(async (exclusive) => { assert.equal(exclusive, true); events.push("B commit"); }, locks);
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.deepEqual(events, ["A retained"]); release(); await Promise.all([first, second]);
+  assert.deepEqual(events, ["A retained", "A cleanup", "B commit"]);
+});
+await test("Unsupported import locks expose the conservative no-cleanup path", async () => {
+  assert.equal(await withImportLock(async (exclusive) => exclusive), false);
+});
+await test("Failure to acquire a lock never starts an import", async () => {
+  await assert.rejects(() => withImportLock(async () => { assert.fail("Import must wait for isolation"); }, {
+    request: async () => { throw new Error("Lock unavailable"); },
+  }), /Lock unavailable/);
+});
+await test("Recent weather remains explicitly timestamp-based", () => {
+  assert.deepEqual(weatherFreshness("2026-09-29T09:30", "2026-09-29T09:45:00Z", now.getTime()), { stale: false, verified: true });
+});
+await test("Retained weather becomes stale as the session clock advances", () => {
+  const result = weatherFreshness("2026-09-29T09:30", "2026-09-29T09:45:00Z", now.getTime() + 3 * 3600000);
+  assert.equal(result.stale, true); assert.equal(result.verified, true);
+});
+await test("An old source timestamp is stale even after a recent fetch", () => {
+  assert.equal(weatherFreshness("2026-09-29T06:00", now.toISOString(), now.getTime()).stale, true);
+});
+await test("Malformed or implausibly future weather timestamps are unverified", () => {
+  for (const [modelTime, fetchedAt] of [["unknown", now.toISOString()], ["2026-09-29T09:30", "bad"], ["2026-09-30T09:30", now.toISOString()]]) {
+    assert.deepEqual(weatherFreshness(modelTime, fetchedAt, now.getTime()), { stale: true, verified: false });
+  }
 });
 await test("Migration excludes synthetic reports, illustrative media and synthetic coordinates", () => {
   const reports = [base, { ...base, original: { ...input, synthetic: true } }, { ...withMedia, field: { ...withMedia.field, media: [{ ...media, origin: "illustration" }] } }, { ...base, field: { ...newField(), coordinates: { lat: 0, lon: 0, method: "synthetic" } } }];

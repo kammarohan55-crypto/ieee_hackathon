@@ -1,0 +1,53 @@
+AquaLens actual field evidence — fill only what is known
+This is an empty collection template, not an observation or imported dataset.
+
+Stream/site and recognizable landmark:
+City/country:
+Actual visit date:
+Actual local time and precision (exact/approximate/unknown):
+Time zone or UTC offset at the visit:
+Photographer/observer name or approved pseudonym:
+
+Original files and what each shows:
+1. Wide stream/landmark photo filename:
+2. Water-surface detail photo filename:
+3. Bank/context photo filename:
+4. Optional short original clip filename:
+
+Your direct observations in your own words:
+Visibility/obstructions and what you did not check:
+Unknown or uncertain information:
+Bank/wildlife/human activity actually observed (optional):
+
+Location (optional; leave blank if unknown or unsuitable to share):
+WGS84 latitude / longitude:
+Device or manual source:
+Reported accuracy / uncertainty:
+
+Actual instrument readings (optional; no readings are required):
+Parameter / value / unit:
+Measurement time / method:
+Instrument make/model or identifier:
+Calibration check/date/standard, or unknown:
+Original instrument log/photo filename:
+
+Permission for use in the app, public demo video and repository:
+Actual owner granting permission:
+Allowed attribution:
+Licence if explicitly granted, and restrictions:
+Remove or protect identifying details or precise locations before public sharing.
+
+Optional repeat visit:
+Related earlier record / viewpoint:
+Separate visit date, time, zone and filenames:
+Viewpoint/light/weather differences actually known:
+
+Optional independent review:
+Reviewer approved name/pseudonym and actual role/qualification:
+Review date / records inspected / method:
+Actual judgments, disagreements and limitations:
+Consent to quote and credit:
+
+Keep unknown values unknown. Do not infer safety, pollutants, pathogens or
+ecological condition from a photograph. This sidecar retains provenance details
+that the current app has no dedicated editor for; it does not import automatically.

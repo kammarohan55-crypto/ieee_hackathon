@@ -1,9 +1,9 @@
 {
   "suite": "AquaLens development fixtures and domain invariants",
   "fixtureVersion": "1.0",
-  "generatedAt": "2026-10-01T07:44:12.479Z",
-  "passed": 86,
-  "total": 86,
+  "generatedAt": "2026-10-02T05:29:54.677Z",
+  "passed": 94,
+  "total": 94,
   "liveAI": false,
   "providerTests": "Mocked HTTP responses; no API call or ecological validation",
   "limitations": [
@@ -82,6 +82,22 @@
     },
     {
       "name": "Impossible calendar dates are rejected",
+      "passed": true
+    },
+    {
+      "name": "Evidence display preserves valid date-only precision without a midnight instant",
+      "passed": true
+    },
+    {
+      "name": "Evidence display converts only actual zoned timestamps to UTC",
+      "passed": true
+    },
+    {
+      "name": "A missing evidence time zone remains unknown instead of using this device's zone",
+      "passed": true
+    },
+    {
+      "name": "Evidence display never normalizes impossible dates, clocks or malformed timestamps",
       "passed": true
     },
     {
@@ -301,6 +317,14 @@
       "passed": true
     },
     {
+      "name": "Evidence graph never invents human review from an imported workflow flag",
+      "passed": true
+    },
+    {
+      "name": "Evidence graph preserves unusable confirmation as unknown rather than citizen approval",
+      "passed": true
+    },
+    {
       "name": "Map distinguishes unknown, invalid and valid polar coordinates",
       "passed": true
     },
@@ -354,6 +378,14 @@
     },
     {
       "name": "pH comparison omits invalid times and refuses mixed-site defaults",
+      "passed": true
+    },
+    {
+      "name": "AI consent names every configured recipient and rejects unknown provider metadata",
+      "passed": true
+    },
+    {
+      "name": "Saved reports retain actual provider while accepting older records with unknown provider",
       "passed": true
     }
   ]

@@ -6,11 +6,11 @@ import { createHash } from "node:crypto";
 
 // Read the locally configured secret only to detect accidental inclusion.
 // Never log its value, fingerprint, or matching text.
-let key = "";
+let keys = [];
 try {
   const vars = await readFile(".dev.vars", "utf8");
-  const match = vars.match(/^GEMINI_API_KEY\s*=\s*(.*)$/m);
-  key = (match?.[1] || "").trim().replace(/^(["'])(.*)\1$/, "$2");
+  keys = [...vars.matchAll(/^(?:GEMINI|XAI|GROQ)_API_KEY\s*=\s*(.*)$/gm)]
+    .map((match) => match[1].trim().replace(/^(["'])(.*)\1$/, "$2")).filter(Boolean);
 } catch { /* A no-key installation is valid. */ }
 const ignored = new Set(["node_modules", "dist", ".git", ".wrangler", ".sites-runtime", ".next", ".vinext", ".agents", ".codex", "outputs", "work"]);
 async function walk(directory) {
@@ -32,7 +32,7 @@ assert.ok(source.length > 0 && built.length > 0, "Source and production build mu
 const leaks = [];
 for (const file of [...source, ...built]) {
   const bytes = await readFile(file);
-  if (key && bytes.includes(Buffer.from(key))) leaks.push(file);
+  if (keys.some((key) => bytes.includes(Buffer.from(key)))) leaks.push(file);
 }
 assert.deepEqual(leaks, [], "Configured credential found outside ignored local configuration; do not release");
 const ignoredText = await readFile(".gitignore", "utf8");
@@ -59,9 +59,9 @@ await mkdir(".sites-runtime", { recursive: true });
 await writeFile(".sites-runtime/source-files.json", JSON.stringify(source, null, 2));
 const report = {
   generatedAt: new Date().toISOString(), sourceFiles: source.length, buildFiles: built.length,
-  configuredSecretChecked: !!key, configuredSecretMatches: leaks.length,
+  configuredSecretChecked: keys.length > 0, configuredSecretsChecked: keys.length, configuredSecretMatches: leaks.length,
   buildAssetsPresent: true,
-  limitations: ["Checks this installation's configured Gemini secret, not every possible credential pattern.", "Does not validate browser permissions, service worker installation, deployment or scientific accuracy."],
+  limitations: ["Checks locally configured Gemini/xAI/Groq secrets, not every possible credential pattern.", "Does not validate browser permissions, service worker installation, deployment or scientific accuracy."],
 };
 await writeFile(".sites-runtime/release-check.json", JSON.stringify(report, null, 2));
 console.log(JSON.stringify(report));

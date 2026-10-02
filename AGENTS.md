@@ -15,7 +15,7 @@
 - Keep API keys out of client code, committed files, exported reports, and screenshots.
 
 ## Scope and handoff
-- Primary track: Track 3, AI-Supported Assessment. Working name: StreamCheck. Neither name uniqueness nor organizer endorsement is established.
+- Current primary submission decision: Track 1, Citizen Science UX, with Track 3 assessment, Track 2 context and Track 4 storytelling as supporting capabilities. The user authorized broader track selection; this is a project decision, not a claim about winning odds or eligibility in multiple tracks. Working names: AquaLens / StreamCheck; neither name uniqueness nor organizer endorsement is established.
 - Complete the narrow citizen-to-reviewer workflow before optional features. Do not add forecasting, custom model training, or FHIR claims without evidence and a scope decision.
 - Run meaningful checks appropriate to changes; report failures and untested behavior plainly.
 - At the end of each substantial work session, update `PROJECT_CONTEXT.md`: completed work, verification results, decisions, open issues, and exact next step. Replace stale status instead of growing a transcript.

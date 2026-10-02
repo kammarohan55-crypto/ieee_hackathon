@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { writeFile } from "node:fs/promises";
 import { assess, createReport, reviewReport, decideIssue, exportReport } from "../.sites-runtime/domain-tests/assessment.mjs";
 import { newField, addPhotoAnnotation, assertPhotoAnnotations, createReferenceDraft, recordVisualJudgment } from "../.sites-runtime/domain-tests/field.mjs";
-import { evidenceFrames, scopedRecords, workspaceAnalytics, recordSignals, reviewQueue, pendingVisualCount, evidenceReplay } from "../.sites-runtime/domain-tests/mission-control.mjs";
+import { evidenceFrames, imagePoint, scopedRecords, workspaceAnalytics, recordSignals, reviewQueue, pendingVisualCount, evidenceReplay } from "../.sites-runtime/domain-tests/mission-control.mjs";
 import { evidenceTrail } from "../.sites-runtime/domain-tests/evidence-trail.mjs";
 import { referencePhotos } from "../.sites-runtime/domain-tests/references.mjs";
 import { createFieldPack, prepareImport, parseWorkspace, digestBlob } from "../.sites-runtime/domain-tests/workspace.mjs";
@@ -38,6 +38,20 @@ await test("An empty collection has no invented metrics or activity", () => {
   assert.ok(stats.activity.every((point) => point.count === 0));
   assert.ok(stats.coverage.every((item) => item.count === 0 && item.total === 0));
 });
+await test("Review coverage and queue require usable retained review and confirmation events", () => {
+  const source = { ...base, status: "reviewed", reviewHistory: [] };
+  assert.equal(workspaceAnalytics([source], now).coverage.find((item) => item.key === "reviewed").count, 0);
+  assert.match(reviewQueue([source])[0].reason, /history needs inspection/);
+  const reviewed = reviewReport(base, "reviewed", "Authored real-event fixture", now);
+  assert.equal(workspaceAnalytics([reviewed], now).coverage.find((item) => item.key === "reviewed").count, 1);
+  reviewed.confirmedAt = "2026-09-28T09:00";
+  assert.equal(workspaceAnalytics([reviewed], now).coverage.find((item) => item.key === "confirmed").count, 0);
+  assert.match(reviewQueue([reviewed])[0].reason, /confirmation needs inspection/);
+});
+await test("Activity does not normalize impossible days or supply a missing time zone", () => {
+  for (const createdAt of ["2026-09-28T09:00", "2026-09-31T09:00:00Z"])
+    assert.ok(workspaceAnalytics([{ ...base, createdAt }], now).activity.every((day) => day.count === 0));
+});
 await test("Bundled photographs are source frames, not saved observations", () => {
   const frames = evidenceFrames([]);
   assert.equal(frames.length, 3);
@@ -64,8 +78,33 @@ await test("Photo desk keeps saved source association and does not treat video a
   assert.equal(new Set(frames.map((frame) => frame.key)).size, frames.length);
 });
 await test("Legacy unknown image dimensions use a valid inspection ratio", () => {
-  const frame = evidenceFrames([{ ...photoRecord, field: { ...photoRecord.field, media: [{ ...media, width: 0, height: -1 }] } }])[0];
-  assert.equal(frame.width / frame.height, 4 / 3);
+  for (const dimensions of [{ width: 0, height: -1 }, { width: 0, height: 1000 }, { width: 2000, height: 0 }]) {
+    const original = { ...media, ...dimensions };
+    const frame = evidenceFrames([{ ...photoRecord, field: { ...photoRecord.field, media: [original] } }])[0];
+    assert.equal(frame.width / frame.height, 4 / 3);
+    assert.deepEqual(frame.media, original);
+  }
+});
+await test("Image coordinates exclude letterbox padding and preserve actual image edges", () => {
+  const rect = { left: 10, top: 20, width: 400, height: 300 }, dimensions = { width: 2000, height: 1000 };
+  assert.deepEqual(imagePoint(rect, dimensions, 10, 70), { x: 0, y: 0 });
+  assert.deepEqual(imagePoint(rect, dimensions, 410, 270), { x: 1, y: 1 });
+  assert.deepEqual(imagePoint(rect, dimensions, 210, 170), { x: .5, y: .5 });
+  assert.equal(imagePoint(rect, dimensions, 210, 69), null);
+  assert.equal(imagePoint(rect, dimensions, 210, 271), null);
+});
+await test("Portrait photo coordinates exclude side padding and follow zoomed bounds", () => {
+  const rect = { left: -50, top: -100, width: 600, height: 400 }, dimensions = { width: 1000, height: 2000 };
+  assert.deepEqual(imagePoint(rect, dimensions, 150, -100), { x: 0, y: 0 });
+  assert.deepEqual(imagePoint(rect, dimensions, 350, 300), { x: 1, y: 1 });
+  assert.equal(imagePoint(rect, dimensions, 149, 0), null);
+  assert.equal(imagePoint(rect, dimensions, 351, 0), null);
+});
+await test("Unknown, zero-size and non-finite image geometry cannot produce a photo pin", () => {
+  const rect = { left: 0, top: 0, width: 400, height: 300 }, dimensions = { width: 1000, height: 800 };
+  for (const update of [{ width: 0 }, { height: -1 }, { width: Infinity }]) assert.equal(imagePoint(rect, { ...dimensions, ...update }, 100, 100), null);
+  for (const update of [{ width: 0 }, { height: -1 }, { left: NaN }]) assert.equal(imagePoint({ ...rect, ...update }, dimensions, 100, 100), null);
+  assert.equal(imagePoint(rect, dimensions, NaN, 100), null);
 });
 await test("Coordinates coverage excludes historical source reviews", () => {
   const located = { ...base, id: "located", field: { ...base.field, coordinates: { lat: 0, lon: 0, method: "manual" } } };

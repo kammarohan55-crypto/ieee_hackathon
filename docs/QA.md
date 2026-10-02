@@ -1,18 +1,20 @@
-# Current verification — visual mission control
+# Current verification — presentation, evidence actions and geographic context
 
-2026-10-01, branch `improve/visual-mission-control`, based on GitHub main `abd7190`. Read Git and PROJECT_CONTEXT.md for delivery status.
+2026-10-02 Windows/main, based on082f79c. Changes local/uncommitted/unpushed. See PROJECT_CONTEXT and FEATURE_AUDIT.
 
-- `npm test`: 86/86 domain assertions + 28/28 field-pack/source checks + 29/29 visual-workspace checks + 21/21 mocked API contracts = **164/164**.
-- `npm run typecheck`, `npm run lint`, ten PostCSS stylesheet parses and `git diff --check`: pass.
-- `npm run build`: passes. Production offline cache contains 24 assets (approximately 4.53 MB). The existing >500 kB chunk warning remains.
-- `npm run verify:release`: passes. Worker, map licence, PWA assets, unchanged credited photographs and all four generated test reports are present. This fresh checkout has no Gemini secret configured, so configured-secret matching was not exercised.
-- No server started, app visited, app screenshot taken, live provider called or deployment performed. The supplied visual-reference screenshots were inspected. App/device testing remains assigned to the user by the existing project preference.
+- Final complete `npm test`: **324/324** — 94 domain, 42 workspace/recovery/weather, 34 Mission control, 40 mocked API, 15 capture/photo, 14 Lab, 21 map, 15 presentation/visit, 20 Decision brief, 29 evidence actions. Four bundled reports cover 210 checks; another 114 run through npm test. These are authored software checks, not model/environment scores.
+- Final TypeScript and full ESLint pass, **zero warnings**. All 11 application stylesheets parse with PostCSS; git diff --check passes.
+- Final production build passes: 24 offline assets / 4,625,396 bytes. Existing >500kB chunk warning and Vinext static-route-classification notice remain. Performance/device/offline installation unmeasured.
+- Final release check passes:208 source/89 built files, both locally configured keys checked with zero matches, required assets/credits/photo digests and current non-live reports present. Scanner covers configured Gemini/xAI/Groq values without displaying them, not every possible credential or vulnerability. No deployment/device/security certification is implied.
+- Server remains stopped; zero5173 listeners rechecked. No app/browser/device inspection or deployment this pass. The user owns website QA.
+- Authorized xAI terminal synthetic smoke: model-list and text completion returnedHTTP403, categorized billing/credits-related. Rule fallback succeeded; no photo sent, successful live xAI/Groq response unverified. Sanitized ignored smoke log only. This is distinct from historical Gemini runs.
+- Keyless NASA capability/tile check verified one dated public JPEGHTTP200/CORS. WorldCover/Terrascope capabilities and two anonymous historical2021RGB PNG tiles returnedHTTP200/CORS; the advertised REST template failed400 and the implemented KVP endpoint was verified. These checks do not prove every date/location or browser coverage. Public organizer platform was inspected independently; authenticated tools/export contents/monitoring methods/reuse licenses remain unverified.
 
-The 29 new checks cover empty/non-synthetic collection metrics, historical/field separation, valid source frames, UTC saving activity, coverage denominators, retained question/AI counts, review-queue ordering, immutable human photo notes, position/text/media validation, review reopening, old-record compatibility, original-byte field-pack round trips, rejected foreign/duplicate note IDs, graph links and chronological replay. These fixtures run against actual domain code; they are never seeded as observations in the app.
+Source fixes carried forward: comparison A/B targets; video guards/timers/cancellation; image-native pin geometry/padding; dark contrast/focus; strict engineering summary schema; import compensation/cooperative locks; reference retry/reload; weather age. New regressions cover provider grounding/failure/explicit fallback, no secret echo, recipient/model consent scope changes, stale photo consent, satellite UTC/date/bounds/fallback, first-coordinate refit and immediate marker selection.
 
-Earlier source tests decode the three bundled JPEGs, match digests, preserve attribution, reject changed credits or invented visit context, and keep dates at day precision. Existing transfer/API checks cover corrupt bytes, missing media, duplicates/conflicts, capacity, weather coordinates/units/cache separation and provider failures.
+Latest features: read-only four-chapter presentation and unchanged-text Markdown brief; actual-record evidence actions; explicit parent/child visits and fresh draft boundaries; Evidence Lab's four-stage Decision brief with real human reasons/gaps; optional on-demand diagnostics; historical annual Sentinel-2 landscape, detail-range/coverage states and reduced-motion zoom. The advanced river view moved under Field kit, preserving its schematic label. A status field alone must not establish human review without a usable retained event; imported history/time precision is handled explicitly.
 
-Manual checks still required: new photo zoom/grid/pins, keyboard placement, wipe comparison, flow selection, replay controls, Insights filters/matrix, 320/390/1440px layout and focus; actual downloads/import in a second profile; phone camera/video/voice/GPS; consented live AI; map/explicit weather; production offline installation. See DEMO_GUIDE.md. Software checks do not establish these browser outcomes or ecological accuracy.
+Limits: mocked hooks/recorders/MapLibre/timers/stores establish code/event contracts; source contrast does not measure pixels. Best-effort cross-store recovery is not atomic/shared/authenticated. User checks remain: mobile camera/video/voice/GPS; pins/comparison/replay/Lab/graph; presentation keyboard/focus/close/export; action filters/linked-visit navigation; 320/390/1440px layouts; actual NASA/annual-landscape WebGL coverage/detail/error/fallback; native downloads/second-profile import/IndexedDB quota/locks; consented live AI; installed production offline use. Old pin positions remain for manual review. Authored checks do not validate ecological or model accuracy. See DEMO_GUIDE and REAL_DATA_READINESS.
 
 ---
 
@@ -57,4 +59,4 @@ DEMO_GUIDE.md provides exact actions/expected states and a bug template.
 - Production PWA install and offline navigation after a controlled online visit; dev mode is not proof of install/offline behavior.
 - No automated accessibility scanner, assistive-technology study, independent benchmark, ecologist review or production security assessment.
 
-Screenshots/build logs remain in ignored outputs/runtime folders. Failed provider runs are retained. The previously user-requested dev process was last started as PID13456; this pass did not start/restart or visit it. No current server-health claim is made.
+Screenshots/build logs remain in ignored outputs/runtime folders. Failed provider runs are retained. Runtime status for the current October2 session appears at the top of this ledger.

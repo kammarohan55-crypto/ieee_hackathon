@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { fieldSchema, type FieldEvidence } from "./field";
+import { recordedProviderSchema } from "./ai-metadata";
 
 export const appearanceValues = [
   "unsure",
@@ -47,6 +48,7 @@ export type Assessment = {
   mode: "rules" | "ai";
   notice: string;
   model?: string;
+  provider?: "xai" | "groq" | "gemini";
   elapsedMs?: number;
   version: string;
 };
@@ -381,6 +383,7 @@ export const reportSchema = z.object({
     mode: z.enum(["rules", "ai"]),
     notice: z.string(),
     model: z.string().optional(),
+    provider: recordedProviderSchema.optional(),
     elapsedMs: z.number().optional(),
     version: z.string(),
   }),

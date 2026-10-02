@@ -1,9 +1,9 @@
 {
   "suite": "AquaLens visual workspace logic",
-  "generatedAt": "2026-10-01T07:44:12.800Z",
+  "generatedAt": "2026-10-02T05:29:55.299Z",
   "liveAI": false,
-  "passed": 29,
-  "total": 29,
+  "passed": 34,
+  "total": 34,
   "limitations": [
     "Authored software fixtures, not environmental measurements or model validation.",
     "No browser rendering, pointer placement, map, camera or live-provider test."
@@ -11,6 +11,14 @@
   "results": [
     {
       "name": "An empty collection has no invented metrics or activity",
+      "passed": true
+    },
+    {
+      "name": "Review coverage and queue require usable retained review and confirmation events",
+      "passed": true
+    },
+    {
+      "name": "Activity does not normalize impossible days or supply a missing time zone",
       "passed": true
     },
     {
@@ -27,6 +35,18 @@
     },
     {
       "name": "Legacy unknown image dimensions use a valid inspection ratio",
+      "passed": true
+    },
+    {
+      "name": "Image coordinates exclude letterbox padding and preserve actual image edges",
+      "passed": true
+    },
+    {
+      "name": "Portrait photo coordinates exclude side padding and follow zoomed bounds",
+      "passed": true
+    },
+    {
+      "name": "Unknown, zero-size and non-finite image geometry cannot produce a photo pin",
       "passed": true
     },
     {

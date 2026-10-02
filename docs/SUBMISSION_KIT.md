@@ -1,56 +1,57 @@
 # AquaLens — submission working copy
 
-Updated 2026-10-01. This is a draft, not a submitted entry. Public source: https://github.com/kammarohan55-crypto/ieee_hackathon (source retrieved Oct1). Fill in team details and real demo/video URLs before submission. Recheck the organizer's current rules and deadline in SOURCES.md.
+Updated 2026-10-02. Draft only: no submission, deployment or video is established. Repository: https://github.com/kammarohan55-crypto/ieee_hackathon . Current local work is uncommitted/unpushed; do not assume public source matches it. Fill in actual team credits, tested judge-access URL and video link.
 
-## Project description
+## Positioning
 
-**Tagline:** A stream observation is a starting point. Keep the evidence and the uncertainty together.
+**Primary project decision: Track 1 — Citizen Science UX.** Track 3 assessment, Track 2 context and Track 4 storytelling support this workflow. The official overview asks for one chosen track; this framing is not evidence of winning odds or eligibility in several categories. The user authorized reconsidering the original Track 3 focus. See SOURCES S30.
 
-AquaLens helps citizens describe what they observed without turning appearance into an unsupported diagnosis. It brings original photos, field notes and instrument readings into a guided assessment, asks focused questions, and makes every AI suggestion and human judgment inspectable.
+**Tagline:** Keep stream evidence and uncertainty together, from the first photograph to the next visit.
 
-The prototype supports OneAquaHealth Track 3 through AI-assisted clarification and human oversight. A citizen can retain a photo or short silent video, inspect local image-quality warnings, optionally request visual AI candidates, record instrument metadata, resolve questions and explicitly confirm a report. A reviewer then inspects the original evidence, records agreement, disagreement or uncertainty, and exports a Decision Receipt or a portable field pack with the original media. River stories offer an explicitly illustrative evidence narrative; the geographic map plots supplied coordinates only. Evidence Lab exposes saved source quotes, local rule replay and human decisions without mutating the record. Follow-up missions preserve the source relationship. A field kit guides three useful photo views, optional One Health notes retain bank/wildlife/community context, and a checked import workflow enables file-based handoff between browsers. Fresh workspaces contain no seeded observations.
+AquaLens guides a citizen from original photographs, notes and optional instruments to an inspectable human-reviewed record. Local checks flag missing context, contradictions and unsupported claims. Optional consented AI can suggest possible visual observations and focused questions; suggestions never replace the citizen's words or become environmental diagnoses. Explicit citizen confirmation and reasoned local reviewer decisions preserve disagreement and uncertainty.
 
-The dark Mission control workspace now offers source-photo inspection, non-destructive human note pins, a manual comparison slider, an interactive evidence flow and retained-event replay. Insights makes saved-record coverage and pending review visible without manufacturing river measurements. Three credited historical river photos support an immediate photo-review demo; their source dates remain distinct from current visits.
+The complete guided local workflow remains useful during provider failure. Its strongest contribution alongside OneAquaHealth's published geographic tools is a portable, understandable evidence handoff rather than an invented ecological grade.
 
-## What distinguishes it
+## Demonstrable capabilities
 
-- **A decision trail:** original notes and AI candidates survive human disagreement. A new visual judgment reopens a completed review while preserving earlier decisions.
-- **Uncertainty is usable:** “unknown” remains a legitimate answer. Visual confidence is explicitly uncalibrated; the quality score measures evidence completeness only.
-- **Useful during service failure:** local capture, checks, review and exports work independently of live AI. Failed AI requests do not produce invented findings.
-- **Portable originals:** field packs preserve actual photo/video bytes with SHA-256 checks, explicit import previews and conflict protection. No shared backend is required to hand evidence to another reviewer.
-- **Traceable follow-ups:** a new mission links to its source report and retains the original record relationship. Old readings and coordinates are not silently reused as new evidence.
+- Field notebook: camera/photo/short silent-video capture and upload; local image-usability checks; manual repeat-photo guide; explicit adoption of voice transcript; optional instrument and One Health context. Device support and permissions apply.
+- Assessment: transparent rule checks, bounded optional text/image AI, measurement metadata/input checks, contradictions, adaptive clarification and explicit citizen confirmation. Observation Quality is an app evidence-completeness rubric, never river health.
+- Human oversight: original source/AI/human labels, agreement/disagreement/uncertainty with reasons, review history and reopening when judgments change. Local demo identities are not authenticated users.
+- Evidence Lab: saved-record Decision Brief, exact source quotes, retained limits and current review completeness. Local rule replay and authored engineering reports are optional diagnostics, not another live AI evaluation.
+- Presentation: four read-only chapters — original evidence, checks/clarification, human judgment, receipt — and a readable Markdown brief. Missing or inconsistent stages remain visible.
+- Repeat engagement: Evidence Actions uses actual records to explain review/fresh-evidence tasks; linked visits use explicit IDs. A fresh draft copies no old photo, reading, note, GPS or time as new evidence.
+- Geographic context: supplied-coordinate markers, dated NASA Terra/MODIS imagery, historical 2021 Sentinel-2 annual RGB landscape context and street fallback. Source/year/scale/coverage limits travel visibly; no NDWI, current scene claim or satellite water grade.
+- Evidence exploration: source-photo pins, retained event timeline, manual before/after comparison, provenance graph and saved-record Insights. Schematic river visualization is secondary under Field kit and is not a physical digital twin.
+- Portable handoff: JSON/CSV/GeoJSON, FAIR-oriented metadata and checked original-media field packs. Browser-first local storage and a production offline shell; network maps/weather/AI require connectivity.
 
-## Implementation and verified evidence
+Three licensed historical Wikimedia photographs support a clearly labeled review demonstration. Fresh workspaces have zero seeded visits. Historical photographs and authored software fixtures are never current environmental measurements.
 
-React/TypeScript with Vinext, Cloudflare Worker routes, Zod validation, Gemini text/visual adapters, idb for local original-media storage, MapLibre/OpenFreeMap, React Flow, Recharts and Workbox. No shared database or custom model training is required for the prototype.
+## Architecture and verification
 
-Engineering checks: 86 authored domain assertions, 28 field-pack integrity checks, 29 visual-workspace checks and 21 mocked route-contract tests pass, with TypeScript and lint checks. These cover evidence preservation, review gates, malformed provider responses, opt-in boundaries, errors, rate limits, exports and provenance. They are development tests, not independent scientific validation.
+React/TypeScript, Vinext, Cloudflare Worker API routes and Zod; ignored server-only xAI/Groq credentials; idb/IndexedDB for original bytes and localStorage for records; existing Radix, MapLibre, React Flow, Recharts and Workbox. No new package or custom model training for this pass. Dependency/data notices are in DEPENDENCIES and SATELLITE_CONTEXT.
 
-The latest recorded real Gemini text smoke run completed 3/3 synthetic scenarios; earlier failures are retained. Successful live visual analysis has not yet been verified because tested requests received provider 503 responses. Keep that distinction in the presentation.
+Read QA.md and PROJECT_CONTEXT.md for final current software check/build/release counts. These are authored development tests with explicit mocks, not independent model accuracy or ecological validation. The October2 synthetic xAI smoke returned HTTP403 categorized as billing/credits-related; rule fallback worked. Successful current xAI/Groq text/image responses remain unverified. Earlier Gemini smoke results are historical and do not establish current availability.
 
-## Four-minute demonstration
+The app stayed stopped during this implementation. Browser/device responsiveness, camera/video/voice, WebGL, downloads/import, keyboard/assistive use and installed offline behavior still need the user's walkthrough. No successful deployment is recorded.
 
-Use the real-photo workflow in [DEMO_GUIDE.md](DEMO_GUIDE.md). The three licensed historical photos are bundled for the photo-review path. For a firsthand field demo, prepare your original stream photos with actual place/time and your own note; [MEDIA_CHECKLIST.md](MEDIA_CHECKLIST.md) gives the exact shot list. Start with Mission control, inspect a source photo and create a confirmed review. Add a human note pin, inspect the replay and evidence flow, then show Insights and export/restore the field pack in another browser.
+## Four-minute demo
 
-The app does not contain synthetic sample buttons or a generated evidence image. If the real note produces no clarification, show that result honestly. If optional AI is unavailable, retain the original evidence and continue with local rules. A provider error cannot become an invented AI result.
+Use DEMO_GUIDE.md: show one actual or clearly labeled historical observation, original words, any real question, explicit confirmation and a reasoned review. Open Present this evidence, show the retained stages, inspect the Decision Brief and export a receipt. Show linked follow-up actions and map context if genuine coordinates exist; otherwise demonstrate the truthful empty map/optional metadata. Do not manufacture AI findings, measurements or a completed review to fill the script.
+
+A role-switching demo must disclose that one person is acting as citizen and local reviewer. Explain the historical imagery year and manual comparison limits. Finish with portable original-media handoff and remaining uncertainty.
 
 ## Rubric evidence
 
 | Criterion | Concrete evidence to show |
-|---|---|
-| Impact and alignment | Citizen-to-reviewer example that prevents an appearance claim becoming an unsupported conclusion |
-| Innovation | Preserved disagreements, explicit uncertainty and source-linked follow-ups |
-| Technical implementation | Running workflow, API contracts, immutable decisions, retained media and portable exports |
-| Usability | Mobile field interface, accessible controls, focused questions and visible error states |
-| Feasibility | Browser-first prototype, documented API boundaries, open-source dependencies and a clear path to authenticated collaboration |
+| --- | --- |
+| Impact/alignment | Clearer citizen evidence handed to a reviewer without an appearance-based diagnosis |
+| Innovation | Preserved disagreements, actionable uncertainty and explicitly linked repeat visits |
+| Implementation | Full local workflow, schema/provider failure handling, retained originals and checked exports |
+| Usability | Guided field entry, focused presentation, transparent labels and truthful empty/error states |
+| Feasibility | Browser-first architecture, open-source reuse, provenance and documented integration limits |
 
-See DEMO_GUIDE.md for exact buttons, manual checks and a problem-report template. The user-supplied brief focused this pass on Track 3 oversight; it is not fresh verification of eligibility or prizes. Latest interface and browser storage/import flows have code/build verification only; device checks remain manual.
+These are presentation choices, not awarded scores.
 
-## Before submission
+## Remaining submission gates
 
-- Public source repository verified on Sept30; dependency notices included. Select a license for original project code before submission.
-- Complete team invitations and credits using actual contributor names and roles.
-- Provide a verified deployment URL with the intended judge-access settings; no successful deployment is recorded yet.
-- Record the actual 3–5 minute video. The script above is not a video deliverable.
-- Complete physical camera/video/voice and offline walkthroughs on intended devices; update QA.md with observed results.
-- Keep the latest provider availability limitations in the submission. No prediction of winning or invented evaluation score is justified.
+Real original field evidence and permission; actual team invitations/contributor credits and licence choice for original code; user device QA; usable AI access if presenting live AI; final source commit/push; tested judge-access delivery; actual 3–5 minute video and Devpost submission confirmation. REAL_DATA_READINESS.md provides the exact evidence package. No secret should be pasted into chat or public files. Recheck the official deadline/eligibility before submission; the October2 source check found an October4 9PM PDT extension, with older rule text still conflicting.

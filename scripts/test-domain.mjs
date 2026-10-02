@@ -7,7 +7,7 @@ import ts from "typescript";
 // Compile the real domain code, with no browser or provider involved.
 const dir = path.resolve(".sites-runtime/domain-tests");
 await mkdir(dir, { recursive: true });
-for (const name of ["mission-control", "references", "field", "assessment", "gemini", "atlas", "river-observatory", "evidence-trail", "evidence-lab", "geographic", "workspace"]) {
+for (const name of ["ai-metadata", "mission-control", "references", "field", "assessment", "gemini", "atlas", "river-observatory", "evidence-trail", "evidence-lab", "geographic", "workspace", "weather-freshness"]) {
   const source = await readFile(`lib/${name}.ts`, "utf8");
   const output = ts
     .transpileModule(source, {
@@ -19,8 +19,9 @@ for (const name of ["mission-control", "references", "field", "assessment", "gem
     .outputText.replace('from "./assessment"', 'from "./assessment.mjs"')
     .replace('from "./field"', 'from "./field.mjs"')
     .replace('from "./atlas"', 'from "./atlas.mjs"')
-    .replace('from "./references"', 'from "./references.mjs"');
-  await writeFile(path.join(dir, `${name}.mjs`), output);
+    .replace('from "./references"', 'from "./references.mjs"')
+    .replace('from "./evidence-lab"', 'from "./evidence-lab.mjs"');
+  await writeFile(path.join(dir, `${name}.mjs`), output.replaceAll('from "./ai-metadata"', 'from "./ai-metadata.mjs"'));
 }
 const {
   assess,
@@ -32,6 +33,7 @@ const {
   mergeAI,
   reportSchema,
 } = await import(pathToFileURL(path.join(dir, "assessment.mjs")));
+const { displayEvidenceTime, evidenceTimePrecision, validRecordedTimestamp } = await import(pathToFileURL(path.join(dir, "references.mjs")));
 const { assessWithGemini } = await import(
   pathToFileURL(path.join(dir, "gemini.mjs"))
 );
@@ -173,6 +175,32 @@ await test("Impossible calendar dates are rejected", () => {
   assert.equal(validObservationTime("2026-02-30T09:00:00Z", now), false);
   assert.equal(validObservationTime("2026-02-29T09:00:00Z", now), false);
   assert.equal(validObservationTime("2024-02-29T09:00:00Z", now), true);
+});
+await test("Evidence display preserves valid date-only precision without a midnight instant", () => {
+  assert.equal(evidenceTimePrecision("2024-02-29"), "date_only");
+  assert.equal(displayEvidenceTime("2024-02-29"), "29 Feb 2024 · date only");
+  assert.equal(validRecordedTimestamp("2024-02-29"), false);
+});
+await test("Evidence display converts only actual zoned timestamps to UTC", () => {
+  assert.equal(evidenceTimePrecision("2026-10-01T00:15:00+05:30"), "timestamp");
+  assert.equal(displayEvidenceTime("2026-10-01T00:15:00+05:30"), "30 Sept 2026, 18:45 UTC");
+  assert.equal(validRecordedTimestamp("2026-10-01T09:00Z"), true);
+});
+await test("A missing evidence time zone remains unknown instead of using this device's zone", () => {
+  for (const value of ["2026-10-01T09:00", "2026-10-01T09:00:00.123"]) {
+    assert.equal(evidenceTimePrecision(value), "zone_unknown");
+    assert.equal(displayEvidenceTime(value), `${value.replace("T", " ")} · time zone unknown`);
+    assert.equal(validRecordedTimestamp(value), false);
+  }
+});
+await test("Evidence display never normalizes impossible dates, clocks or malformed timestamps", () => {
+  for (const value of ["2026-02-29", "2026-02-30T09:00:00Z", "2026-02-31T09:00", "2026-10-01T24:00:00Z", "2026-10-01T09:60:00Z", "2026-10-01T09:00:60Z", "2026-10-01T09:00:00+24:00", "7", "not a time"]) {
+    assert.equal(evidenceTimePrecision(value), "invalid", value);
+    assert.match(displayEvidenceTime(value), /invalid date or time/, value);
+    assert.equal(validRecordedTimestamp(value), false, value);
+  }
+  assert.equal(evidenceTimePrecision(""), "missing");
+  assert.equal(displayEvidenceTime(""), "Time not available");
 });
 await test("Ambiguous timezone-free and future timestamps are rejected", () => {
   assert.equal(validObservationTime("2026-09-28T09:00", now), false);
@@ -653,6 +681,20 @@ await test("River evidence gaps retain unreviewed visual candidates and instrume
   assert.ok(gaps.includes("Coordinates were not supplied"));
 });
 const { evidenceTrail } = await import(pathToFileURL(path.join(dir, "evidence-trail.mjs")));
+await test("Evidence graph never invents human review from an imported workflow flag", () => {
+  const imported = { ...fieldReport, status: "reviewed", reviewHistory: [] };
+  const node = evidenceTrail(imported).nodes.find((item) => item.id === "review");
+  assert.equal(node.source, "pending"); assert.match(node.label, /review pending/);
+  assert.match(node.detail, /No human review recorded/);
+  imported.reviewHistory = [{ at: now.toISOString(), action: "needs_information", note: "More context requested.", actor: "demo_reviewer" }];
+  assert.match(evidenceTrail(imported).nodes.find((item) => item.id === "review").label, /history needs inspection/);
+});
+await test("Evidence graph preserves unusable confirmation as unknown rather than citizen approval", () => {
+  const imported = { ...fieldReport, confirmedAt: "2026-10-01T09:00" };
+  const node = evidenceTrail(imported).nodes.find((item) => item.id === "confirmation");
+  assert.equal(node.source, "pending"); assert.match(node.label, /unavailable/);
+  assert.match(node.detail, /2026-10-01T09:00/); assert.match(node.detail, /usable confirmation timestamp is not retained/);
+});
 const { issueSourceSpan, labRecordSummary, replayReportRules } = await import(pathToFileURL(path.join(dir, "evidence-lab.mjs")));
 const { comparablePH, hasComparablePH } = await import(pathToFileURL(path.join(dir, "atlas.mjs")));
 const { geographicGroups, geographicBounds, locationState, syntheticLocation } = await import(pathToFileURL(path.join(dir, "geographic.mjs")));
@@ -728,9 +770,11 @@ await test("Lab replay uses record creation time and preserves saved decisions",
   assert.deepEqual(report, snapshot);
 });
 await test("Lab replay discloses current-time fallback for invalid creation time", () => {
-  const replay = replayReportRules({ ...fieldReport, createdAt: "unknown" }, now);
-  assert.equal(replay.referenceSource, "current_time");
-  assert.equal(replay.referenceTime, now.toISOString());
+  for (const createdAt of ["unknown", "2026-02-30T09:00:00Z", "2026-09-28T09:00", "2026-09-28"]) {
+    const replay = replayReportRules({ ...fieldReport, createdAt }, now);
+    assert.equal(replay.referenceSource, "current_time");
+    assert.equal(replay.referenceTime, now.toISOString());
+  }
 });
 await test("Lab highlights an exact source quote and rejects absent quotes", () => {
   const original = { ...base, note: "I saw brown water by the bridge." };
@@ -761,6 +805,23 @@ await test("pH comparison omits invalid times and refuses mixed-site defaults", 
   assert.deepEqual(comparablePH([record], siteFilterValue("Brook")), []);
   assert.deepEqual(comparablePH([record], "all"), []);
   assert.deepEqual(comparablePH([record], siteFilterValue("Missing")), []);
+});
+const { aiStatusSchema, aiRecipients, recordedProviderLabel } = await import(pathToFileURL(path.join(dir, "ai-metadata.mjs")));
+await test("AI consent names every configured recipient and rejects unknown provider metadata", () => {
+  const status = aiStatusSchema.parse({ liveAI: true, provider: "xAI (Grok)", model: "grok-model", visualProvider: "xAI (Grok)", visualModel: "grok-vision", fallbackProvider: "Groq", fallbackModel: "qwen-model", fallbackVisualModel: "qwen-vision", defaultMode: "rules", consentScope: "synthetic-test-scope" });
+  assert.match(aiRecipients(status), /xAI \(Grok\).*Groq/);
+  assert.match(aiRecipients(status, true), /xAI \(Grok\).*Groq/);
+  assert.equal(aiStatusSchema.safeParse({ ...status, provider: "Unverified provider" }).success, false);
+  assert.equal(recordedProviderLabel(undefined), "Provider not retained");
+});
+await test("Saved reports retain actual provider while accepting older records with unknown provider", () => {
+  const input = { ...base, note: "I could not see the water. Its appearance is unknown." };
+  const report = createReport(input, assess(input, now), now);
+  assert.equal(reportSchema.safeParse(report).success, true);
+  report.assessment.provider = "xai";
+  assert.equal(reportSchema.parse(report).assessment.provider, "xai");
+  report.assessment.provider = "invented-provider";
+  assert.equal(reportSchema.safeParse(report).success, false);
 });
 const summary = {
   suite: "AquaLens development fixtures and domain invariants",

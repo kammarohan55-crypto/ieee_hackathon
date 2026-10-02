@@ -4,10 +4,10 @@ import { ArrowDownToLine, ArrowRight, CheckCircle2, FileJson, FolderOpen, Loader
 import { toast } from "sonner";
 import type { Report } from "@/lib/assessment";
 import { downloadFile, exportCSV, exportGeoJSON } from "@/lib/field";
-import { addMediaBatch, readMedia } from "@/lib/media-store";
-import { createFieldPack, digestBlob, MAX_TRANSFER_BYTES, mergeRecords, prepareImport, type PreparedImport } from "@/lib/workspace";
+import { addMediaBatch, readMedia, removeMediaBatch } from "@/lib/media-store";
+import { commitImportMedia, createFieldPack, digestBlob, MAX_TRANSFER_BYTES, mergeRecords, parseWorkspace, prepareImport, unreferencedMediaIds, withImportLock, WORKSPACE_KEY, type PreparedImport } from "@/lib/workspace";
 
-export function CollectionTools({ records, onImport, disabled = false }: { records: Report[]; onImport: (records: Report[]) => void; disabled?: boolean }) {
+export function CollectionTools({ records, onImport, disabled = false }: { records: Report[]; onImport: (records: Report[]) => ReturnType<typeof mergeRecords>; disabled?: boolean }) {
   const [includeMedia, setIncludeMedia] = useState(true), [busy, setBusy] = useState("");
   const [error, setError] = useState(""), [message, setMessage] = useState("");
   const [preview, setPreview] = useState<PreparedImport | null>(null);
@@ -38,22 +38,41 @@ export function CollectionTools({ records, onImport, disabled = false }: { recor
     if (!preview || lock.current || disabled) return;
     lock.current = true; setBusy("import"); setError("");
     try {
-      const result = mergeRecords(records, preview.records);
-      // Only restore media used by an added or byte-for-byte identical record.
-      const permitted = new Set([...result.added, ...records.filter((record) => result.duplicates.includes(record.id))]
-        .flatMap((record) => record.field?.media.map((media) => media.id) ?? []));
-      const additions: { id: string; blob: Blob }[] = [];
-      for (const media of preview.media) {
-        if (!permitted.has(media.id)) continue;
-        const previous = await readMedia(media.id);
-        if (previous && await digestBlob(previous) !== media.sha256) throw new Error("An existing local media file has the same ID but different bytes. Import stopped; existing evidence is unchanged.");
-        if (!previous) additions.push(media);
-      }
-      await addMediaBatch(additions);
-      onImport(result.records);
-      setPreview(null);
-      setMessage(`${result.added.length} observations imported; ${additions.length} original files restored. ${result.duplicates.length} identical records skipped; ${result.conflicts.length} conflicting records kept unchanged.`);
-      toast.success("Field pack imported");
+      await withImportLock(async (exclusive) => {
+        const result = mergeRecords(records, preview.records);
+        // Only restore media used by an added or byte-for-byte identical record.
+        const permitted = new Set([...result.added, ...records.filter((record) => result.duplicates.includes(record.id))]
+          .flatMap((record) => record.field?.media.map((media) => media.id) ?? []));
+        const additions: { id: string; blob: Blob }[] = [];
+        for (const media of preview.media) {
+          if (!permitted.has(media.id)) continue;
+          const previous = await readMedia(media.id);
+          if (previous && await digestBlob(previous) !== media.sha256) throw new Error("An existing local media file has the same ID but different bytes. Import stopped; existing evidence is unchanged.");
+          if (!previous) additions.push(media);
+        }
+        const removeUnused = async (ids: string[]) => {
+          if (!ids.length) return;
+          // Restoring missing bytes for an existing record is useful even when
+          // the report write fails. Also protect records saved by another tab.
+          const saved = localStorage.getItem(WORKSPACE_KEY);
+          const latest = saved ? parseWorkspace(JSON.parse(saved)) : [];
+          const unused = unreferencedMediaIds(ids, [...records, ...latest]);
+          if (!unused.length) return;
+          if (!exclusive) throw new Error("Safe media cleanup is unavailable in this browser.");
+          await removeMediaBatch(unused);
+        };
+        let committed = result;
+        await commitImportMedia(additions, { add: addMediaBatch, rollback: removeUnused }, () => { committed = onImport(preview.records); });
+        // Another tab may have saved a conflicting record during media retention.
+        // Count the actual commit and clean only bytes the latest records do not use.
+        let cleanupNotice = "";
+        try { await removeUnused(additions.map((file) => file.id)); }
+        catch { cleanupNotice = " Records are saved, but unused-media cleanup was unavailable."; }
+        setPreview(null);
+        const retained = new Set(committed.records.flatMap((record) => record.field?.media.map((media) => media.id) ?? []));
+        setMessage(`${committed.added.length} observations imported; ${additions.filter((file) => retained.has(file.id)).length} original files restored. ${committed.duplicates.length} identical records skipped; ${committed.conflicts.length} conflicting records kept unchanged.${cleanupNotice}`);
+        toast.success("Field pack imported");
+      }, navigator.locks);
     } catch (error) { setError(friendlyError(error)); }
     finally { setBusy(""); lock.current = false; }
   }
@@ -70,6 +89,7 @@ function mergeRecordsPreview(existing: Report[], incoming: Report[]) {
   catch (error) { return { added: 0, duplicates: 0, conflicts: 0, error: friendlyError(error) }; }
 }
 function friendlyError(error: unknown) {
+  if (error instanceof Error && ["AbortError", "TimeoutError"].includes(error.name)) return "Another import may still be in progress. Nothing was added by this attempt. Please retry.";
   if (error instanceof Error && error.name === "ZodError") return "The file does not match the AquaLens record schema. Nothing was imported.";
   return error instanceof Error ? error.message : "The file could not be processed. Your existing records are unchanged.";
 }

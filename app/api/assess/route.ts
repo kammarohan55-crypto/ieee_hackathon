@@ -1,5 +1,5 @@
 import { assess, inputSchema } from "@/lib/assessment";
-import { assessWithGemini, GEMINI_MODEL } from "@/lib/gemini";
+import { aiAvailability, aiConsentScope, assessWithAI, resolveAIConfig } from "@/lib/ai-provider";
 import { env } from "cloudflare:workers";
 const counts = new Map<string, { at: number; count: number }>();
 const respond = (body: unknown, status = 200) =>
@@ -8,10 +8,7 @@ export async function GET() {
   const config = env as unknown as Record<string, string | undefined>;
   return Response.json(
     {
-      liveAI: !!config.GEMINI_API_KEY,
-      provider: "Gemini",
-      model: config.GEMINI_MODEL || GEMINI_MODEL,
-      defaultMode: "rules",
+      ...aiAvailability(config),
     },
     { headers: { "Cache-Control": "no-store" } },
   );
@@ -46,11 +43,13 @@ export async function POST(request: Request) {
   const base = assess(parsed.data),
     config = env as unknown as Record<string, string | undefined>;
   if (!body.useAI) return respond(base);
-  if (!config.GEMINI_API_KEY)
+  if (!resolveAIConfig(config).primary)
     return respond({
       ...base,
-      notice: "Live Gemini is not configured. Local rules were used.",
+      notice: "Live AI is not configured. Local rules were used.",
     });
+  if (body.consentScope !== aiConsentScope(config))
+    return respond({ code: "consent_changed", error: "AI configuration changed. Refresh provider details and give consent again." }, 409);
   // Best-effort per-isolate throttling; not a billing or production quota guarantee.
   const client = request.headers.get("cf-connecting-ip") || "local";
   const now = Date.now();
@@ -67,11 +66,7 @@ export async function POST(request: Request) {
         "AI request limit reached. Local rules were used; try again in a minute.",
     });
   return Response.json(
-    await assessWithGemini(
-      parsed.data,
-      config.GEMINI_API_KEY,
-      config.GEMINI_MODEL || GEMINI_MODEL,
-    ),
+    await assessWithAI(parsed.data, config),
     { headers: { "Cache-Control": "no-store" } },
   );
 }

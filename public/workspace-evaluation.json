@@ -1,9 +1,9 @@
 {
   "suite": "AquaLens real-evidence transfers",
-  "generatedAt": "2026-10-01T07:44:12.700Z",
+  "generatedAt": "2026-10-02T05:29:55.092Z",
   "liveAI": false,
-  "passed": 28,
-  "total": 28,
+  "passed": 42,
+  "total": 42,
   "limitations": [
     "Authored software fixtures, not field evidence.",
     "No browser, IndexedDB transaction, camera or download completion test."
@@ -11,6 +11,62 @@
   "results": [
     {
       "name": "No records are invented for an empty workspace",
+      "passed": true
+    },
+    {
+      "name": "Failed report commit removes only this import's new media",
+      "passed": true
+    },
+    {
+      "name": "Successful report commit retains media and does not compensate",
+      "passed": true
+    },
+    {
+      "name": "An atomic media write failure never attempts the report commit or rollback",
+      "passed": true
+    },
+    {
+      "name": "Cleanup failure explicitly retains a retryable field pack",
+      "passed": true
+    },
+    {
+      "name": "Metadata-only import does not open media storage",
+      "passed": true
+    },
+    {
+      "name": "Report failure preserves newly restored bytes referenced by an existing record",
+      "passed": true
+    },
+    {
+      "name": "Cleanup protects references saved by another tab without touching unrelated IDs",
+      "passed": true
+    },
+    {
+      "name": "Imports serialize through retention, report commit and cleanup",
+      "passed": true
+    },
+    {
+      "name": "Unsupported import locks expose the conservative no-cleanup path",
+      "passed": true
+    },
+    {
+      "name": "Failure to acquire a lock never starts an import",
+      "passed": true
+    },
+    {
+      "name": "Recent weather remains explicitly timestamp-based",
+      "passed": true
+    },
+    {
+      "name": "Retained weather becomes stale as the session clock advances",
+      "passed": true
+    },
+    {
+      "name": "An old source timestamp is stale even after a recent fetch",
+      "passed": true
+    },
+    {
+      "name": "Malformed or implausibly future weather timestamps are unverified",
       "passed": true
     },
     {

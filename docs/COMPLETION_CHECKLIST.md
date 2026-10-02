@@ -1,0 +1,41 @@
+# AquaLens — final completion checklist
+
+Updated 2026-10-02. This is a readiness checklist, not a completed field study, device test, deployment or submission. Current primary decision: Track1, supporting3/2/4. Use FEATURE_AUDIT for implementation boundaries and QA for measured software checks.
+
+## What the user needs to provide
+
+| Item | Exact input | Why / status |
+| --- | --- | --- |
+| Usable AI access | Save `GROQ_API_KEY="..."` and `AI_PROVIDER="groq"` in ignored `.dev.vars`, or restore usable xAI access. Reply saved; never paste the key into chat. | Required to finish verifying live text/image AI. Existing xAI synthetic smoke returned403. Local rules/review remain usable. No further map/weather key is currently needed. |
+| Firsthand evidence | Suggested three original photos: wide site, surface detail, bank context; actual site/landmark, date/local time/time zone, file mapping, direct note and photographer/use permission. Fill VISIT_NOTES_TEMPLATE.txt. | Recommended for a real field demo. Bundled historical images already support a credited photo-review demo. Unknown time/context must not be invented. |
+| Map location, if demonstrated | Actual WGS84 latitude/longitude and source/uncertainty, or device GPS when safely available. | Optional observation metadata. Enables your real site on the map; no fabricated marker. No water instruments or hardware required. |
+| Actual human review | A person inspects the source, records agreement/disagreement/uncertainty and their own reason. A separate reviewer can provide approved name/role/method/date/feedback. | Same-person citizen/reviewer demo is permitted by this app and must be disclosed. No authenticated reviewer or expert-validation claim. |
+| Device walkthrough | Desktop + intended phone/browser, steps and actual results using the checks below. | The user owns website/device testing. Code tests do not establish rendering, camera, browser storage or offline behavior. |
+| Team and credit facts | Approved member names/pseudonyms, Devpost profiles/invitations, actual contributions and permission to credit. | Do not invent membership, qualifications or completed invitations. |
+| Original-code licence choice | Confirm the intended licence and copyright holder(s). MIT is an available option, not an activated licence in this repository. | Existing dependency/media licences remain separate. Public source alone is not an open-source licence; see GitHub's licensing documentation and DEPENDENCIES. |
+| Video and delivery | Actual3–5minute video link; tested judge-access URL/access instructions if hosted, otherwise describe the source/video proof-of-concept route accurately. | No live hosted demo or recorded video is verified. A live hosted URL needs authorized hosting-account access; no hosting secret should be pasted into chat. |
+| Final Devpost entry | Fill SUBMISSION_KIT with actual facts/links and retain submission confirmation. | No account/submission has been inspected. Recheck official deadline/eligibility; source register records conflicting older wording. |
+
+## Minimum user walkthrough
+
+Do not clear an existing collection without an exported backup. Use an empty separate browser profile if testing a clean start. Follow DEMO_GUIDE for exact controls.
+
+1. Open the app only after requesting startup. Empty Mission control contains no invented visits; historical sources remain labeled.
+2. Upload one original photo, enter actual context and note, inspect image-usability warnings and local clarification. If live AI is available, explicitly consent and show the actual response/error and provider.
+3. Answer only what is known; confirm. Save/reload must retain original words/media and current decisions. Unknowns must survive.
+4. Review the original and any actual visual candidates, record a reason, then inspect the Decision Brief, graph and four-chapter presentation. Missing/inconsistent imported history must remain incomplete.
+5. Test photo note pins, comparisonA/B, timeline and an optional linked fresh visit. Old note/time/media/readings/GPS must not silently become new evidence.
+6. For a genuinely located record, test street/NASA/2021 landscape views and fallbacks. The annual imagery is historical context; Observation Quality is evidence completeness, never river health.
+7. Download JSON/CSV/GeoJSON/readable brief and a pack with originals. Preview/import the pack into a second profile; verify actual record/file counts and original notes. Hashes do not authenticate the scene.
+8. Test320–390px layout, keyboard navigation/focus, loading/error/empty states. Test camera/video/voice/GPS only if shown in the video. Reduced-motion setting should suppress nonessential motion.
+9. Test offline behavior only with a production build after a controlled online visit. Uncached maps/weather/AI require network; local capture/review/export should stay understandable.
+
+Report: device/browser/version → exact steps → expected/actual result → record/source involved → redacted error text. Never include credentials or private unrelated media.
+
+## What is intentionally outside this release
+
+Shared accounts/community voting, authenticated reviewers, a calibrated physical twin, forecasting, custom model training, numerical NDWI/ERA5 processing, FHIR compliance and independent ecological validation are not pending fixes to this narrow demo. They are unimplemented future scope. No fake substitute will be added to fill them.
+
+## Source handoff
+
+The final source is published only when Git confirms the push and remote commit. A source ZIP can be made with mature `git archive` from a named verified commit; it must exclude ignored credentials/runtime/browser evidence. The ZIP is source, not a deployed application or a media field pack. PROJECT_CONTEXT records the actual final verification, publication state and exact next step for another AI.

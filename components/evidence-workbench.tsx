@@ -27,6 +27,7 @@ import { OneHealthSummary } from "./field-guide";
 import { RiverObservatory } from "./river-observatory";
 import { GeographicEvidenceMap } from "./geographic-evidence-map";
 import { evidenceTrail } from "@/lib/evidence-trail";
+import { recordedProviderLabel } from "@/lib/ai-metadata";
 import { atlasPhotos, collectionCoverage, comparablePH, hasComparablePH, comparisonPair, filterAtlasRecords, isSyntheticRecord, siteFilterValue } from "@/lib/atlas";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
@@ -293,7 +294,7 @@ export function EvidenceReceipt({
           <p>
             <b>Method:</b>{" "}
             {report.assessment.mode === "ai"
-              ? `Local English rules + ${report.assessment.model}`
+              ? `Local English rules + ${recordedProviderLabel(report.assessment.provider)} · ${report.assessment.model || "Model not retained"}`
               : "Local English heuristics"}
             . Visual outputs use only enumerated candidate findings.
           </p>
@@ -335,7 +336,7 @@ export function EvidenceReceipt({
               </p>
               {m.visual && (
                 <p className="micro-copy">
-                  Visual method: {m.visual.model} · {m.visual.at}. Candidate
+                  Visual method: {recordedProviderLabel(m.visual.provider)} · {m.visual.model} · {m.visual.at}. Candidate
                   regions refer to image layout, not geographic positions.
                 </p>
               )}

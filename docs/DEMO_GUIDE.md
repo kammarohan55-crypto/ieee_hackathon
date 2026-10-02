@@ -1,8 +1,22 @@
+# AquaLens demonstration and user QA — October 2, 2026
+
+Primary submission decision: **Track 1 — Citizen Science UX**, with supporting capabilities relevant to Tracks 3, 2 and 4. Select one primary track on submission. This is positioning based on the guided workflow, not known winning odds. Current browser/device testing belongs to the user; terminal verification is separate evidence.
+
+Keep the project stopped until the user requests startup. Current xAI access failed a billing/credits-related HTTP403; the local workflow remains usable. To demonstrate live AI, first restore usable xAI access or configure a Groq key locally and verify an actual response. Never describe a recorded Gemini result as a current xAI/Groq response.
+
+In **Mission control → Geographic map**, expect a neutral world view with zero observations: no site/grade/marker is invented. **NASA satellite** shows a requested UTC day, date stepping/apply and regional Terra/MODIS limits. **Landscape · 2021** is an annual historical Sentinel-2 RGB median with 10 m source bands, not a current scene or numerical reflectance. At broad zoom use **Zoom to landscape detail**; its offered range is zoom 6–14 and latitude −60° to 83°. Inspect cloud/gap/artifact and attribution notes. It does not implement NDWI or grade water. Try loading/error/retry and explicit street fallback. New coordinate sets refit; unchanged-location date/background/retry preserves camera and selection. Five organizer-city links are context, not imported monitoring data.
+
+Provider consent names the configured primary and optional alternative. If the server configuration changes while the page is open, the request is rejected before provider access, details reload and a fresh checkbox is needed. Original evidence remains intact. No API key should appear in a screenshot, receipt, export or repository.
+
+Use the 3–5 minute sequence below: credited or actual photo → uncertain note/checks → explicit confirmation → reasoned human review → **Present this evidence** → Evidence Actions/Decision brief → map context → field pack. Show disagreement only when actual retained candidates and your judgment support it. Satellite imagery supplies context, and Observation Quality describes evidence completeness; neither grades ecological health.
+
+---
+
 # Ready-to-use historical photo demo
 
 The three credited reference photos are included in the repository and production offline cache. You do not need a Google Photos account, a video, or a new field visit for this path. Start the app using the README setup commands.
 
-1. Open **Mission control**. The three licensed river photos appear immediately; saved-record counts remain zero. Select a source, toggle its grid and zoom, then try **Compare** (wipe or side by side) and **Evidence flow**. The preview is not a saved review or environmental change analysis.
+1. Open **Mission control**. The three licensed river photos appear immediately; saved-record counts remain zero. Select a source, toggle its grid and zoom, then try **Compare** (wipe or side by side) and **Evidence flow**. Comparison now has explicit **Review A / Review B** or saved-photo receipt actions; the unrelated single-frame inspector is hidden. The preview is not a saved review or environmental change analysis.
 2. Select **Photo desk → Review this photo**. Show the photographer, source page, licence and historical date. The source date stays unchanged; no new GPS or measurements are attached.
 3. Write one or two sentences in your own words about visible details and uncertainty. Do not read a prepared fake observation. Select **Not observed / unsure** if appropriate.
 4. Optionally enable configured visual AI with consent. Otherwise show local image checks. An unavailable provider remains unavailable.
@@ -10,8 +24,10 @@ The three credited reference photos are included in the repository and productio
 6. Return to **Mission control**, select the newly saved source, then **Add visual note**. Click a detail, or use **place at center** with the keyboard. Enter your own description and save. Show the numbered human note, unchanged original photo and reopened review. Notes can also be inspected from the text list.
 7. Use **Evidence replay** to step through the retained source date, decisions and visual-note event. Its spacing represents event order, not elapsed time. Inspect the saved record's **Evidence flow** nodes.
 8. Open the full receipt in **Review desk**. Show source credit, original note, photo notes and provenance graph. If visual AI returned candidates, judge each with a reason. Add your own review note and mark the record reviewed.
-9. Open **Insights**. Select a workflow status or saving-activity day to filter the evidence matrix; open a record from its row. Historical reviews are excluded from the GPS denominator. The four engineering cards show authored software tests, not ecological or AI accuracy.
-10. In **Field kit**, download a field pack with media. In a second browser/profile, preview and import it. Show that the photograph, credits, original words and note pins survived. The **River observatory** and geographic map intentionally show firsthand field records only.
+9. From the receipt choose **Present this evidence**. Step through Original evidence / Checks & clarification / Human judgment / Decision receipt. Inspect actual reasons, uncertainty and missing history. Export **Readable brief** and JSON. Opening the view never approves a report or calls AI; the brief contains text/metadata, not original media bytes.
+10. Open **Evidence Lab → Decision brief**. Inspect its four retained stages and latest human reason; switch to Checks, Media & readings and Decisions. **Replay rules** leaves the saved assessment unchanged. Software diagnostics are optional and distinct from environmental validation.
+11. Return to **Mission control → Evidence Actions**. Test All / Review / Fresh visit and **Why this action**. Historical-source actions open review; they do not create fresh visits. Priorities concern evidence workflow, never ecological danger. Open **Insights** and filter actual record counts; historical reviews are excluded from the GPS denominator. Software diagnostics load only when expanded.
+12. In **Field kit**, export a field pack with media. Preview/import in a second profile and inspect restored photo, credit, words and pins. The geographic map and **Field kit → Additional evidence views → Open schematic evidence view** use field records only; the river remains explicitly schematic.
 
 This is a photo-review demonstration using real sourced images. It is not current river monitoring or proof of a water condition. No shared backend or authenticated reviewer is claimed. The latest source/build checks pass; the steps above still need the user's browser walkthrough.
 
@@ -19,7 +35,7 @@ This is a photo-review demonstration using real sourced images. It is not curren
 
 # AquaLens: real-evidence demonstration
 
-Primary track: **Track 3 — AI-Supported Assessment**. Supporting themes: citizen science UX, inspectable data and One Health awareness. The core journey is citizen evidence → explainable questions → explicit confirmation → human review → portable field pack.
+Primary submission decision: **Track 1 — Citizen Science UX**. AI-supported assessment, data-to-insight and awareness/storytelling are supporting capabilities. The core journey is citizen evidence → explainable questions → explicit confirmation → human review → portable evidence.
 
 ## Prepare
 
@@ -36,8 +52,9 @@ Primary track: **Track 3 — AI-Supported Assessment**. Supporting themes: citiz
 | 0:30–1:20 | Field notebook: upload original photos; add real site/time, note and optional One Health context | The app preserves originals. A bank, wildlife and nearby human activity can be recorded without inventing health outcomes. |
 | 1:20–2:00 | Local checks or consented AI, clarification, completeness breakdown, confirmation | Distinguish a visible detail from a cause. Every answer is explicit; unknowns stay unknown. No matched issue is also an honest result. |
 | 2:00–2:50 | Review desk: search, original note/media, source graph, visual-candidate judgment if present, review note | Human decisions stay inspectable. Workflow review is not environmental certification or an authenticated institutional approval. |
-| 2:50–3:30 | Mission control note pin/replay and Insights | A human photo note reopens review. Replay reads retained events; charts count actual records. The map uses supplied field locations only. |
-| 3:30–4:30 | Field kit → Download field pack; choose file in another profile → preview → Import evidence | Reports and original media travel together. Media hashes detect mismatched bytes. Duplicates and conflicting IDs do not overwrite local reports. |
+| 2:50–3:30 | Receipt → Present this evidence; four chapters and Readable brief | Actual source, checks and human reasons stay distinct. Gaps remain visible; opening it never approves or analyzes. |
+| 3:30–4:00 | Evidence Actions and Evidence Lab Decision brief | Every suggested action has a retained basis; reviewed uncertainty need not demand another visit. |
+| 4:00–4:30 | NASA/2021 landscape/street context, then Field kit pack | Requested-day regional imagery differs from a historical annual median. Show originals surviving second-profile import if time permits. |
 | 4:30–4:50 | Return to the real report and state next steps | Field-user evaluation, expert feedback, authenticated collaboration and durable hosting are next. No ecological accuracy or competition result is claimed. |
 
 If live AI fails, show the error and continue with local checks. Do not substitute recorded responses or synthetic findings. If you have only a single real observation, demonstrate that one well.
@@ -54,6 +71,10 @@ If live AI fails, show the error and continue with local checks. Do not substitu
 - Camera/GPS refusal: note entry remains usable and no location is guessed.
 - One Health notes: leave unknowns as unknown; confirm and inspect them in the full receipt and exported JSON.
 - AI failure: local evidence is retained; a provider failure never fabricates findings. Review requires a reason for each retained visual candidate.
+- Presentation: keyboard/close/Escape/focus return, narrow screen, reduced motion, chapter switching and exports; current record and latest actual human reason remain correct. Import a receipt-only record and confirm missing media/history stays visible.
+- Evidence Actions: filter/show-more/reasons, completed-review behavior and historical-source restriction. Priorities must never appear as environmental risk or make GPS/instruments compulsory.
+- Linked visits: on a field receipt choose **Fresh follow-up**. Only site label/parent ID carry over; time, note, media, readings and GPS must be fresh. Confirm and inspect source/child links; a missing imported parent is disclosed. A link does not prove matching viewpoints or environmental change.
+- Lab: default Decision brief, original text, uncertain/unjudged/disputed candidates, actual latest review reason, Stored/Local replay switching and record switching without stale output. Open/close/retry diagnostics explicitly; they are authored software checks.
 - Save/reload: report and media persist. Partial clarification resumes from the saved original draft.
 - Weather: accessible from **Mission control → Geographic map → Load weather for a saved field location**, even without a photo. No request without a chosen saved location and explicit click; switching locations never displays a different site's cached result. Errors hide previous readings.
 - Search: combine words from a site and note with the review status filter.
@@ -62,7 +83,7 @@ If live AI fails, show the error and continue with local checks. Do not substitu
 - Camera/video/voice: check on the actual phone/browser. Feature support varies.
 - Offline: use the production build after an online controlled visit. Local rules/records can work offline; providers and uncached map tiles need network.
 
-These device checks have not been performed in this session because the project records the user's preference for manual website testing. Source/type/lint/build and domain/API/transfer tests are separate evidence.
+These device checks have not been performed in this session because the user owns website testing. Source/type/lint/build and authored domain/API/transfer checks are separate evidence; see [QA](QA.md) for exact current results.
 
 ## Report an issue
 

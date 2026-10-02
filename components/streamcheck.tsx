@@ -65,10 +65,13 @@ import {
   type Report,
 } from "@/lib/assessment";
 import { MissionControl } from "./mission-control";
+import { DecisionPresentation } from "./decision-presentation";
+import { LinkedVisits } from "./linked-visits";
+import { aiStatusSchema, aiRecipients, type AIStatus } from "@/lib/ai-metadata";
 import { EvidenceInsights } from "./evidence-insights";
 import { ReferenceGallery, ReferenceCredit } from "./reference-gallery";
-import { displayEvidenceTime, type ReferencePhoto } from "@/lib/references";
-import { hashBlob, inspectImage, addMediaBatch } from "@/lib/media-store";
+import { displayEvidenceTime, referencePhotos, type ReferencePhoto } from "@/lib/references";
+import { hashBlob, inspectImage, addMediaBatch, removeMediaBatch } from "@/lib/media-store";
 import { CaptureGuide, FieldGuide, OneHealthNotes, OneHealthSummary } from "./field-guide";
 import { CollectionTools } from "./collection-tools";
 import { WORKSPACE_KEY as KEY, LEGACY_ARCHIVE_KEY, MAX_REPORTS, realRecords, parseWorkspace, searchReports, mergeRecords } from "@/lib/workspace";
@@ -145,6 +148,7 @@ export default function StreamCheck() {
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [captureBusy, setCaptureBusy] = useState(false);
   const [referenceLoading, setReferenceLoading] = useState("");
+  const [referenceRetry, setReferenceRetry] = useState<ReferencePhoto | null>(null);
   const draftEpoch = useRef(0);
   const [draftRevision, setDraftRevision] = useState(0);
   const [online, setOnline] = useState(true);
@@ -165,8 +169,23 @@ export default function StreamCheck() {
     [confirm, setConfirm] = useState(false),
     [busy, setBusy] = useState(false),
     [formError, setFormError] = useState("");
-  const [aiReady, setAIReady] = useState(false),
+  const [aiStatus, setAIStatus] = useState<AIStatus | null>(null),
     [useAI, setUseAI] = useState(false);
+  const aiReady = aiStatus?.liveAI === true;
+  const aiStatusRequest = useRef(0);
+  const invalidateAIStatus = useCallback(() => { aiStatusRequest.current++; }, []);
+  const loadAIStatus = useCallback(() => {
+    const generation = ++aiStatusRequest.current;
+    fetch("/api/assess", { signal: AbortSignal.timeout(5000) })
+      .then((response) => response.ok ? response.json() : null)
+      .then((value) => { if (generation === aiStatusRequest.current) setAIStatus(aiStatusSchema.safeParse(value).data || null); })
+      .catch(() => { if (generation === aiStatusRequest.current) setAIStatus(null); });
+  }, []);
+  const refreshAIStatus = useCallback(() => {
+    setUseAI(false);
+    setAIStatus(null);
+    loadAIStatus();
+  }, [loadAIStatus]);
   const sectionRef = useRef<HTMLDivElement>(null),
     stateRef = useRef({ records, tab });
   const updateField = useCallback((next: FieldEvidence) => {
@@ -196,12 +215,21 @@ export default function StreamCheck() {
       const savedDraft = localStorage.getItem("aqualens-draft-v1");
       if (savedDraft) {
         const d = JSON.parse(savedDraft);
-        const restored = inputSchema.parse(d.draft);
-        const restoredField = fieldSchema.parse(d.field);
-        assertReferenceRecord({ original: restored, field: restoredField });
-        if (typeof d.when === "string" && d.when.length <= 30) {
-          if (!restored.synthetic && restoredField.coordinates?.method !== "synthetic" && !restoredField.media.some((media) => media.origin === "illustration")) {
-            setDraft(restored); setField(restoredField); setWhen(d.when);
+        if (typeof d.pendingReferenceId === "string") {
+          const photo = referencePhotos.find((item) => item.id === d.pendingReferenceId);
+          if (!photo) throw new Error("Unknown pending reference source");
+          const pending = createReferenceDraft(photo);
+          setDraft(pending.draft); setField(pending.field); setWhen(photo.capturedDate);
+          setReferenceRetry(photo); setUseAI(false); setTab("observe");
+          setFormError("Source-image preparation was interrupted. Retry the credited photo to continue.");
+        } else {
+          const restored = inputSchema.parse(d.draft);
+          const restoredField = fieldSchema.parse(d.field);
+          assertReferenceRecord({ original: restored, field: restoredField });
+          if (typeof d.when === "string" && d.when.length <= 30) {
+            if (!restored.synthetic && restoredField.coordinates?.method !== "synthetic" && !restoredField.media.some((media) => media.origin === "illustration")) {
+              setDraft(restored); setField(restoredField); setWhen(d.when);
+            }
           }
         }
       }
@@ -222,14 +250,7 @@ export default function StreamCheck() {
       );
     }
     setLoaded(true);
-    fetch("/api/assess")
-      .then((r) => r.json())
-      .then((d) =>
-        setAIReady(
-          !!d && typeof d === "object" && "liveAI" in d && d.liveAI === true,
-        ),
-      )
-      .catch(() => {});
+    loadAIStatus();
     const sync = (e: StorageEvent) => {
       if (e.key !== KEY) return;
       try {
@@ -239,13 +260,18 @@ export default function StreamCheck() {
       }
     };
     window.addEventListener("storage", sync);
-    return () => window.removeEventListener("storage", sync);
-  }, []);
+    return () => { invalidateAIStatus(); window.removeEventListener("storage", sync); };
+  }, [loadAIStatus, invalidateAIStatus]);
   useEffect(() => {
     if (!draftLoaded) return;
-    try { localStorage.setItem("aqualens-draft-v1", JSON.stringify({ draft, field, when })); }
+    try {
+      const pendingReferenceId = referenceLoading || referenceRetry?.id;
+      // A source selection is not a completed evidence record until its bytes
+      // are retained. Store its catalogue ID so reload can offer an honest retry.
+      localStorage.setItem("aqualens-draft-v1", JSON.stringify(pendingReferenceId ? { pendingReferenceId } : { draft, field, when }));
+    }
     catch { toast.error("Draft storage is unavailable. Keep this tab open until you export the confirmed report."); }
-  }, [draftLoaded, draft, field, when]);
+  }, [draftLoaded, draft, field, when, referenceLoading, referenceRetry]);
   useEffect(() => {
     if (!loaded || storageError) return;
     try {
@@ -334,6 +360,7 @@ export default function StreamCheck() {
     setBusy(false);
     setCaptureBusy(false);
     setReferenceLoading("");
+    setReferenceRetry(null);
     setField(newField());
     setDraft(empty);
     setWhen(localTime());
@@ -365,11 +392,11 @@ export default function StreamCheck() {
         sha256: photo.sha256, createdAt: new Date().toISOString(), origin: "public_reference" as const,
         filename: `${photo.id}.jpg`, ...info };
       await addMediaBatch([{ id: media.id, blob }]);
-      if (epoch !== draftEpoch.current) return;
+      if (epoch !== draftEpoch.current) { await removeMediaBatch([media.id]); return; }
       setField({ ...reference.field, media: [media] });
     } catch (error) {
       if (epoch === draftEpoch.current) {
-        setField(newField()); setDraft(empty); setWhen(localTime());
+        setReferenceRetry(photo);
         setFormError(error instanceof Error ? error.message : "The photo could not be retained. Try again from the Field kit.");
       }
     } finally { if (epoch === draftEpoch.current) setReferenceLoading(""); }
@@ -377,7 +404,7 @@ export default function StreamCheck() {
   async function analyze() {
     if (busy) return;
     const epoch = draftEpoch.current;
-    if (captureBusy || referenceLoading) { setFormError("Wait for the image operation to finish before continuing."); return; }
+    if (captureBusy || referenceLoading || referenceRetry) { setFormError("Finish preparing the source image before continuing."); return; }
     setFormError("");
     let observedAt = "";
     try {
@@ -409,11 +436,17 @@ export default function StreamCheck() {
         const r = await fetch("/api/assess", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ observation: input, useAI: true }),
+          body: JSON.stringify({ observation: input, useAI: true, consentScope: aiStatus?.consentScope }),
           signal: AbortSignal.timeout(22000),
         });
-        if (!r.ok) throw new Error();
-        result = reportSchema.shape.assessment.parse(await r.json());
+        const raw = await r.json();
+        if (r.status === 409 && raw && typeof raw === "object" && "code" in raw && raw.code === "consent_changed") {
+          refreshAIStatus();
+          result = { ...assess(input), notice: "AI configuration changed. No provider call was made; local rules were used. Give fresh consent for a future AI request." };
+        } else {
+          if (!r.ok) throw new Error();
+          result = reportSchema.shape.assessment.parse(raw);
+        }
       } else result = assess(input);
       if (epoch !== draftEpoch.current) return;
       setSnapshot(structuredClone(input));
@@ -506,9 +539,18 @@ export default function StreamCheck() {
     if (storageError) throw new Error("Resolve the workspace storage error before importing.");
     const stored = localStorage.getItem(KEY);
     const current = stored ? realRecords(parseWorkspace(JSON.parse(stored))) : stateRef.current.records;
-    const next = mergeRecords(current, incoming).records;
-    localStorage.setItem(KEY, JSON.stringify(next));
-    setRecords(next);
+    const merged = mergeRecords(current, incoming);
+    localStorage.setItem(KEY, JSON.stringify(merged.records));
+    setRecords(merged.records);
+    return merged;
+  }
+  function startFollowup(source: Report) {
+    if (source.field?.reference) { openReport(source.id); return; }
+    reset();
+    setSelectedId(null);
+    const followup = createFollowupDraft(source);
+    setDraft(followup.draft);
+    setField(followup.field);
   }
   return (
     <div className="app-shell">
@@ -560,14 +602,11 @@ export default function StreamCheck() {
             <TabsTrigger value="lab">
               <FlaskConical size={16} /> Evidence lab
             </TabsTrigger>
-            <TabsTrigger value="atlas">
-              <Waves size={16} /> River observatory
-            </TabsTrigger>
             <TabsTrigger value="insights"><ChartNoAxesCombined size={16} /> Insights</TabsTrigger>
             <TabsTrigger value="kit"><Backpack size={16} /> Field kit</TabsTrigger>
           </TabsList>
           <span className="track-label">
-            ONEAQUAHEALTH CHALLENGE <span>TRACK 03</span>
+            ONEAQUAHEALTH CHALLENGE <span>TRACK 01</span>
           </span>
         </div>
         <main id="workspace-content" className="main">
@@ -580,6 +619,7 @@ export default function StreamCheck() {
           )}
           <TabsContent value="overview" className="view-enter">
             <MissionControl records={records} aiReady={aiReady} online={online} onStart={reset}
+              onFollowup={startFollowup}
               onReviewReference={(photo) => void reviewReference(photo)} onOpen={openReport}
               onUpdate={(next) => { setRecords((previous) => previous.map((record) => record.id === next.id ? next : record)); toast.success("Visual note saved. Review reopened."); }}
               onInsights={() => go("insights")} onKit={() => go("kit")} />
@@ -599,12 +639,16 @@ export default function StreamCheck() {
             />
             {field.reference && <ReferenceCredit reference={field.reference} />}
             {referenceLoading && <p className="notice" role="status">Preparing the source image and its digest…</p>}
-            {stage === 0 && !referenceLoading && (
+            {referenceRetry && !referenceLoading && <div className="notice" role="status"><p>{formError || "The source photo is not retained yet. Retry to continue."}</p><div className="button-row"><button type="button" className="btn primary" onClick={() => void reviewReference(referenceRetry)}>Retry source photo</button><button type="button" className="btn secondary" onClick={reset}>Cancel photo review</button></div></div>}
+            {stage === 0 && !referenceLoading && !referenceRetry && (
               <FieldStudio
                 key={draftRevision}
                 value={field}
                 onChange={updateField}
                 aiReady={aiReady && online}
+                aiRecipients={aiRecipients(aiStatus, true)}
+                aiConsentScope={aiStatus?.consentScope}
+                onConsentChanged={refreshAIStatus}
                 onBusy={updateCaptureBusy}
               />
             )}
@@ -634,7 +678,7 @@ export default function StreamCheck() {
             </div>
             <div className="capture-grid">
               <section className="panel capture" ref={sectionRef} tabIndex={-1}>
-                {stage === 0 && !referenceLoading && (
+                {stage === 0 && !referenceLoading && !referenceRetry && (
                   <form
                     onSubmit={(e) => {
                       e.preventDefault();
@@ -746,13 +790,13 @@ export default function StreamCheck() {
                         <div>
                           <strong>
                             {aiReady
-                              ? "Gemini clarification is configured"
+                              ? `${aiStatus?.provider} clarification is configured`
                               : "Guided checks are ready"}
                           </strong>
                           <p>
                             {aiReady
-                              ? "Optional AI support, always with your confirmation."
-                              : "Runs locally. Live Gemini is waiting for a server-side key."}
+                              ? `${aiStatus?.model} · optional support; configuration does not guarantee availability.`
+                              : "Runs locally. Optional live AI needs server-side configuration."}
                           </p>
                         </div>
                         <Tag tone={aiReady ? "green" : "neutral"}>
@@ -765,9 +809,10 @@ export default function StreamCheck() {
                             checked={useAI}
                             onCheckedChange={(v) => setUseAI(v === true)}
                           />{" "}
-                          Send this observation to Gemini for additional
-                          clarification. Avoid personal data; Google’s free tier
-                          may use inputs to improve its products.
+                          Send the original note and selected
+                          appearance to {aiRecipients(aiStatus)} for additional
+                          clarification. Avoid personal data. Provider terms apply;
+                          no coordinates, instrument readings or media are sent.
                         </label>
                       )}
                     </div>
@@ -1090,21 +1135,18 @@ export default function StreamCheck() {
             <ReferenceGallery onReview={(photo) => void reviewReference(photo)} loading={referenceLoading} />
             <FieldGuide onStart={reset} />
             <CollectionTools records={records} onImport={importRecords} disabled={!loaded || !!storageError} />
+            <details className="kit-advanced"><summary>Additional evidence views</summary><p>The river view groups retained field reports in a labeled schematic. It is not a physical model or a geographic map.</p><button type="button" className="btn secondary" onClick={() => go("atlas")}><Waves size={16} /> Open schematic evidence view</button></details>
           </TabsContent>
           <TabsContent value="lab" className="view-enter">
             <EvidenceLab records={records} onOpen={openReport} />
           </TabsContent>
           <TabsContent value="atlas" className="view-enter">
+            <div className="atlas-return"><button type="button" className="plain-btn" onClick={() => go("overview")}><ArrowRight size={15} /> Return to Mission control</button><span>Schematic field evidence · advanced view</span></div>
             {records.some((r) => r.field?.reference) && <p className="notice">Historical photo reviews are available in the Review desk and Evidence lab. The river observatory contains field observations only.</p>}
             <StreamAtlas
               reports={records.filter((r) => !r.field?.reference)}
               onOpen={openReport}
-              onMission={(source) => {
-                reset();
-                const followup = createFollowupDraft(source);
-                setDraft(followup.draft);
-                setField(followup.field);
-              }}
+              onMission={startFollowup}
             />
           </TabsContent>
         </main>
@@ -1114,7 +1156,7 @@ export default function StreamCheck() {
           <Waves size={17} /> AquaLens <span className="footer-divider">/</span>{" "}
           Care for the water. Care for the evidence.
         </span>
-        <span>Independent OneAquaHealth hackathon prototype · Track 03</span>
+        <span>Independent OneAquaHealth prototype · Citizen Science UX</span>
       </footer>
       <Sheet
         open={!!active}
@@ -1147,6 +1189,7 @@ export default function StreamCheck() {
                 </button>
               </div>
               <section className="evidence-section">
+                <DecisionPresentation key={active.id} report={active} />
                 <div className="section-label">
                   <span>01</span>
                   <h3>What was observed</h3>
@@ -1176,6 +1219,7 @@ export default function StreamCheck() {
                   )
                 }
               />
+              <LinkedVisits report={active} records={records} onOpen={openReport} onFollowup={startFollowup} />
               <section className="evidence-section">
                 <div className="section-label">
                   <span>02</span>

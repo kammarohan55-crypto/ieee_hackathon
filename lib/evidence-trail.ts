@@ -1,5 +1,7 @@
 import type { Report } from "./assessment";
+import { recordedProviderLabel } from "./ai-metadata";
 import { findingLabels, measurementWarnings } from "./field";
+import { labDecisionBrief } from "./evidence-lab";
 
 export type TrailNode = {
   id: string;
@@ -12,15 +14,16 @@ export type TrailNode = {
 
 // Connections express record provenance, never causation or scientific proof.
 export function evidenceTrail(report: Report) {
+  const review = labDecisionBrief(report);
   const nodes: TrailNode[] = [];
   const edges: { id: string; source: string; target: string }[] = [];
   const add = (id: string, label: string, detail: string, source: TrailNode["source"], x: number, y: number) => nodes.push({ id, label, detail, source, x, y });
   const link = (source: string, target: string) => edges.push({ id: `${source}>${target}`, source, target });
   add("original", report.field?.reference ? "Photo reviewer · original note" : "Citizen · original note", report.original.note || "No note supplied.", "citizen", 0, 100);
-  add("confirmation", "Citizen · confirmation", `Confirmed at ${report.confirmedAt}. Confirmation records the citizen's approval; it does not establish scientific truth.`, "citizen", 560, 100);
-  add("review", report.status === "reviewed" ? "Human · reviewed" : "Human · review pending", report.reviewHistory.length
+  add("confirmation", review.confirmed ? "Citizen · confirmation" : "Citizen · confirmation unavailable", `Timestamp as recorded: ${report.confirmedAt}. ${review.confirmed ? "Confirmation records the citizen's approval; it does not establish scientific truth." : "A usable confirmation timestamp is not retained; inspect the original record."}`, review.confirmed ? "citizen" : "pending", 560, 100);
+  add("review", `Human · ${review.label.toLowerCase()}`, (report.reviewHistory.length
     ? report.reviewHistory.map((h) => `${h.at} · ${h.action.replaceAll("_", " ")}\n${h.note}`).join("\n\n")
-    : "No human review recorded. Local demo roles are not authenticated.", report.status === "reviewed" ? "human" : "pending", 840, 100);
+    : "No human review recorded.") + `\nCurrent review completeness: ${review.label}. Local demo roles are not authenticated.`, review.reviewComplete ? "human" : "pending", 840, 100);
   link("confirmation", "review");
   const ref = report.field?.reference;
   if (ref) {
@@ -54,7 +57,7 @@ export function evidenceTrail(report: Report) {
     if (media.visual) {
       const visualId = `visual:${i}`, humanId = `judgment:${i}`;
       const findings = media.visual.findings;
-      add(visualId, `AI · ${findings.length} visual candidates`, `Model: ${media.visual.model}\nRecorded: ${media.visual.at}\n${findings.map((f) => `${findingLabels[f.kind]} · ${f.region.replaceAll("_", " ")} · ${f.confidence} uncalibrated confidence`).join("\n") || "No candidate finding returned; this is not a water-health conclusion."}`, "ai", 280, row);
+      add(visualId, `AI · ${findings.length} visual candidates`, `Provider: ${recordedProviderLabel(media.visual.provider)}\nModel: ${media.visual.model}\nRecorded: ${media.visual.at}\n${findings.map((f) => `${findingLabels[f.kind]} · ${f.region.replaceAll("_", " ")} · ${f.confidence} uncalibrated confidence`).join("\n") || "No candidate finding returned; this is not a water-health conclusion."}`, "ai", 280, row);
       const judgments = (report.field?.dispositions ?? []).filter((d) => d.mediaId === media.id);
       const unanswered = findings.filter((f) => !judgments.some((d) => d.finding === f.kind)).length;
       add(humanId, unanswered ? `Human · ${unanswered} candidates pending` : judgments.length ? "Human · visual judgments" : "Human · no candidates to judge", judgments.map((d) => `${d.at}\n${findingLabels[d.finding]} · ${d.decision}\nReason: ${d.reason}`).join("\n\n") || "No human visual judgment recorded. AI findings remain candidate descriptions, not diagnoses.", judgments.length ? "human" : "pending", 560, row);

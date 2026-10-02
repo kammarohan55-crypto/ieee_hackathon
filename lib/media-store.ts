@@ -20,6 +20,19 @@ export async function addMediaBatch(files: { id: string; blob: Blob }[]) {
     throw error;
   }
 }
+// Used only to compensate failed imports. Callers exclude every referenced ID.
+export async function removeMediaBatch(ids: string[]) {
+  if (!ids.length) return;
+  const transaction = (await db()).transaction("media", "readwrite");
+  try {
+    for (const id of ids) await transaction.store.delete(id);
+    await transaction.done;
+  } catch (error) {
+    try { transaction.abort(); } catch { /* Already aborted. */ }
+    await transaction.done.catch(() => {});
+    throw error;
+  }
+}
 export async function saveMedia(id: string, blob: Blob) {
   const store = await db();
   await store.put("media", blob, id);
