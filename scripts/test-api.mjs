@@ -174,7 +174,7 @@ try {
     assert.equal(url, "https://api.x.ai/v1/chat/completions");
     assert.ok(!url.includes(env.XAI_API_KEY));
     assert.equal(options.headers.Authorization, `Bearer ${env.XAI_API_KEY}`);
-    assert.equal(options.redirect, "error");
+    assert.equal(options.redirect, "manual");
     assert.ok(options.signal instanceof AbortSignal);
     const sent = JSON.parse(options.body);
     assert.equal(sent.messages[1].content[0].image_url.url, `data:image/jpeg;base64,${image.image}`);
@@ -394,6 +394,21 @@ try {
       responder = () => provider([], "stop", { choices: [{ finish_reason: "stop", message: { role: "assistant", content: '{"findings":[]}', ...extra } }] });
       const response = await visual.POST(request("visual", image));
       assert.equal(response.status, 503); assert.ok(!(await response.text()).includes("provider-private-error"));
+    }
+  });
+  await test("Provider redirects never forward credentials or select an alternative", async () => {
+    for (const selected of ["xai", "groq", "gemini"]) {
+      configure(selected); env.AI_FALLBACK_PROVIDER = selected === "groq" ? "xai" : "groq";
+      env.XAI_API_KEY = "test-only-xai-credential"; env.GROQ_API_KEY = "test-only-groq-credential";
+      for (const status of [301, 302, 303, 307, 308]) {
+        calls = []; responder = (_url, options) => {
+          assert.equal(options.redirect, "manual");
+          return new Response("provider-private-error", { status, headers: { Location: "https://untrusted.test/credential-sink" } });
+        };
+        const response = await visual.POST(request("visual", image));
+        assert.equal(response.status, 503); assert.equal(calls.length, 1);
+        assert.ok(!(await response.text()).includes("provider-private-error"));
+      }
     }
   });
   await test("Availability failures do not retry, rotate keys, or use unselected alternatives", async () => {

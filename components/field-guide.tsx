@@ -31,17 +31,21 @@ export function OneHealthSummary({ field }: { field?: FieldEvidence }) {
   return <section className="context-summary"><p className="eyebrow">ONE HEALTH / CITIZEN CONTEXT</p><dl><div><dt>Bank</dt><dd>{contextLabels[context.bank]}</dd></div><div><dt>Wildlife</dt><dd>{contextLabels[context.wildlife]}</dd></div><div><dt>People</dt><dd>{contextLabels[context.humanUse]}</dd></div></dl>{context.note && <blockquote>{context.note}</blockquote>}<small>Directly reported context; no ecological or health conclusion.</small></section>;
 }
 
-export function CaptureGuide({ compact = false }: { compact?: boolean }) {
+export function CaptureGuide({ compact = false, historical = false }: { compact?: boolean; historical?: boolean }) {
   return <section className={`capture-guide${compact ? " compact" : ""}`}>
-    <div className="section-heading"><div><p className="eyebrow">A SMALL FIELD KIT. A USEFUL RECORD.</p><h2>{compact ? "Three views tell more." : "Bring the stream into focus."}</h2></div>{!compact && <span className="tag"><Camera size={14} /> Photos are enough</span>}</div>
+    <div className="section-heading"><div><p className="eyebrow">{historical ? "REVIEW A SOURCE. PRESERVE ITS LIMITS." : "A SMALL FIELD KIT. A USEFUL RECORD."}</p><h2>{historical ? "Read the photograph carefully." : compact ? "Three views tell more." : "Bring the stream into focus."}</h2></div>{!compact && <span className="tag"><Camera size={14} /> Photos are enough</span>}</div>
     <div className="shot-grid">
-      {[
+      {(historical ? [
+        { icon: MapPin, label: "01 / THE SOURCE", title: "Keep the attribution", detail: "Retain the photographer, licence and source date. The source location is not camera GPS." },
+        { icon: ScanLine, label: "02 / WHAT IS VISIBLE", title: "Describe the frame", detail: "Inspect the whole image. Note visible water, banks or structures; lighting and framing can mislead." },
+        { icon: Waves, label: "03 / THE UNKNOWNS", title: "Keep uncertainty", detail: "Leave measurements, species and causes unknown. A historical photograph does not describe conditions today." },
+      ] : [
         { icon: Waves, label: "01 / THE SETTING", title: "A wide view", detail: "Show the stream, both banks if visible, and a recognizable landmark. Landscape orientation works well." },
         { icon: ScanLine, label: "02 / THE DETAIL", title: "The water surface", detail: "From the bank, capture what you can see: appearance, floating material, reflections or foam. Avoid filters." },
         { icon: Leaf, label: "03 / THE CONNECTION", title: "The bank & habitat", detail: "Show plants, litter, or nearby activity. Describe what is visible; leave species and causes unknown." },
-      ].map(({ icon: Icon, label, title, detail }) => <article key={title}><div className="shot-graphic" aria-hidden="true"><Icon size={compact ? 25 : 38} strokeWidth={1.2} /></div><span>{label}</span><h3>{title}</h3><p>{detail}</p></article>)}
+      ]).map(({ icon: Icon, label, title, detail }) => <article key={title}><div className="shot-graphic" aria-hidden="true"><Icon size={compact ? 25 : 38} strokeWidth={1.2} /></div><span>{label}</span><h3>{title}</h3><p>{detail}</p></article>)}
     </div>
-    <p className="guide-note"><MapPin size={16} /> Add the place, actual date and time, and your own note. Stay on a safe, accessible path; a phone is enough.</p>
+    <p className="guide-note"><MapPin size={16} /> {historical ? "Your note reviews the credited source photo. No new field visit, exact capture time or instrument reading is implied." : "Add the place, actual date and time, and your own note. Stay on a safe, accessible path; a phone is enough."}</p>
   </section>;
 }
 

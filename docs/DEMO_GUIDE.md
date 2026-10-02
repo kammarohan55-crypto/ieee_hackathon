@@ -1,8 +1,8 @@
 # AquaLens demonstration and user QA — October 3, 2026
 
-Primary submission decision: **Track 3 — AI-Supported Assessment**, with supporting capabilities relevant to Tracks 1, 2 and 4. Select one primary track on submission. This follows the supplied project instructions and responsible-assessment workflow, not known winning odds. Current browser/device testing belongs to the user; terminal verification is separate evidence.
+Primary submission decision: **Track 3 — AI-Supported Assessment**, with supporting capabilities relevant to Tracks 1, 2 and 4. Select one primary track on submission. This follows the supplied project instructions and responsible-assessment workflow, not known winning odds. Latest user authorized agent-run browser testing; the actual tested flows and remaining device limits are in QA.md.
 
-Keep the project stopped until the user requests startup. Gemini 3.5 Flash-Lite is selected and the supplied key is in ignored `.dev.vars`. Bounded terminal checks through the actual route code returned real HTTP200 and valid text/image results. Browser/device operation still needs your walkthrough; quota may change. Earlier 3.8 returned503 and xAI403. Recorded public-photo results are visibly labeled preview context; no response, note or approval is prefilled into citizen records.
+The project is running at http://localhost:5173/ under the latest startup/testing request. Gemini 3.5 Flash-Lite is selected and the supplied key is in ignored `.dev.vars`. Bounded terminal checks through the actual route code returned real HTTP200 and valid text/image results. Fresh production-browser visual and text calls succeeded after the Worker redirect compatibility fix; physical-device behavior and quota remain separate checks. Earlier 3.8 returned503 and xAI403. Recorded public-photo results are visibly labeled preview context; no response, note or approval is prefilled into citizen records.
 
 In **Mission control → Geographic map**, select Mondego/Coimbra, Garonne/Toulouse or Hoffselva/Oslo. Fresh Mission control opens a sourced European city overview on the historical2021 landscape. Purple markers are city context, never sampling stations or citizen locations; citizen counts stay zero. **European overview · streets** fits the three cities on a world-scale street layer, since the historical imagery starts at zoom6. Street/NASA/2021 layers keep their own dates/coverage/attribution. Current weather, historical photo and recorded AI have separate clocks; none grades water health. The standalone field-record map retains its existing supplied-coordinate behavior.
 
@@ -92,7 +92,7 @@ If live AI fails, show the error and continue with local checks. Do not substitu
 - Camera/video/voice: check on the actual phone/browser. Feature support varies.
 - Offline: use the production build after an online controlled visit. Local rules/records can work offline; providers and uncached map tiles need network.
 
-These device checks have not been performed in this session because the user owns website testing. Source/type/lint/build and authored domain/API/transfer checks are separate evidence; see [QA](QA.md) for exact current results.
+The latest request authorized agent browser QA. Production-browser primary flows and320/390/1440px layouts were exercised; physical camera/voice/GPS, installed offline operation, native download completion and assistive technology remain unverified. Source/type/lint/build and authored domain/API/transfer checks are separate evidence; see [QA](QA.md) for exact results.
 
 ## Report an issue
 

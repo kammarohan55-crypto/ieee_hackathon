@@ -365,6 +365,37 @@ body .timeline-row, body .comparison-controls, body .comparison-image-label, bod
 .sampling-card details { border-top: 1px solid #365065; margin: 12px 0; }
 .sampling-card summary { display: flex; justify-content: space-between; align-items: center; cursor: pointer; color: #b8dcea; font-size: 11px; min-height: 40px; }
 .sampling-card details ul { padding-left: 18px; margin: 3px 0 12px; color: #bdd4e3; font-size: 11px; line-height: 1.8; }
+/* Provider consent must remain readable over the field studio's light defaults. */
+body .main-nav [data-slot="tabs-trigger"][data-state="active"] {
+  color: #e1f4ff !important;
+}
+body .navline { overflow-y: hidden; }
+/* Global field styles must not enlarge visually hidden upload controls. */
+body input.sr-only {
+  width: 1px;
+  height: 1px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+}
+body .main-nav [data-slot="tabs-trigger"][data-state="active"]::after {
+  background: #7ddbec !important;
+}
+body .capture-guide.compact {
+  background: #112135;
+  border-color: #2b465a;
+}
+body .capture-guide.compact .shot-grid article {
+  background: transparent;
+}
+body .capture-guide .shot-grid article > span { color: #90c8db; }
+body .capture-guide .shot-graphic { background: #153a4b; color: #70d2e1; }
+body .capture-guide.compact .guide-note { border-color: #31536a; }
+body .consent-row, body .field-studio .consent-row {
+  background: #15293b;
+  color: #d6e6f0;
+  border-color: #416079;
+}
 .sampling-card details li { margin-bottom: 6px; overflow-wrap: anywhere; }
 .sampling-card details p { font-size: 11px; line-height: 1.8; color: #a8ddcb; margin: 0 0 12px; }
 .sampling-card > button { width: 100%; justify-content: space-between; color: #d5f5ff; background: #183a4b; border-color: #3b7991; font-size: 11px; }

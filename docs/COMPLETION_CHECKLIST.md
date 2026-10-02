@@ -6,11 +6,11 @@ Updated 2026-10-03. This is a readiness checklist, not a completed field study, 
 
 | Item | Exact input | Why / status |
 | --- | --- | --- |
-| AI access | No additional key is currently needed. The supplied Gemini key is saved in ignored `.dev.vars`, with `AI_PROVIDER="gemini"` and Gemini 3.5 Flash-Lite. | Actual text/image source-route checks returnedHTTP200 and passed strict validation. Browser use/quota remain separate checks; local rules/review survive provider failure. No map/weather key is needed. |
+| AI access | No additional key is currently needed. The supplied Gemini key is saved in ignored `.dev.vars`, with `AI_PROVIDER="gemini"` and Gemini 3.5 Flash-Lite. | Actual text/image source-route checks returnedHTTP200 and passed strict validation. Fresh production-browser text/photo calls also succeeded; future quota remains uncertain; local rules/review survive provider failure. No map/weather key is needed. |
 | Firsthand evidence | Suggested three original photos: wide site, surface detail, bank context; actual site/landmark, date/local time/time zone, file mapping, direct note and photographer/use permission. Fill VISIT_NOTES_TEMPLATE.txt. | Recommended for a real field demo. Three bundled European historical images and the checked presentation-media ZIP already support a credited photo-review demo; use Photo desk → Review this photo. Unknown time/context must not be invented. |
 | Map location, if demonstrated | Actual WGS84 latitude/longitude and source/uncertainty, or device GPS when safely available. | Optional observation metadata. Enables your real site on the map; no fabricated marker. No water instruments or hardware required. |
 | Actual human review | A person inspects the source, records agreement/disagreement/uncertainty and their own reason. A separate reviewer can provide approved name/role/method/date/feedback. | Same-person citizen/reviewer demo is permitted by this app and must be disclosed. No authenticated reviewer or expert-validation claim. |
-| Device walkthrough | Desktop + intended phone/browser, steps and actual results using the checks below. | The user owns website/device testing. Code tests do not establish rendering, camera, browser storage or offline behavior. |
+| Device walkthrough | Desktop + intended phone/browser, steps and actual results using the checks below. | Agent exercised production-browser workflow/maps/Lab/presentation/320–1440px layouts; see QA.md. Physical capture/voice/GPS, native download completion and installed offline behavior remain device checks. |
 | Team and credit facts | Approved member names/pseudonyms, Devpost profiles/invitations, actual contributions and permission to credit. | Do not invent membership, qualifications or completed invitations. |
 | Original-code licence choice | Confirm the intended licence and copyright holder(s). MIT is an available option, not an activated licence in this repository. | Existing dependency/media licences remain separate. Public source alone is not an open-source licence; see GitHub's licensing documentation and DEPENDENCIES. |
 | Video and delivery | Actual3–5minute video link; tested judge-access URL/access instructions if hosted, otherwise describe the source/video proof-of-concept route accurately. | No live hosted demo or recorded video is verified. A live hosted URL needs authorized hosting-account access; no hosting secret should be pasted into chat. |
@@ -20,7 +20,7 @@ Updated 2026-10-03. This is a readiness checklist, not a completed field study, 
 
 Do not clear an existing collection without an exported backup. Use an empty separate browser profile if testing a clean start. Follow DEMO_GUIDE for exact controls.
 
-1. Open the app only after requesting startup. Empty Mission control contains no invented visits; historical sources remain labeled.
+1. The requested app is currently running at http://localhost:5173/. Empty Mission control contains no invented visits; historical sources remain labeled.
 2. Upload one original photo, enter actual context and note, inspect image-usability warnings and local clarification. If live AI is available, explicitly consent and show the actual response/error and provider.
 3. Answer only what is known; confirm. Save/reload must retain original words/media and current decisions. Unknowns must survive.
 4. Review the original and any actual visual candidates, record a reason, then inspect the Decision Brief, graph and four-chapter presentation. Missing/inconsistent imported history must remain incomplete.

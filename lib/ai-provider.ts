@@ -176,7 +176,9 @@ async function requestJSON(
       method: "POST",
       headers: config.provider === "gemini" ? { "Content-Type": "application/json", "x-goog-api-key": config.key } : { "Content-Type": "application/json", Authorization: `Bearer ${config.key}` },
       signal,
-      redirect: "error",
+      // Local workerd rejects redirect:"error" before any HTTP request.
+      // Manual mode never forwards credentials; every 3xx fails below.
+      redirect: "manual",
       body: JSON.stringify(config.provider === "gemini" ? {
         systemInstruction: { parts: [{ text: capability === "text" ? textInstructions : visualInstructions }] },
         contents: [{ role: "user", parts: [

@@ -606,7 +606,7 @@ export default function StreamCheck() {
             <TabsTrigger value="kit"><Backpack size={16} /> Field kit</TabsTrigger>
           </TabsList>
           <span className="track-label">
-            ONEAQUAHEALTH CHALLENGE <span>TRACK 01</span>
+            ONEAQUAHEALTH CHALLENGE <span>TRACK 03</span>
           </span>
         </div>
         <main id="workspace-content" className="main">
@@ -1022,7 +1022,7 @@ export default function StreamCheck() {
                     </span>
                   </div>
                 </section>
-                <CaptureGuide compact />
+                <CaptureGuide compact historical={!!field.reference} />
               </aside>
             </div>
           </TabsContent>
@@ -1157,7 +1157,7 @@ export default function StreamCheck() {
           <Waves size={17} /> AquaLens <span className="footer-divider">/</span>{" "}
           Care for the water. Care for the evidence.
         </span>
-        <span>Independent OneAquaHealth prototype · Citizen Science UX</span>
+        <span>Independent OneAquaHealth prototype · AI-supported assessment</span>
       </footer>
       <Sheet
         open={!!active}
