@@ -41,7 +41,7 @@ The observation-time input uses the **device's local time zone** and saves a UTC
 ## Submission items still to finish
 
 1. Supply actual team member names, Devpost profiles/invitations, contributor roles and approved credits; confirm applicable eligibility with the organizer if the conflicting wording affects the team. No Devpost account/submission has been inspected.
-2. Choose a licence for original code and retain third-party/photo notices. Supply the final public repository URL; source visibility was recorded earlier, and final judge access still needs checking.
+2. Choose a licence for original code and retain third-party/photo notices. Supply the final public repository URL; implementation commit cb2d42d is now pushed and the public commit page verified; final live-demo/video judge access still needs checking.
 3. Provide a working demo reachable by judges, with access instructions and the final URL if hosted. A localhost server is not judge access. Public hosting is a project delivery choice; the overview also permits a mockup/proof of concept. No deployment is verified.
 4. Record and upload the actual 3–5 minute video; supply its judge-accessible link. Use the real evidence → clarification → citizen confirmation → human decision → export/import sequence in [DEMO_GUIDE.md](DEMO_GUIDE.md). Explain local storage/manual transfer and provider limitations.
 5. Complete the user's intended-browser/phone walkthrough in [QA.md](QA.md): upload/save/reload, photo notes/comparison, review, actual field-pack download and second-profile import, camera/GPS/voice if shown, and production offline use if claimed. Supply device/browser, steps, actual results and redacted issue evidence. Code/build checks do not verify these outcomes.

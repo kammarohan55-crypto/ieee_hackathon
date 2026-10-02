@@ -224,3 +224,7 @@ https://www.radix-ui.com/primitives/docs/components/dialog and https://www.radix
 https://git-scm.com/docs/git-archive — inspected the built-in command's named-tree ZIP contract and commit ID in the ZIP comment. Use it for a source snapshot rather than a custom packer; it does not include ignored/untracked local configuration unless explicitly added. Inspect archive contents and configured-secret matches before delivery.
 
 https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository — public repository visibility does not itself grant an open-source licence. Existing dependency/photo/data notices are retained; original-code licence/holder choice is still a user input. No MIT grant or contributor copyright ownership is fabricated. This is a documented boundary, not legal advice or a newly verified hackathon licence requirement.
+
+## S35 — Release publication (checked 2026-10-02)
+
+https://github.com/kammarohan55-crypto/ieee_hackathon/commit/cb2d42d011294cebbf30fe553cf8b58116961568 — implementation commit pushed successfully; git ls-remote origin/main exactly matched the full local SHA. The anonymously opened GitHub commit page labels the repository Public and displays the commit/change summary. This verifies source publication, not deployed app behavior, hosting, account submission, scientific accuracy or competition results. Final handoff metadata is committed separately; its exact head is checked with Git and recorded in the source ZIP manifest.

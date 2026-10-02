@@ -38,4 +38,4 @@ Shared accounts/community voting, authenticated reviewers, a calibrated physical
 
 ## Source handoff
 
-The final source is published only when Git confirms the push and remote commit. A source ZIP can be made with mature `git archive` from a named verified commit; it must exclude ignored credentials/runtime/browser evidence. The ZIP is source, not a deployed application or a media field pack. PROJECT_CONTEXT records the actual final verification, publication state and exact next step for another AI.
+Implementation commit cb2d42d is published: push, origin/main SHA and public commit page were checked. Final handoff follows separately; use the current Git revision. A source ZIP can be made with mature `git archive` from a named verified commit; it must exclude ignored credentials/runtime/browser evidence. The ZIP is source, not a deployed application or a media field pack. PROJECT_CONTEXT records the actual final verification, publication state and exact next step for another AI.

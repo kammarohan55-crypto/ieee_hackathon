@@ -1,6 +1,6 @@
 # AquaLens — submission working copy
 
-Updated 2026-10-02. Draft only: no submission, deployment or video is established. Repository: https://github.com/kammarohan55-crypto/ieee_hackathon . Current local work is uncommitted/unpushed; do not assume public source matches it. Fill in actual team credits, tested judge-access URL and video link.
+Updated 2026-10-02. Draft only: no submission, deployment or video is established. Repository: https://github.com/kammarohan55-crypto/ieee_hackathon . Implementation commit cb2d42d is pushed and public access verified; final handoff documentation follows. Inspect the current main revision for exact source. Fill in actual team credits, tested judge-access URL and video link.
 
 ## Positioning
 
@@ -54,4 +54,4 @@ These are presentation choices, not awarded scores.
 
 ## Remaining submission gates
 
-Real original field evidence and permission; actual team invitations/contributor credits and licence choice for original code; user device QA; usable AI access if presenting live AI; final source commit/push; tested judge-access delivery; actual 3–5 minute video and Devpost submission confirmation. REAL_DATA_READINESS.md provides the exact evidence package. No secret should be pasted into chat or public files. Recheck the official deadline/eligibility before submission; the October2 source check found an October4 9PM PDT extension, with older rule text still conflicting.
+Real original field evidence and permission; actual team invitations/contributor credits and licence choice for original code; user device QA; usable AI access if presenting live AI; tested judge-access delivery; actual 3–5 minute video and Devpost submission confirmation. REAL_DATA_READINESS.md provides the exact evidence package. No secret should be pasted into chat or public files. Recheck the official deadline/eligibility before submission; the October2 source check found an October4 9PM PDT extension, with older rule text still conflicting.
