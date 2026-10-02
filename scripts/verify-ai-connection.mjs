@@ -32,10 +32,10 @@ try {
   } }));
   const text = await response.json();
   result.checks.push({ capability: "text", routeStatus: response.status, mode: text.mode, provider: text.provider ?? null, model: text.model ?? null, issueCount: text.issues?.length ?? 0, success: response.ok && text.mode === "ai" });
-  const image = await sharp(await readFile("public/images/references/scenic-reflection.jpg")).resize({ width: 768, height: 768, fit: "inside", withoutEnlargement: true }).jpeg({ quality: 75 }).toBuffer();
+  const image = await sharp(await readFile("public/images/references/hoffselva-oslo.jpg")).resize({ width: 768, height: 768, fit: "inside", withoutEnlargement: true }).jpeg({ quality: 75 }).toBuffer();
   const imageResponse = await visual.POST(request("visual", { consent: true, image: image.toString("base64") }));
   const output = await imageResponse.json();
-  result.checks.push({ capability: "visual", routeStatus: imageResponse.status, success: imageResponse.ok && output.provider !== undefined && Array.isArray(output.findings), provider: output.provider ?? null, model: output.model ?? null, findings: output.findings ?? [], source: "Credited historical Scenic Reflection photograph, 2023-06-06; 768px JPEG request derivative", humanReview: "Not performed" });
+  result.checks.push({ capability: "visual", routeStatus: imageResponse.status, success: imageResponse.ok && output.provider !== undefined && Array.isArray(output.findings), provider: output.provider ?? null, model: output.model ?? null, findings: output.findings ?? [], source: "Credited historical Hoffselva Oslo photograph, 2014-05-12; 768px JPEG request derivative", humanReview: "Not performed" });
 } finally {
   globalThis.fetch = originalFetch;
 }

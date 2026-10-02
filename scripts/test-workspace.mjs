@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import sharp from "sharp";
 import { readFile, writeFile } from "node:fs/promises";
 import { createReport, assess, decideIssue, validObservationTime, exportReport } from "../.sites-runtime/domain-tests/assessment.mjs";
-import { referencePhotos, displayEvidenceTime } from "../.sites-runtime/domain-tests/references.mjs";
+import { referencePhotos, archivedReferencePhotos, referenceDimensions, displayEvidenceTime } from "../.sites-runtime/domain-tests/references.mjs";
 import { evidenceTrail } from "../.sites-runtime/domain-tests/evidence-trail.mjs";
 import { newField, decisionReceipt, createReferenceDraft, assertReferenceRecord, exportCSV } from "../.sites-runtime/domain-tests/field.mjs";
 import { prepareImport, createFieldPack, mergeRecords, realRecords, digestBlob, searchReports, parseWorkspace, commitImportMedia, unreferencedMediaIds, withImportLock } from "../.sites-runtime/domain-tests/workspace.mjs";
@@ -204,18 +204,18 @@ await test("All three bundled source photographs match the recorded digest and d
     const info = await sharp(bytes).metadata();
     assert.equal(info.format, "jpeg");
     assert.equal(info.width, 1280);
-    assert.ok(info.height >= 800);
+    assert.equal(info.height, referenceDimensions(photo).height);
     assert.equal(await digestBlob(new Blob([bytes])), photo.sha256);
   }
 });
 await test("Reference drafts retain source dates and leave words, readings and coordinates unknown", () => {
   assert.equal(reference.draft.note, "");
   assert.equal(reference.draft.appearance, "unsure");
-  assert.equal(reference.draft.observedAt, "2010-08-03");
+  assert.equal(reference.draft.observedAt, referencePhotos[0].capturedDate);
   assert.deepEqual(reference.field.measurements, []);
   assert.equal(reference.field.coordinates, undefined);
   assert.equal(reference.field.oneHealth, undefined);
-  assert.equal(reference.field.reference.author, "Ak2431989");
+  assert.equal(reference.field.reference.author, referencePhotos[0].author);
 });
 await test("Source day precision never becomes an invented midnight or a shifted local date", () => {
   assert.equal(validObservationTime("2010-08-03", now), true);
@@ -234,7 +234,7 @@ await test("A historical photo review round-trips with licence, source and uncha
   const restored = await prepareImport(JSON.stringify(pack));
   assert.deepEqual(restored.records[0], referenceRecord);
   assert.equal(await digestBlob(restored.media[0].blob), referencePhotos[0].sha256);
-  assert.equal(restored.records[0].field.reference.license, "CC BY 3.0");
+  assert.equal(restored.records[0].field.reference.license, referencePhotos[0].license);
 });
 await test("Public photos cannot be imported as firsthand uploads after stripping attribution", async () => {
   for (const origin of ["public_reference", "upload"]) {
@@ -270,13 +270,22 @@ await test("Receipt, CSV and graph explicitly distinguish photographer from revi
   assert.equal(receipt.metadata.evidenceBasis, "historical_photo_review");
   assert.equal(receipt.metadata.photoAttribution.sourceUrl, referencePhotos[0].sourceUrl);
   assert.match(exportCSV([referenceRecord]), /historical_photo_review/);
-  assert.match(exportCSV([referenceRecord]), /Ak2431989/);
+  assert.ok(exportCSV([referenceRecord]).includes(referencePhotos[0].author));
   const graph = evidenceTrail(referenceRecord);
   const node = graph.nodes.find((node) => node.id === "photo-source");
   assert.equal(node.source, "reference");
   assert.ok(node.detail.includes(referencePhotos[0].license));
   assert.ok(graph.edges.some((edge) => edge.source === "photo-source" && edge.target === "media:0"));
   for (const issue of graph.nodes.filter((node) => node.id.startsWith("issue:"))) assert.ok(graph.edges.some((edge) => edge.source === "original" && edge.target === issue.id));
+});
+
+await test("Retired reference receipts remain valid after the active gallery moves to Europe", () => {
+  const old = archivedReferencePhotos[0], draft = createReferenceDraft(old);
+  const historical = { ...referenceRecord, original: { ...referenceRecord.original, site: old.site, observedAt: old.capturedDate },
+    field: { ...referenceRecord.field, reference: draft.field.reference, media: [{ ...referenceRecord.field.media[0], sha256: old.sha256 }] } };
+  assertReferenceRecord(historical);
+  assert.equal(parseWorkspace([JSON.parse(JSON.stringify(historical))])[0].field.reference.sourceUrl, old.sourceUrl);
+  assert.ok(!referencePhotos.some((p) => p.id === old.id));
 });
 
 const report = { suite: "AquaLens real-evidence transfers", generatedAt: new Date().toISOString(), liveAI: false, passed: results.filter((r) => r.passed).length, total: results.length, limitations: ["Authored software fixtures, not field evidence.", "No browser, IndexedDB transaction, camera or download completion test."], results };

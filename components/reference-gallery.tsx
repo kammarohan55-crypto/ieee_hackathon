@@ -2,7 +2,7 @@
 /* Bundled, credited thumbnails are served directly and retained byte-for-byte. */
 /* eslint-disable @next/next/no-img-element */
 import { ArrowUpRight, Camera, LoaderCircle } from "lucide-react";
-import { referencePhotos, displayEvidenceTime, type ReferencePhoto } from "@/lib/references";
+import { referencePhotos, referenceDimensions, displayEvidenceTime, type ReferencePhoto } from "@/lib/references";
 import type { FieldEvidence } from "@/lib/field";
 
 export function ReferenceCredit({ reference }: { reference: NonNullable<FieldEvidence["reference"]> }) {
@@ -17,10 +17,10 @@ export function ReferenceCredit({ reference }: { reference: NonNullable<FieldEvi
 
 export function ReferenceGallery({ onReview, loading }: { onReview: (photo: ReferencePhoto) => void; loading: string }) {
   return <section className="reference-gallery" aria-labelledby="reference-heading">
-    <div className="section-heading"><div><p className="eyebrow">LOOK CLOSELY / PUNE, INDIA</p><h2 id="reference-heading">Three frames. A closer look.</h2></div><span className="tag"><Camera size={14} /> Real, credited photographs</span></div>
-    <p className="reference-intro">Explore the Mutha River through public historical photographs. Choose a frame, write what you can see, and follow it through checks, human review and an evidence receipt.</p>
+    <div className="section-heading"><div><p className="eyebrow">ONEAQUAHEALTH / EUROPE</p><h2 id="reference-heading">Three waterways. One evidence trail.</h2></div><span className="tag"><Camera size={14} /> Real, credited photographs</span></div>
+    <p className="reference-intro">Explore Coimbra’s Mondego, Toulouse’s Garonne and Oslo’s Hoffselva through credited historical photographs. Choose a frame, write what you can see, and follow it through checks, human review and an evidence receipt.</p>
     <div className="reference-grid">{referencePhotos.map((photo) => <article className="reference-card" key={photo.id}>
-      <a className="reference-photo" href={photo.src} target="_blank" rel="noreferrer" aria-label={`Open full frame: ${photo.title}`}><img src={photo.src} alt={photo.alt} width={1280} height={photo.id === "scenic-reflection" ? 853 : 960} loading="lazy" /><span>Open full frame <ArrowUpRight size={15} /></span></a>
+      <a className="reference-photo" href={photo.src} target="_blank" rel="noreferrer" aria-label={`Open full frame: ${photo.title}`}><img src={photo.src} alt={photo.alt} width={referenceDimensions(photo).width} height={referenceDimensions(photo).height} loading="lazy" /><span>Open full frame <ArrowUpRight size={15} /></span></a>
       <div className="reference-body"><p className="eyebrow">{photo.role}</p><h3>{photo.title}</h3><p className="reference-date">{displayEvidenceTime(photo.capturedDate)}</p>
         <p className="reference-attribution">By {photo.author} · <a href={photo.licenseUrl} target="_blank" rel="noreferrer">{photo.license}</a></p>
         <a className="reference-source" href={photo.sourceUrl} target="_blank" rel="noreferrer">Source & photograph history <ArrowUpRight size={13} /></a>

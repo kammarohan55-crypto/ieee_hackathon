@@ -55,7 +55,7 @@ await test("Activity does not normalize impossible days or supply a missing time
 await test("Bundled photographs are source frames, not saved observations", () => {
   const frames = evidenceFrames([]);
   assert.equal(frames.length, 3);
-  assert.equal(frames[0].reference.id, "scenic-reflection");
+  assert.equal(frames[0].reference.id, "mondego-coimbra");
   assert.ok(frames.every((frame) => !frame.report && !frame.media && frame.reference));
   assert.deepEqual(new Set(frames.map((frame) => frame.reference.id)), new Set(referencePhotos.map((photo) => photo.id)));
 });

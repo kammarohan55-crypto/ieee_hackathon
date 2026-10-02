@@ -1,6 +1,6 @@
 /* Ink-and-paper field workspace; credited reference photos are not seeded reports. */
 .real-evidence-hero { background: #103e43; min-height: 450px; }
-.hero-river-photo { position: absolute; inset: 0; background: url("/images/references/scenic-reflection.jpg") center 53% / cover; }
+.hero-river-photo { position: absolute; inset: 0; background: url("/images/references/mondego-coimbra.jpg") center 53% / cover; }
 .real-evidence-hero .hero-shade { background: linear-gradient(90deg, #052e36f2 4%, #0b303ac9 40%, #0b303a47), linear-gradient(0deg, #092f37d9, transparent 35%); }
 .real-evidence-hero .hero-content > p { max-width: 440px; line-height: 1.8; }
 .real-evidence-hero .hero-workflow { background: #0a3035c9; border-color: #b4d7ce3b; box-shadow: 0 20px 50px #031e2929; }

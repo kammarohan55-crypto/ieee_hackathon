@@ -3,10 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Compass, Crosshair, FileSearch, Globe2, MapPin, MapPinOff, RefreshCw, Satellite, ShieldCheck } from "lucide-react";
 import type { Report } from "@/lib/assessment";
-import { displayEvidenceTime, evidenceTimePrecision } from "@/lib/references";
+import { displayEvidenceTime, evidenceTimePrecision, referencePhotos, type ReferencePhoto } from "@/lib/references";
 import { isSyntheticRecord } from "@/lib/atlas";
 import { geographicBounds, geographicGroups, locationState, syntheticLocation } from "@/lib/geographic";
 import { defaultSatelliteDate, SATELLITE_CONTEXT, LANDSCAPE_CONTEXT, landscapeMapStyle, satelliteMapStyle, satelliteObservationDate, shiftSatelliteDate, utcDate, validSatelliteDate, type GeographicBasemap } from "@/lib/satellite-context";
+
+import { europeanPlaces } from "@/lib/european-sites";
+import { EuropeanContext } from "./european-context";
 
 const methodLabel = { device: "Device position", manual: "Manually entered", synthetic: "Synthetic coordinates" };
 const statusLabel = { awaiting_review: "Awaiting human review", needs_information: "More information requested", reviewed: "Human reviewed · local demo" };
@@ -27,17 +30,24 @@ function observationTime(report: Report) {
   return displayEvidenceTime(value);
 }
 
-export function GeographicEvidenceMap({ records, onOpen }: { records: Report[]; onOpen: (id: string) => void }) {
+export function GeographicEvidenceMap({ records, onOpen, publicContext = false, initialReferenceCity, onReviewReference }: { records: Report[]; onOpen: (id: string) => void; publicContext?: boolean; initialReferenceCity?: string; onReviewReference?: (photo: ReferencePhoto) => void }) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("maplibre-gl").Map | null>(null);
   const cameraRef = useRef<{ center: [number, number]; zoom: number; bearing: number; locationSignature: string } | null>(null);
   const markerButtons = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const cityButtons = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const initialCity = europeanPlaces.find((value) => value.id === initialReferenceCity)?.id ?? "coimbra";
+  const cityRef = useRef(initialCity);
+  const [cityId, setCityId] = useState<string>(initialCity);
+  const [sourceSelected, setSourceSelected] = useState(publicContext && records.length === 0);
+  const place = europeanPlaces.find((p) => p.id === cityId) ?? europeanPlaces[0];
+  const sourcePhoto = referencePhotos.find((p) => p.id === place.photoId)!;
   const selectedKeyRef = useRef<string | undefined>(undefined);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [listFilter, setListFilter] = useState<"all" | "unplotted">("all");
   const [revision, setRevision] = useState(0);
   const [mapStatus, setMapStatus] = useState<"loading" | "ready" | "limited" | "unavailable">("loading");
-  const [basemap, setBasemap] = useState<GeographicBasemap>("satellite");
+  const [basemap, setBasemap] = useState<GeographicBasemap>(publicContext ? "landscape" : "satellite");
   const [satelliteDate, setSatelliteDate] = useState(defaultSatelliteDate);
   const [dateDraft, setDateDraft] = useState(defaultSatelliteDate);
   const [dateError, setDateError] = useState<string | null>(null);
@@ -63,7 +73,7 @@ export function GeographicEvidenceMap({ records, onOpen }: { records: Report[]; 
     let timeout: ReturnType<typeof setTimeout> | undefined;
     let errored = false;
     const markers: import("maplibre-gl").Marker[] = [];
-    const buttons = markerButtons.current;
+    const buttons = markerButtons.current, cityMarkers = cityButtons.current;
     import("@/lib/maplibre-client").then((lib) => {
       if (disposed || !container.current) return;
       setMapStatus("loading");
@@ -72,8 +82,8 @@ export function GeographicEvidenceMap({ records, onOpen }: { records: Report[]; 
         map = new lib.Map({
           container: container.current,
           style: basemap === "satellite" ? satelliteMapStyle(satelliteDate) : basemap === "landscape" ? landscapeMapStyle() : "https://tiles.openfreemap.org/styles/liberty",
-          center: camera?.center ?? (groups.length === 1 ? [groups[0].lon, groups[0].lat] : [0, 15]),
-          zoom: Math.min(camera?.zoom ?? (groups.length === 1 ? 13 : 1.15), maxZoom),
+          center: camera?.center ?? (groups.length === 1 ? [groups[0].lon, groups[0].lat] : publicContext ? [europeanPlaces.find((p) => p.id === cityRef.current)!.lon, europeanPlaces.find((p) => p.id === cityRef.current)!.lat] : [0, 15]),
+          zoom: Math.min(camera?.zoom ?? (groups.length === 1 ? 13 : publicContext ? 12 : 1.15), maxZoom),
           bearing: camera?.bearing ?? 0,
           maxZoom,
           pitch: 0,
@@ -107,9 +117,19 @@ export function GeographicEvidenceMap({ records, onOpen }: { records: Report[]; 
           const inner = document.createElement("span");
           inner.textContent = group.reports.length > 1 ? String(group.reports.length) : "";
           button.appendChild(inner);
-          button.onclick = () => setSelectedId(group.reports.at(-1)!.id);
+          button.onclick = () => { setSourceSelected(false); setSelectedId(group.reports.at(-1)!.id); };
           buttons.set(group.key, button);
           markers.push(new lib.Marker({ element: button }).setLngLat([group.lon, group.lat]).addTo(map!));
+        });
+        if (publicContext) europeanPlaces.forEach((city) => {
+          const button = document.createElement("button"); button.type = "button";
+          button.className = "geo-marker geo-city-marker";
+          button.setAttribute("aria-label", `${city.city} city overview; public source context, not a citizen observation or sampling station`);
+          button.setAttribute("aria-pressed", String(city.id === cityRef.current));
+          const label = document.createElement("span"); label.textContent = city.city; button.appendChild(label);
+          button.onclick = () => { cityRef.current = city.id; setCityId(city.id); setSourceSelected(true); mapRef.current?.easeTo({ center: [city.lon, city.lat], zoom: Math.min(12, maxZoom), duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 550 }); };
+          cityMarkers.set(city.id, button);
+          markers.push(new lib.Marker({ element: button }).setLngLat([city.lon, city.lat]).addTo(map!));
         });
         resizeObserver = new ResizeObserver(() => { if (!disposed) map?.resize(); });
         resizeObserver.observe(container.current);
@@ -129,7 +149,7 @@ export function GeographicEvidenceMap({ records, onOpen }: { records: Report[]; 
       if (timeout) clearTimeout(timeout);
       resizeObserver?.disconnect();
       markers.forEach((marker) => marker.remove());
-      buttons.clear();
+      buttons.clear(); cityMarkers.clear();
       if (map) {
         const center = map.getCenter();
         cameraRef.current = { center: [center.lng, center.lat], zoom: map.getZoom(), bearing: map.getBearing(), locationSignature };
@@ -137,15 +157,24 @@ export function GeographicEvidenceMap({ records, onOpen }: { records: Report[]; 
       map?.remove();
       if (mapRef.current === map) mapRef.current = null;
     };
-  }, [groups, revision, basemap, satelliteDate, maxZoom, locationSignature]);
+  }, [groups, revision, basemap, satelliteDate, maxZoom, locationSignature, publicContext]);
 
   useEffect(() => {
     selectedKeyRef.current = selectedKey;
     markerButtons.current.forEach((button, key) => button.setAttribute("aria-pressed", String(key === selectedKey)));
   }, [selectedKey, mapStatus]);
 
+  useEffect(() => {
+    cityButtons.current.forEach((button, key) => button.setAttribute("aria-pressed", String(key === cityId)));
+  }, [cityId, mapStatus]);
+  function selectCity(id: string) {
+    const city = europeanPlaces.find((value) => value.id === id);
+    if (!city) return;
+    cityRef.current = city.id; setCityId(city.id); setSourceSelected(true);
+    mapRef.current?.easeTo({ center: [city.lon, city.lat], zoom: Math.min(12, maxZoom), duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 550 });
+  }
   function selectReport(report: Report) {
-    setSelectedId(report.id);
+    setSourceSelected(false); setSelectedId(report.id);
     const c = report.field?.coordinates;
     if (c && locationState(report) === "mapped" && mapRef.current) {
       const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -157,6 +186,11 @@ export function GeographicEvidenceMap({ records, onOpen }: { records: Report[]; 
     if (!map) return;
     const bounds = geographicBounds(groups);
     if (bounds) map.fitBounds(bounds, { padding: 62, maxZoom: Math.min(14, maxZoom), duration: 0 });
+    else if (publicContext) {
+      map.fitBounds(geographicBounds(europeanPlaces.map((city) => ({ key: city.id, lat: city.lat, lon: city.lon, reports: [] })))!, { padding: 70, maxZoom: 6, duration: 0 });
+      // This explicitly labeled overview action uses a world-scale layer; the historical source starts at zoom 6.
+      if (basemap === "landscape") setBasemap("street");
+    }
     else map.jumpTo({ center: [0, 15], zoom: 1.15, pitch: 0, bearing: 0 });
   }
   function chooseDate(value: string) {
@@ -170,7 +204,7 @@ export function GeographicEvidenceMap({ records, onOpen }: { records: Report[]; 
   }
   const statusText = {
     loading: basemap === "satellite" ? `Requesting NASA imagery for ${satelliteDate} UTC…` : basemap === "landscape" ? "Requesting 2021 annual landscape context…" : "Loading geographic basemap…",
-    ready: basemap === "satellite" ? `Tile requests complete · ${satelliteDate} UTC · coverage may be blank or obscured` : basemap === "landscape" ? "2021 annual composite · historical context · detail at zoom 6–14" : groups.length ? "Basemap ready · reported positions" : "World view · no plottable coordinates",
+    ready: basemap === "satellite" ? `Tile requests complete · ${satelliteDate} UTC · coverage may be blank or obscured` : basemap === "landscape" ? "2021 annual composite · historical context · detail at zoom 6–14" : groups.length ? "Basemap ready · reported positions" : publicContext ? "European city context · no citizen positions invented" : "World view · no plottable coordinates",
     limited: basemap === "satellite" ? "Satellite tiles unavailable or incomplete. Try another date or use the street map." : basemap === "landscape" ? "Historical imagery unavailable or incomplete. Retry or use the street map." : "Basemap data unavailable or incomplete. Use the location list.",
     unavailable: "Mapping unavailable on this device. All records remain accessible.",
   }[mapStatus];
@@ -178,9 +212,17 @@ export function GeographicEvidenceMap({ records, onOpen }: { records: Report[]; 
 
   return <section className="geographic-evidence" aria-label="Geographic evidence explorer">
     <header className="geo-heading">
-      <div><p className="geo-kicker"><Compass size={14} /> GEOGRAPHIC EVIDENCE</p><h2>A place for every observation.</h2><p>Reported coordinates connect a record to a place. The review stays with the evidence.</p></div>
+      <div><p className="geo-kicker"><Compass size={14} /> GEOGRAPHIC EVIDENCE</p><h2>{publicContext ? "Europe, through its waterways." : "A place for every observation."}</h2><p>{publicContext ? "Explore credited river imagery and modeled context in three OneAquaHealth research cities. City overviews and citizen records keep separate sources." : "Reported coordinates connect a record to a place. The review stays with the evidence."}</p></div>
       <div className="geo-totals"><div><strong>{mappedCount}</strong><span>plotted records</span></div><div><strong>{unplottedCount}</strong><span>not plotted</span></div></div>
     </header>
+    {publicContext && <div className="eu-place-selector" role="group" aria-label="European source city">{europeanPlaces.map((city) => {
+      const photo = referencePhotos.find((p) => p.id === city.photoId)!;
+      return <button type="button" key={city.id} aria-pressed={cityId === city.id} onClick={() => selectCity(city.id)}>
+        {/* Unchanged public thumbnails; the full frame and credit are available in the dossier. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={photo.src} alt="" width={160} height={100} /><span><small>{city.country} / SOURCE CONTEXT</small><strong>{city.river}</strong><span>{city.city} · photo {photo.capturedDate.slice(0, 4)}</span></span><MapPin size={17} />
+      </button>;
+    })}</div>}
     <div className="geo-context-controls">
       <div className="geo-basemap-switch" role="group" aria-label="Map background"><button type="button" aria-pressed={basemap === "street"} onClick={() => setBasemap("street")}><MapPin size={15} /> Street map</button><button type="button" aria-pressed={basemap === "satellite"} onClick={() => setBasemap("satellite")}><Satellite size={16} /> NASA satellite</button><button type="button" aria-pressed={basemap === "landscape"} onClick={() => setBasemap("landscape")}><Globe2 size={16} /> Landscape · 2021</button></div>
       {basemap === "satellite" ? <form className="geo-date-controls" onSubmit={(event) => { event.preventDefault(); chooseDate(dateDraft); }}>
@@ -194,13 +236,21 @@ export function GeographicEvidenceMap({ records, onOpen }: { records: Report[]; 
     <div className="geo-layout">
       <div className="geo-stage">
         <div ref={container} className="geo-map" />
-        <div className="geo-map-top"><span><MapPin size={14} /> {groups.length} exact location{groups.length === 1 ? "" : "s"}</span><button type="button" onClick={fitLocations} disabled={mapStatus === "loading" || mapStatus === "unavailable"}><Crosshair size={16} /> {groups.length ? "Fit locations" : "World view"}</button></div>
-        {(!groups.length || mapStatus === "unavailable") && <div className="geo-map-message"><Globe2 size={32} /><h3>{mapStatus === "unavailable" ? "Your evidence is still here." : basemap === "street" ? "Coordinates make the connection." : "Explore Earth. Add evidence later."}</h3><p>{mapStatus === "unavailable" ? "The map needs WebGL and an available basemap connection. Inspect each record in the location list." : basemap === "landscape" ? "Historical 2021 landscape context. No observation positions are plotted. Pan and zoom to 6–14 for imagery; no site or visit is invented." : basemap === "satellite" ? "This is world satellite context. No observation positions are plotted. Pan and choose a date; supplied coordinates can connect your own records later." : "No records in this view have coordinates that this map can plot. Site names alone are never placed on the map."}</p></div>}
+        <div className="geo-map-top"><span><MapPin size={14} /> {groups.length} exact location{groups.length === 1 ? "" : "s"}</span><button type="button" onClick={fitLocations} disabled={mapStatus === "loading" || mapStatus === "unavailable"}><Crosshair size={16} /> {groups.length ? "Fit locations" : publicContext ? `European overview${basemap === "landscape" ? " · streets" : ""}` : "World view"}</button></div>
+        {((!groups.length && !publicContext) || mapStatus === "unavailable") && <div className="geo-map-message"><Globe2 size={32} /><h3>{mapStatus === "unavailable" ? "Your evidence is still here." : basemap === "street" ? "Coordinates make the connection." : "Explore Earth. Add evidence later."}</h3><p>{mapStatus === "unavailable" ? "The map needs WebGL and an available basemap connection. Inspect each record in the location list." : basemap === "landscape" ? "Historical 2021 landscape context. No observation positions are plotted. Pan and zoom to 6–14 for imagery; no site or visit is invented." : basemap === "satellite" ? "This is world satellite context. No observation positions are plotted. Pan and choose a date; supplied coordinates can connect your own records later." : "No records in this view have coordinates that this map can plot. Site names alone are never placed on the map."}</p></div>}
         <div className={`geo-map-status geo-status-${mapStatus}`}><span role="status"><i aria-hidden="true" />{statusText}</span>{(mapStatus === "limited" || mapStatus === "unavailable") && <div className="geo-map-recovery"><button type="button" onClick={() => { setMapStatus("loading"); setRevision((value) => value + 1); }}><RefreshCw size={14} /> Retry map</button>{basemap !== "street" && <button type="button" onClick={() => setBasemap("street")}>Use street map</button>}</div>}</div>
-        <div className="geo-legend"><span><i /> Reported evidence</span><span><i className="geo-legend-synthetic" /> Synthetic included</span><p>Marker numbers count records at identical coordinates. No river connections are inferred.</p></div>
+        <div className="geo-legend">{publicContext && <span><i className="geo-legend-city" /> City overview · sourced context</span>}<span><i /> Reported evidence</span><span><i className="geo-legend-synthetic" /> Synthetic included</span><p>Marker numbers count records at identical coordinates. No river connections are inferred.</p></div>
       </div>
       <aside className="geo-dossier" aria-label="Selected location record">
-        {selected ? <>
+        {publicContext && sourceSelected ? <div className="eu-source-dossier">
+          <p className="geo-kicker">PUBLIC SOURCE / {place.country.toUpperCase()}</p><h3>{place.river} · {place.city}</h3>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <a href={sourcePhoto.src} target="_blank" rel="noreferrer"><img src={sourcePhoto.src} alt={sourcePhoto.alt} width={sourcePhoto.width} height={sourcePhoto.height} /></a>
+          <p>{place.description}. This is geographic context in an official research city, not an identified project sampling station.</p>
+          <dl className="geo-metadata"><div><dt>Photograph source date</dt><dd>{displayEvidenceTime(sourcePhoto.capturedDate)}</dd></div><div><dt>Photographer / licence</dt><dd>{sourcePhoto.author} · <a href={sourcePhoto.licenseUrl} target="_blank" rel="noreferrer">{sourcePhoto.license}</a></dd></div><div><dt>Map position</dt><dd>City overview · Wikidata CC0 · {place.lat.toFixed(4)}, {place.lon.toFixed(4)}. Not the camera position or a field reading.</dd></div></dl>
+          <div className="eu-dossier-links"><a href={sourcePhoto.sourceUrl} target="_blank" rel="noreferrer">Photo source <ArrowUpRight size={13} /></a><a href={place.official} target="_blank" rel="noreferrer">OneAquaHealth city <ArrowUpRight size={13} /></a><a href={`https://www.wikidata.org/wiki/${place.wikidata}`} target="_blank" rel="noreferrer">Position source <ArrowUpRight size={13} /></a></div>
+          {onReviewReference && <button type="button" className="geo-open-record" onClick={() => onReviewReference(sourcePhoto)}>Review this real photograph <ArrowUpRight size={15} /></button>}
+        </div> : selected ? <>
           <p className="geo-kicker">LOCATION DOSSIER</p><h3>{selected.original.site || "Unnamed observation site"}</h3>
           <div className="geo-badges">{isSyntheticRecord(selected) && <span className="geo-synthetic">Synthetic record</span>}<span>{statusLabel[selected.status]}</span>{coordinates?.method === "synthetic" && <span className="geo-synthetic">Synthetic coordinates</span>}</div>
           <dl className="geo-metadata"><div><dt>Location</dt><dd>{locationLabel[locationState(selected)]}</dd></div>{coordinates && <><div><dt>Reported latitude / longitude</dt><dd className="geo-coordinate">{String(coordinates.lat)} / {String(coordinates.lon)}</dd></div><div><dt>Coordinate source</dt><dd>{methodLabel[coordinates.method]}</dd></div><div><dt>Reported accuracy</dt><dd>{Number.isFinite(coordinates.accuracy) && coordinates.accuracy! >= 0 ? `± ${coordinates.accuracy} m · unverified` : "Not recorded"}</dd></div></>}<div><dt>Observation time · citizen supplied</dt><dd>{observationTime(selected)}</dd></div><div><dt>Retained media metadata</dt><dd>{selected.field?.media.length ?? 0} item{selected.field?.media.length === 1 ? "" : "s"}</dd></div></dl>
@@ -213,8 +263,9 @@ export function GeographicEvidenceMap({ records, onOpen }: { records: Report[]; 
         </> : <div className="geo-dossier-empty"><MapPinOff size={28} /><h3>No local records in this view.</h3><p>Save an observation with coordinates to explore its location and evidence trail.</p></div>}
       </aside>
     </div>
+    {publicContext && <EuropeanContext key={place.id} place={place} />}
     <section className="geo-research-context" aria-label="Official OneAquaHealth research context">
-      <div><p className="geo-kicker">ONEAQUAHEALTH · ORGANIZER CONTEXT</p><h3>Five research areas. Evidence stays local.</h3><p>Explore the organizers’ published city research. These links do not import monitoring results; the historical Pune photo case study is separate.</p></div>
+      <div><p className="geo-kicker">ONEAQUAHEALTH · ORGANIZER CONTEXT</p><h3>Five research areas. Evidence stays local.</h3><p>Explore the organizers’ published city research. These links do not import monitoring results; public source photographs are separate from citizen observations and official monitoring results.</p></div>
       <div className="geo-research-links">{researchCitySources.map((city) => <a key={city.slug} href={`https://www.oneaquahealth.eu/research-cities/${city.slug}/`} target="_blank" rel="noreferrer"><span><strong>{city.name}</strong><small>{city.country}</small></span><ArrowUpRight size={16} aria-hidden="true" /><span className="sr-only"> · organizer page, opens in a new tab</span></a>)}</div>
     </section>
     {basemap === "landscape" && <section className="geo-satellite-source" aria-label="Historical landscape source and limits">

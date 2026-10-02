@@ -1,7 +1,7 @@
 import type { Report } from "./assessment";
 import type { MediaEvidence } from "./field";
 import { isSyntheticRecord } from "./atlas";
-import { referencePhotos, validRecordedTimestamp, type ReferencePhoto } from "./references";
+import { referencePhotos, allReferencePhotos, referenceDimensions, validRecordedTimestamp, type ReferencePhoto } from "./references";
 import { recordedProviderLabel } from "./ai-metadata";
 import { labDecisionBrief } from "./evidence-lab";
 
@@ -31,11 +31,11 @@ export function evidenceFrames(records: Report[]): EvidenceFrame[] {
       date: report.original.observedAt,
       width: media.width > 0 && media.height > 0 ? media.width : 4,
       height: media.width > 0 && media.height > 0 ? media.height : 3,
-      report, media, reference: referencePhotos.find((p) => p.id === report.field?.reference?.id),
+      report, media, reference: allReferencePhotos.find((p) => p.id === report.field?.reference?.id),
     })));
-  const sources = [referencePhotos[1], referencePhotos[0], referencePhotos[2]].map((reference) => ({
+  const sources = referencePhotos.map((reference) => ({
     key: `source:${reference.id}`, title: reference.title, date: reference.capturedDate,
-    width: 1280, height: reference.id === "scenic-reflection" ? 853 : 960, reference,
+    ...referenceDimensions(reference), reference,
   }));
   return [...saved, ...sources];
 }

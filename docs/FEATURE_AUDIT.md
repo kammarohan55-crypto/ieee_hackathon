@@ -6,6 +6,10 @@ Primary submission decision: **Track 3 — AI-Supported Assessment**, with suppo
 
 | Planned feature | Status | Verified implementation / remaining boundary |
 |---|---|---|
+| European photo/recorded AI preview | Working contracts / partial device QA |3 licensed historical frames, genuine recorded Gemini results with exact photo hashes, coarse overlays and pending human review |
+| European city map source layer | Working events / partial device QA |Sourced city overview markers, river cards, fit/focus/dossiers; counts stay separate from citizen data; WebGL/rendering QA remains |
+| Hourly city weather visualizations | Working API/data / partial device QA |Real snapshots, strict units/UTC/aligned series, live refresh and optional15minute polling, metric/window/table/source export; no river-health forecasting |
+| Three-clocks provenance | Working contracts / partial device QA |Separate historical-photo, recorded-AI and model/retrieval time; no manufactured human approvals |
 | Mission control and professional photo/map views | Partial | Source gallery, real queues, filters, focus/compare/flow present; current rendering/mobile QA assigned to user |
 | Live camera, photo/video capture and uploads | Partial | Original media retained; recorder lifecycle/frame race mocked regressions pass; physical device permissions/codecs untested |
 | Local image-quality checks | Working | Canvas exposure/detail heuristics with method labels; not calibrated scientific image quality |
@@ -21,7 +25,7 @@ Primary submission decision: **Track 3 — AI-Supported Assessment**, with suppo
 | Photo zoom/grid/pins | Partial | Native dimensions/padding guards and immutable human notes tested; actual touch/keyboard/rendering QA remains |
 | Timeline/event replay | Partial | Retained events only with method/provider provenance; visual walkthrough remains |
 | Before/after comparison | Partial | Explicit A/B actions and real retained/source frames; user rendering QA, no automatic change diagnosis |
-| Geographic map | Partial | Supplied coordinates only, zero seeded markers, recenter/refit and selected-marker lifecycle tests; WebGL/network user QA |
+| Geographic map | Partial | Citizen markers use supplied coordinates only; zero seeded observations. Separate city-overview layer, recenter/refit and selected-marker lifecycle tests; WebGL/network user QA |
 | Dated NASA regional imagery | Partial | Anonymous capability/sample tile access verified; date/style/marker/fallback contracts tested; 250–500 m source limits, no per-scene guarantee; rendering untested |
 | Historical Sentinel-2 landscape | Partial | Anonymous 2021 annual RGB median tiles verified; 10 m source bands, zoom 6–14, latitude −60° to 83°, explicit attribution/limits; browser coverage unverified |
 | Official research area context | Working source links | Five sourced city/country links; no copied registry coordinates/photos/monitoring results |
@@ -46,4 +50,4 @@ Primary submission decision: **Track 3 — AI-Supported Assessment**, with suppo
 
 Reused installed MapLibre (BSD-3-Clause), React Flow/Radix/Recharts/Workbox (MIT), Lucide/idb (ISC), Zod and existing stores/components. No package, model training, copied Google imagery or unauthorized official dataset added. See DEPENDENCIES.md and SOURCES.md. Primary navigation is Mission control, Field notebook, Review desk, Evidence Lab, Insights and Field kit; advanced schematic and diagnostics remain behind explicit controls.
 
-Latest complete suite: **331/331** authored checks (94 domain, 42 workspace, 34 mission, 47 mocked API, 15 capture/photo, 14 Lab, 21 map, 15 presentation/visit, 20 Decision brief, 29 evidence actions). TypeScript, full lint and production build pass; release details are in QA.md. Four bundled reports cover 217 checks; another 114 run through npm test. Mock hooks/recorders/MapLibre/timers and source colors do not establish browser outcomes or model accuracy. The user owns website/device QA; app stays stopped. See REAL_DATA_READINESS.md, DEMO_GUIDE.md and PROJECT_CONTEXT.md for remaining actions.
+Latest complete suite: **351/351** authored checks (94 domain, 43 workspace, 34 mission, 51 mocked API, 17 capture/photo, 14 Lab, 24 map, 15 presentation/visit, 20 Decision brief, 29 evidence actions,10 European context). TypeScript, full lint and production build pass; release details are in QA.md. Four bundled reports cover 222 checks; another 129 run through npm test. Mock hooks/recorders/MapLibre/timers and source colors do not establish browser outcomes or model accuracy. The user owns website/device QA; app stays stopped. See REAL_DATA_READINESS.md, DEMO_GUIDE.md and PROJECT_CONTEXT.md for remaining actions.

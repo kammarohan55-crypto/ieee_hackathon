@@ -2,13 +2,22 @@
 
 Primary submission decision: **Track 3 — AI-Supported Assessment**, with supporting capabilities relevant to Tracks 1, 2 and 4. Select one primary track on submission. This follows the supplied project instructions and responsible-assessment workflow, not known winning odds. Current browser/device testing belongs to the user; terminal verification is separate evidence.
 
-Keep the project stopped until the user requests startup. Gemini 3.5 Flash-Lite is selected and the supplied key is in ignored `.dev.vars`. A bounded terminal check through the actual route code returned real HTTP200 and valid text/image results. Browser/device operation still needs your walkthrough; quota may change. Earlier 3.8 returned503 and xAI403. No recorded AI response is prefilled into the workspace.
+Keep the project stopped until the user requests startup. Gemini 3.5 Flash-Lite is selected and the supplied key is in ignored `.dev.vars`. Bounded terminal checks through the actual route code returned real HTTP200 and valid text/image results. Browser/device operation still needs your walkthrough; quota may change. Earlier 3.8 returned503 and xAI403. Recorded public-photo results are visibly labeled preview context; no response, note or approval is prefilled into citizen records.
 
-In **Mission control → Geographic map**, expect a neutral world view with zero observations: no site/grade/marker is invented. **NASA satellite** shows a requested UTC day, date stepping/apply and regional Terra/MODIS limits. **Landscape · 2021** is an annual historical Sentinel-2 RGB median with 10 m source bands, not a current scene or numerical reflectance. At broad zoom use **Zoom to landscape detail**; its offered range is zoom 6–14 and latitude −60° to 83°. Inspect cloud/gap/artifact and attribution notes. It does not implement NDWI or grade water. Try loading/error/retry and explicit street fallback. New coordinate sets refit; unchanged-location date/background/retry preserves camera and selection. Five organizer-city links are context, not imported monitoring data.
+In **Mission control → Geographic map**, select Mondego/Coimbra, Garonne/Toulouse or Hoffselva/Oslo. Fresh Mission control opens a sourced European city overview on the historical2021 landscape. Purple markers are city context, never sampling stations or citizen locations; citizen counts stay zero. **European overview · streets** fits the three cities on a world-scale street layer, since the historical imagery starts at zoom6. Street/NASA/2021 layers keep their own dates/coverage/attribution. Current weather, historical photo and recorded AI have separate clocks; none grades water health. The standalone field-record map retains its existing supplied-coordinate behavior.
+
+Photo desk has real recorded Gemini candidates and coarse regions matching the photo digest. The source run returned0 candidates for Coimbra and1 vegetation candidate each for Toulouse/Oslo. Empty findings do not establish healthy water. Human review remains not performed. **Review this photo** starts your own note/confirmation/review and allows a fresh consented analysis.
 
 Provider consent names the configured primary and optional alternative. If the server configuration changes while the page is open, the request is rejected before provider access, details reload and a fresh checkbox is needed. Original evidence remains intact. No API key should appear in a screenshot, receipt, export or repository.
 
 Use the 3–5 minute sequence below: credited or actual photo → uncertain note/checks → explicit confirmation → reasoned human review → **Present this evidence** → Evidence Actions/Decision brief → map context → field pack. Show disagreement only when actual retained candidates and your judgment support it. Satellite imagery supplies context, and Observation Quality describes evidence completeness; neither grades ecological health.
+
+## Show the European visuals
+
+1. Photo desk: show photographer/date/licence and Three clocks. On Toulouse or Oslo toggle **Recorded regions**; these are real recorded coarse model areas, not detection boxes or human decisions.
+2. Geographic map: choose river/city cards, inspect the photo dossier and marker distinction. Try **European overview**, then landscape/street/NASA. No field record is created.
+3. Weather panel: inspect the recorded snapshot/time, then **Refresh live context**. Switch air temperature/precipitation/wind and recent/next24h model; open the UTC values table. Optional15minute refresh is for weather models, not stream monitoring.
+4. Export **Context JSON**. Keep source context distinct from an explicitly human-reviewed Decision Receipt; continue the assessment sequence below.
 
 ---
 

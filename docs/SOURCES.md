@@ -243,6 +243,8 @@ The supplied key was saved only in ignored .dev.vars; models.list returnedHTTP20
 
 Reuses the three Wikimedia sources/licences recorded in S19 and public/images/references/CREDITS.md; no new Google-image or YouTube reuse right is assumed. SHA-256 checks confirm that packaged images match the existing credited catalogue exactly. The kit includes per-file photographer, source URL, source-supplied day precision, licence/URL and unchanged-thumbnail description. It contains no seeded field data, AI candidates, citizen notes, GPS/readings or human approvals. A Python standard-library ZIP and Node built-in filesystem/crypto reuse existing catalogue data; no additional package/backend is introduced. These are historical presentation sources, not newly captured or independently authenticated scenes. The recording is the user's task.
 
+This entry records the earlier Pune kit. The current European kit replaces its image files with S40 sources while preserving the same attribution/digest/no-invented-visit boundary; CREDITS retains retired sources for old receipts.
+
 
 ## S38 — Current presentation framing and official overview (checked 2026-10-03)
 
@@ -254,3 +256,24 @@ The supplied AGENTS instructions specify primaryTrack3. **Current project/presen
 ## S39 — Gemini/media source publication (checked 2026-10-03)
 
 https://github.com/kammarohan55-crypto/ieee_hackathon/commit/b0dd07fcf5ab7934eccb30161469587d70defed4 — authorized Git push succeeded; ls-remote origin/main exactly matches local implementation SHA, and the anonymous commit page opens with the expected Gemini/media change title. This verifies source publication, not hosted app/browser behavior, submitted entry, scientific accuracy or competition result. Final handoff metadata follows in a separate commit; source ZIP/comment/manifest use that final HEAD. Secrets/media-kit/runtime outputs are ignored and excluded from the committed source.
+
+
+## S40 — Licensed European river imagery (checked 2026-10-03)
+
+- https://commons.wikimedia.org/wiki/File:Coimbra_e_o_rio_Mondego_(6167200429).jpg — Leandro Neumann Ciuffo, CC BY2.0, source day2011-09-20,1280×859 thumbnail.
+- https://commons.wikimedia.org/wiki/File:Toulouse_-_Garonne.jpg — Tiia Monto, CC BY-SA3.0, source day2012-08-28,1280×481 panoramic thumbnail.
+- https://commons.wikimedia.org/wiki/File:Hoffselva_ved_Sk%C3%B8yen_I.jpg — Jan-Tore Egge, CC BY-SA4.0, source day2014-05-12,1280×960 thumbnail.
+
+Primary file pages and official Wikimedia imageinfo supplied authors/licences/days/thumbnail metadata. Downloaded unchanged thumbnails and visually inspected all three locally; hashes/dimensions in lib/references.ts,880,986total bytes. Capture time/zone/authenticity not independently verified. River/city context matches https://www.oneaquahealth.eu/research-cities/coimbra/ , https://www.oneaquahealth.eu/research-cities/toulouse/ and https://www.oneaquahealth.eu/research-cities/oslo/ . These are not confirmed sampling stations or team photos; no photographer/organizer endorsement. Old Pune sources retired from active gallery/hero/kit, retained only for existing receipt compatibility.
+
+## S41 — European overview positions and genuine modeled-weather access (checked 2026-10-03)
+
+https://www.wikidata.org/wiki/Q45412 , https://www.wikidata.org/wiki/Q7880 , https://www.wikidata.org/wiki/Q585 and https://www.wikidata.org/wiki/Wikidata:Licensing — official wbgetentities/P625 city coordinates retrieved; structured data CC0. Rounded city overview centers, not photo/GPS/station locations. Official research areas can extend beyond the city center.
+
+https://open-meteo.com/en/docs — documented current15minute model context, hourly temperature_2m/precipitation/wind_speed_10m and UTC/past_days/forecast_days parameters. Existing anonymous adapter extended with past1day/forecast2days; three actual source-route city requests returned200 and validated units/calendar/aligned series. Source/grid/retrieval metadata and72hours retained, chart filters recent/next24hours from current time. Recent values remain modeled, future values projections; neither is a stream sensor/rain gauge or water-health forecast. CC BY4.0 attribution/noncommercial evaluation limits apply; availability/quota not promised. Snapshots say recorded; live refresh retains model time; old/missing windows/failures stay explicit.
+
+## S42 — Proven visualization reuse and real recorded AI (checked 2026-10-03)
+
+https://recharts.github.io/en-US/api/AreaChart/ — reused installed MIT AreaChart/ResponsiveContainer/axes/tooltip with UTC numeric data, linear plots and accessible values table. Existing BSD-3-Clause MapLibre marker/navigation/bounds used; attempted current add-a-marker documentation URL returnedHTTP error. Its contracts are supported by installed types/existing code/authored event doubles, not an asserted fresh browser walkthrough. Existing React/Radix/Lucide/scoped CSS retained, no new package/backend or custom river forecast.
+
+Authorized public-photo processing through actual visual source route with isolated Worker environment: all3 real Gemini3.5 Flash-Lite responses validated. Request derivatives1024px/quality80; run timestamps2026-10-02T19:33:09–13Z are October3 Asia/Kolkata. Coimbra returned no candidates; Toulouse/Oslo a possible vegetation pattern each, high uncalibrated confidence, coarse right/lower region. These are genuine recorded outputs, not human-validated labels. public/european-context.json records source digests, pending human review and independent weather/source/retrieval clocks. No citizen words/GPS/instruments/approval/review were fabricated; no environmental condition or model accuracy follows from this integration check.

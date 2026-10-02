@@ -14,7 +14,7 @@ The five research cities and named water systems below are organizer description
 | [Oslo](https://www.oneaquahealth.eu/research-cities/oslo/) | Norway | Sampling plans name Ljans elva, Hovinbekken and Hoffselven; activities cover multiple urban streams |
 | [Toulouse](https://www.oneaquahealth.eu/research-cities/toulouse/) | France | Garonne, Ariège, Canal-du-Midi and smaller tributary streams |
 
-**Pune/Mutha River is AquaLens's separate historical photo case study. It is not one of these five European pilots.** Do not relabel its photographs, imply organizer partnership or transplant European research results onto Pune.
+**The current active photo case studies are the Mondego/Coimbra, Garonne/Toulouse and Hoffselva/Oslo**, selected from separately licensed Wikimedia sources. These are waterways in three official research cities, not verified project sampling stations or official monitoring evidence. The retired Pune/Mutha sources remain for existing receipt compatibility only. No photograph is relabeled as team work, current conditions or organizer partnership.
 
 ## Features and data actually observed
 
@@ -47,7 +47,7 @@ Source inspection confirms AquaLens already has photo comparison, supplied-coord
 
 | Priority | Feasible visual | Why it helps Track 3 | Required evidence and fallback |
 |---|---|---|---|
-| 1 | Five official city/source cards and public-tool links, accessible with an empty saved collection | Gives verified geographic/project context before a user has field records, without turning external studies into citizen evidence | Cite city pages and checked date. Keep official history and Pune references distinct. No borrowed photos, copied registry or risk grades; links remain useful if integration rights are unavailable. |
+| 1 | Five official city/source cards and public-tool links, accessible with an empty saved collection | Gives verified geographic/project context before a user has field records, without turning external studies into citizen evidence | Cite city pages and checked date. Keep official history and separately licensed photos distinct. No copied registry or risk grades; links remain useful if integration rights are unavailable. |
 | 2 | Evidence-time comparison in the existing Compare/Lab view | Makes old source photos, actual visit time, current weather-model time and later review time easy to distinguish | Use only retained timestamps and their precision. Unknown/date-only/stale values stay explicit. Existing Compare warnings and event replay already cover part of this; implement only the remaining clarity gap. |
 | 3 | A location/context provenance panel alongside the existing map, with an optional licensed EO scene | Lets a reviewer inspect where context came from, scene date/cloud coverage, observation-to-scene time gap and footprint/resolution | First use actual supplied coordinates and existing weather provenance. Add Sentinel-2 or another EO layer only after current license, access, source metadata and spatial suitability are verified. Fall back to sourced links; do not use a satellite proxy to diagnose a small stream. |
 
@@ -56,3 +56,7 @@ Real field evidence and a disclosed human walkthrough remain higher value than s
 ## Implementation follow-through — October2
 
 The app now includes five city/country source link cards, dated keyless NASA Terra/MODIS regional context and a verified public **2021 annual Sentinel-2 RGB composite** from ESA WorldCover/Terrascope. Its 10 m source bands and zoom6–14 display are historical landscape context, with attribution, coverage limits and street fallback. This is not a dated single-scene processing integration, NDWI, current water measurement or imported official research grade. Scene-level cloud/acquisition metadata, authenticated official tools and licensed monitoring-data integration remain unimplemented. Presentation chapters, a readable evidence brief and explicit visit links extend the citizen workflow. See SATELLITE_CONTEXT.md and RESEARCH_REVIEW_2026-10-02.md. No browser QA of AquaLens was performed.
+
+## European source experience — October3
+
+Mission control now adds three licensed European river photos, separate Wikidata CC0 city-overview markers, source dossiers, recorded actual Gemini visual candidates and a three-clock trail. Open-Meteo supplies current and hourly weather context with refresh, optional visible-page polling, chart/table views and a separate source-context JSON export. City markers do not seed visits or become observation GPS. Historical photos, recorded AI and independently timed weather never establish current river health. See SOURCES S40–S42; no additional official dataset/API reuse is claimed. Browser testing remains assigned to the user.

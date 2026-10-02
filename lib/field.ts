@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { Report } from "./assessment";
-import { referencePhotos, type ReferencePhoto } from "./references";
+import { allReferencePhotos, type ReferencePhoto } from "./references";
 import { recordedProviderSchema } from "./ai-metadata";
 
 export const findingKinds = [
@@ -49,7 +49,7 @@ export const referenceSchema = z.object({
   id: z.string(), title: z.string(), site: z.string(), src: z.string(),
   author: z.string(), sourceUrl: z.string().url(), license: z.string(), licenseUrl: z.string().url(),
   capturedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), sha256: z.string().regex(/^[a-f0-9]{64}$/), derivative: z.string(),
-}).refine((ref) => referencePhotos.some((photo) => Object.entries(ref).every(([key, value]) => photo[key as keyof ReferencePhoto] === value)),
+}).refine((ref) => allReferencePhotos.some((photo) => Object.entries(ref).every(([key, value]) => photo[key as keyof ReferencePhoto] === value)),
   "Reference credit must match the bundled source catalogue.");
 export const photoAnnotationSchema = z.object({
   id: z.string().min(1).max(100), mediaId: z.string().min(1),
@@ -151,7 +151,7 @@ export function createReferenceDraft(photo: ReferencePhoto) {
 export function assertReferenceRecord(report: Pick<Report, "original" | "field">) {
   const f = report.field, ref = f?.reference;
   if (!ref) {
-    if (f?.media.some((m) => m.origin === "public_reference" || referencePhotos.some((p) => p.sha256 === m.sha256)))
+    if (f?.media.some((m) => m.origin === "public_reference" || allReferencePhotos.some((p) => p.sha256 === m.sha256)))
       throw new Error("A public reference photo must retain its source attribution.");
     return;
   }

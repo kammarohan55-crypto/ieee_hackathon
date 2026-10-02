@@ -1,9 +1,9 @@
 {
   "suite": "AquaLens real-evidence transfers",
-  "generatedAt": "2026-10-02T18:45:59.817Z",
+  "generatedAt": "2026-10-02T20:08:23.383Z",
   "liveAI": false,
-  "passed": 42,
-  "total": 42,
+  "passed": 43,
+  "total": 43,
   "limitations": [
     "Authored software fixtures, not field evidence.",
     "No browser, IndexedDB transaction, camera or download completion test."
@@ -175,6 +175,10 @@
     },
     {
       "name": "Receipt, CSV and graph explicitly distinguish photographer from review author",
+      "passed": true
+    },
+    {
+      "name": "Retired reference receipts remain valid after the active gallery moves to Europe",
       "passed": true
     }
   ]

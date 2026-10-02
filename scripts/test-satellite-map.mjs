@@ -8,7 +8,7 @@ import postcss from "postcss";
 // Real date/style/component code with explicit React, MapLibre and DOM doubles.
 // No browser, satellite request, WebGL rendering or field observation is tested.
 const require = createRequire(import.meta.url);
-const files = ["lib/satellite-context.ts", "lib/geographic.ts", "lib/atlas.ts", "lib/field.ts", "lib/assessment.ts", "lib/references.ts", "lib/ai-metadata.ts", "components/geographic-evidence-map.tsx"];
+const files = ["lib/european-sites.ts", "lib/weather-context.ts", "lib/satellite-context.ts", "lib/geographic.ts", "lib/atlas.ts", "lib/field.ts", "lib/assessment.ts", "lib/references.ts", "lib/ai-metadata.ts", "components/geographic-evidence-map.tsx"];
 const sources = new Map(await Promise.all(files.map(async (file) => [file, await readFile(file, "utf8")])));
 function execute(file, imports, globals = {}) {
   assert.ok(sources.has(file), `Missing source fixture dependency ${file}`);
@@ -103,7 +103,7 @@ function hooks() {
   };
   return { api, render(component, props) { cursor = 0; effects = []; const tree = component(props); nodes(tree).find((node) => node.props?.className === "geo-map").props.ref.current = {}; effects.forEach((effect) => effect()); return tree; }, unmount() { slots.forEach((slot) => slot?.cleanup?.()); } };
 }
-function mapFixture(records = []) {
+function mapFixture(records = [], options = {}) {
   const runtime = hooks(), maps = [], markers = [], timers = new Map(); let timerId = 0;
   class MockMap {
     constructor(options) { this.options = options; this.center = { lng: options.center[0], lat: options.center[1] }; this.zoom = options.zoom; this.bearing = options.bearing; this.events = {}; maps.push(this); }
@@ -130,6 +130,7 @@ function mapFixture(records = []) {
     if (name === "react/jsx-runtime") return jsx;
     if (name === "lucide-react") return icons;
     if (name === "@/lib/maplibre-client") return { Map: MockMap, Marker: MockMarker, NavigationControl: class {} };
+    if (name === "./european-context") return { EuropeanContext: "public-context-component-double" };
     if (name.startsWith("@/lib/")) return library(`lib/${name.slice(6)}.ts`);
     throw new Error(`Unmocked import ${name}`);
   }, {
@@ -138,7 +139,7 @@ function mapFixture(records = []) {
     document: { createElement: () => ({ attributes: {}, children: [], dataset: {}, setAttribute(name, value) { this.attributes[name] = value; }, appendChild(child) { this.children.push(child); } }) },
     window: { matchMedia: () => ({ matches: true }) },
   }).GeographicEvidenceMap;
-  const props = { records, onOpen: () => {} };
+  const props = { records, onOpen: () => {}, ...options };
   return { maps, markers, timers, render: () => runtime.render(component, props), setRecords: (next) => { props.records = next; }, unmount: () => runtime.unmount() };
 }
 async function flush() { await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); }
@@ -291,6 +292,37 @@ await test("An invalid imported day or clock never becomes a normalized map obse
     assert.ok(!textOf(tree).includes("Request observation day"));
     fixture.unmount();
   }
+});
+await test("European source context opens a real city overview while citizen counts stay zero", async () => {
+  const fixture = mapFixture([], { publicContext: true }); const tree = fixture.render(); await flush();
+  assert.deepEqual(plain(fixture.maps[0].options.center), [-8.428889, 40.211111]);
+  assert.equal(fixture.maps[0].options.zoom, 12); assert.equal(fixture.markers.length, 3);
+  assert.match(textOf(tree), /0plotted records0not plotted/); assert.match(textOf(tree), /Not the camera position/);
+  assert.ok(fixture.markers.every((m) => m.options.element.attributes["aria-label"].includes("not a citizen observation")));
+  fixture.unmount(); assert.ok(fixture.markers.every((m) => m.removed));
+});
+await test("European city selection moves the map without rewriting or manufacturing a field record", async () => {
+  const fixture = mapFixture([record], { publicContext: true }); fixture.render(); await flush();
+  const original = JSON.stringify(record); const tree = fixture.render();
+  button(tree, "Hoffselva").props.onClick(); const next = fixture.render();
+  assert.deepEqual(plain(fixture.maps[0].ease.center), [10.738889, 59.913333]);
+  assert.equal(fixture.maps[0].ease.duration, 0); assert.match(textOf(next), /Hoffselva · Oslo/);
+  assert.equal(JSON.stringify(record), original); assert.equal(fixture.markers.length, 4);
+  const citizen = fixture.markers.find((marker) => marker.options.element.attributes["aria-label"].includes("recorded observation"));
+  assert.deepEqual(plain(citizen.coordinates), [73.85, 18.52]);
+  fixture.unmount();
+});
+await test("Unknown reference city falls back to sourced context; Europe overview fits actual centres with a world-scale street layer", async () => {
+  const fixture = mapFixture([], { publicContext: true, initialReferenceCity: "unknown-city" }); fixture.render(); await flush();
+  fixture.maps[0].events.load(); const tree = fixture.render(); button(tree, "European overview").props.onClick();
+  const bounds = plain(fixture.maps[0].fit.bounds);
+  assert.equal(bounds[0][1], 40.211111); assert.equal(bounds[1][1], 59.913333);
+  assert.equal(fixture.maps[0].fit.options.maxZoom, 6);
+  assert.match(textOf(tree), /European overview · streets/);
+  fixture.render(); await flush();
+  assert.equal(fixture.maps.at(-1).options.style, "https://tiles.openfreemap.org/styles/liberty");
+  assert.match(textOf(fixture.render()), /0plotted records0not plotted/);
+  fixture.unmount();
 });
 for (const result of tests) console.log(`${result.passed ? "PASS" : "FAIL"} ${result.name}${result.error ? `: ${result.error}` : ""}`);
 console.log(`${tests.filter((result) => result.passed).length}/${tests.length} satellite/map checks passed; no browser or live imagery validation.`);

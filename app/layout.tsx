@@ -9,6 +9,7 @@ import "./evidence-lab.css";
 import "./geographic-map.css";
 import "./workspace.css";
 import "./console.css";
+import "./european-context.css";
 import "./presentation.css";
 
 export const metadata: Metadata = {

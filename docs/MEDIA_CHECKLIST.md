@@ -1,8 +1,8 @@
 # Bundled photos and optional field media
 
-You do not need to download or send photos to use the reference-review demo. Open **Field kit → Review this photo**. Three licensed historical Mutha River images are already bundled, with dates, photographer credits and source links. [Full credits](../public/images/references/CREDITS.md).
+You do not need to download or send photos to use the reference-review demo. Open **Mission control → Photo desk → Review this photo**. Three licensed historical photographs of the Mondego in Coimbra, Garonne in Toulouse and Hoffselva in Oslo are bundled, with dates, photographer credits and source links. [Full credits](../public/images/references/CREDITS.md). They replace Pune in the active gallery; old files remain only for existing receipt compatibility.
 
-They are historical photos, not your firsthand visit. Write your own description of what is visible, acknowledge uncertainty, then confirm and review it. No video is needed for this path. Optional live AI requires a server-side key and explicit consent.
+They are historical photos, not your firsthand visit. Write your own description of what is visible, acknowledge uncertainty, then confirm and review it. No video is needed for this path. Recorded Gemini candidates in the photo desk are explicitly labeled, unreviewed source context; fresh live AI requires explicit consent. The local server key is already configured. City markers are overview positions, not camera coordinates or sampling stations. The weather chart has independent model/retrieval times.
 
 For your own field-observation demo, the original checklist below still applies.
 

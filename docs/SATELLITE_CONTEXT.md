@@ -37,7 +37,7 @@ Clouds, haze, missing acquisitions and processing can hide the surface. Small st
 
 ## Project decisions and implementation
 
-- Default to a neutral world satellite view with yesterday's explicitly displayed UTC request date. Yesterday is a UX choice, not a promise of latest or cloud-free imagery. Empty collections stay empty; no sites or observation positions are invented.
+- The standalone field-record map defaults to a neutral world satellite view with yesterday's explicitly displayed UTC request date. Mission control's public-source map instead starts at a sourced European city overview on the historical 2021 landscape layer. These city markers are labeled public context, not citizen positions or sampling stations. **European overview · streets** explicitly switches this detail-only layer to the street map for fitting the three city centers; it is not an error-driven silent image substitution. Yesterday is a UX choice, not a promise of latest or cloud-free imagery. Empty citizen collections stay empty.
 - Retain the existing MapLibre library and local worker. Use the [official raster-source pattern](https://maplibre.org/maplibre-gl-js/docs/examples/add-a-raster-tile-source/) with the verified source parameters and max map zoom9. Keep original citizen markers, synthetic labels, coordinate dossier, fit action and accessible location index.
 - Support previous/next day, an explicit apply action, and a shortcut to the selected observation's UTC day only for a valid zoned timestamp. A same-day composite is not the observer's exact time.
 - Preserve the user's map center, bearing and supported zoom when requesting a new date, background or retry with an unchanged set of coordinates. Recenter/refit when the actual location set changes, including the first supplied coordinates after an empty world view. New markers initialize from the latest selected location before load completes. Keep street view as an explicit fallback; errors never silently substitute imagery.
@@ -45,7 +45,7 @@ Clouds, haze, missing acquisitions and processing can hide the surface. Small st
 
 ## Verification and remaining QA
 
-`node scripts/test-satellite-map.mjs` has **21 checks** of actual date/style/component code with explicit React, DOM, timer and MapLibre doubles: calendar/future/boundary/UTC checks; exact URLs/attribution; neutral empty world view; camera and original marker preservation; coordinate-set refit; selected-marker initialization; error/fallback/timeout; historical zoom/coverage hints; date-only/unknown-zone labels; CSS parse/scoping. No browser or app server was used. TypeScript, full lint and production build pass separately.
+`node scripts/test-satellite-map.mjs` has **24 checks** of actual date/style/component code with explicit React, DOM, timer and MapLibre doubles: calendar/future/boundary/UTC checks; exact URLs/attribution; neutral empty standalone world view; camera and original marker preservation; coordinate-set refit; selected-marker initialization; error/fallback/timeout; historical zoom/coverage hints; date-only/unknown-zone labels; CSS parse/scoping; European city selection/overview, separate observation counts and reduced-motion handling. No browser or app server was used. TypeScript, full lint and production build pass separately.
 
 Actual browser/WebGL/network integration, mobile date controls, accessibility and visible scene coverage still require the user's device walkthrough. The public tile access check and authored software tests do not establish ecological accuracy.
 

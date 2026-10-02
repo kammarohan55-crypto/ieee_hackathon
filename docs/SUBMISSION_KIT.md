@@ -30,13 +30,13 @@ Three licensed historical Wikimedia photographs support a clearly labeled review
 
 React/TypeScript, Vinext, Cloudflare Worker API routes and Zod; ignored server-only Gemini credentials with optional existing xAI/Groq adapters; idb/IndexedDB for original bytes and localStorage for records; existing Radix, MapLibre, React Flow, Recharts and Workbox. No new package or custom model training for this pass. Dependency/data notices are in DEPENDENCIES and SATELLITE_CONTEXT.
 
-Read QA.md and PROJECT_CONTEXT.md for final current software check/build/release counts. These are authored development tests with explicit mocks, not independent model accuracy or ecological validation. October3 local-time check through actual source route handlers used the supplied Gemini key: one synthetic text note and one credited historical photo both returnedHTTP200 and passed strict validation with3.5 Flash-Lite. No user approval/review was generated. This establishes bounded integration access, not scientific accuracy, deployment or browser behavior. Earlier3.8 returned503 and xAI403; their failures are retained. Quota may change.
+Read QA.md and PROJECT_CONTEXT.md for current software check/build/release counts. These are authored development tests with explicit mocks, not independent model accuracy or ecological validation. October3 terminal checks through actual source route handlers returnedHTTP200/validated Gemini3.5 Flash-Lite responses: an initial synthetic text/image access check, followed by three active European source photographs. All three city weather route calls also succeeded. Public-photo candidates remain recorded/unreviewed context; no user approval/review or field record was generated. This establishes bounded access, not scientific accuracy, deployment or browser behavior. Earlier3.8 returned503 and xAI403; failures are retained. Quota may change.
 
 The app stayed stopped during this implementation. Browser/device responsiveness, camera/video/voice, WebGL, downloads/import, keyboard/assistive use and installed offline behavior still need the user's walkthrough. No successful deployment is recorded.
 
 ## Four-minute demo
 
-Use DEMO_GUIDE.md: show one actual or clearly labeled historical observation, original words, any real question, explicit confirmation and a reasoned review. Open Present this evidence, show the retained stages, inspect the Decision Brief and export a receipt. Show linked follow-up actions and map context if genuine coordinates exist; otherwise demonstrate the truthful empty map/optional metadata. Do not manufacture AI findings, measurements or a completed review to fill the script.
+Use DEMO_GUIDE.md: introduce the European source map, photo credits and three evidence clocks. Review one actual or clearly labeled historical photograph with your own words, any real question, explicit confirmation and a reasoned review. Open Present this evidence, inspect the retained stages/Decision Brief and export a receipt. Show weather chart/table/source context and linked follow-up actions. Citizen geographic markers appear only with genuine supplied coordinates; city-overview markers remain context. Do not manufacture AI findings, measurements or a completed review to fill the script.
 
 A role-switching demo must disclose that one person is acting as citizen and local reviewer. Explain the historical imagery year and manual comparison limits. Finish with portable original-media handoff and remaining uncertainty.
 
@@ -54,4 +54,9 @@ These are presentation choices, not awarded scores.
 
 ## Remaining submission gates
 
-Real original field evidence and permission; actual team invitations/contributor credits and licence choice for original code; user device QA; usable AI access if presenting live AI; tested judge-access delivery; actual 3–5 minute video and Devpost submission confirmation. REAL_DATA_READINESS.md provides the exact evidence package. No secret should be pasted into chat or public files. Recheck the official deadline/eligibility before submission; the October2 source check found an October4 9PM PDT extension, with older rule text still conflicting.
+Actual team invitations/contributor credits and licence choice for original code; user device QA and human decisions; tested judge-access delivery; actual 3–5 minute video and Devpost submission confirmation. Supplied Gemini access is configured; browser quota remains a live-demo check. Original field evidence/permission is optional for the licensed historical-source demonstration and required for new-visit claims. REAL_DATA_READINESS.md gives the exact package. No secret should enter public files. Recheck the official deadline/eligibility; the public overview states October4 9PM PDT, with older rule text still conflicting.
+
+
+## European visual assessment examples
+
+Active sources are Mondego/Coimbra, Garonne/Toulouse and Hoffselva/Oslo with credited2011/2012/2014 dates. Three real Gemini inspections are visibly recorded/unreviewed; region overlays do not edit pixels or create reports. The map separates city overview context from real-record coordinates, and modeled weather has independent source/grid/time. Three clocks exposes that time mismatch. Context export stays separate from a human-reviewed Decision Receipt. No field pilot, expert approval or ecological accuracy result is claimed.

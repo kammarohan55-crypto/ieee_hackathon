@@ -10,14 +10,14 @@ const directory = path.resolve(".sites-runtime/api-tests");
 await mkdir(directory, { recursive: true });
 await writeFile(path.join(directory, "env.mjs"), "export const env = {};\n");
 const files = [
-  ["lib/references.ts", "references"], ["lib/ai-metadata.ts", "ai-metadata"], ["lib/field.ts", "field"], ["lib/assessment.ts", "assessment"], ["lib/ai-provider.ts", "ai-provider"],
+  ["lib/references.ts", "references"], ["lib/weather-context.ts", "weather-context"], ["lib/european-sites.ts", "european-sites"], ["lib/ai-metadata.ts", "ai-metadata"], ["lib/field.ts", "field"], ["lib/assessment.ts", "assessment"], ["lib/ai-provider.ts", "ai-provider"],
   ...["assess", "visual", "conditions"].map((name) => [`app/api/${name}/route.ts`, `route-${name}`]),
 ];
 for (const [file, name] of files) {
   const code = ts.transpileModule(await readFile(file, "utf8"), {
     compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
   }).outputText.replaceAll('"cloudflare:workers"', '"./env.mjs"')
-    .replace(/"(?:@\/lib\/|\.\/)(field|assessment|ai-provider|ai-metadata|references)"/g, '"./$1.mjs"');
+    .replace(/"(?:@\/lib\/|\.\/)(field|assessment|ai-provider|ai-metadata|references|weather-context)"/g, '"./$1.mjs"');
   await writeFile(path.join(directory, `${name}.mjs`), code);
 }
 const moduleAt = (name) => import(pathToFileURL(path.join(directory, `${name}.mjs`)));
@@ -485,6 +485,43 @@ try {
     assert.equal((await result.json()).temperature, undefined);
     assert.equal(calls.length, 1);
     assert.equal(result.headers.get("Cache-Control"), "no-store");
+  });
+  const hourlyPayload = () => ({ latitude: 40.21, longitude: -8.43,
+    current: { time: "2026-10-02T19:00", interval: 900, temperature_2m: 20, precipitation: 0, wind_speed_10m: 3 },
+    current_units: { temperature_2m: "°C", precipitation: "mm", wind_speed_10m: "km/h" },
+    hourly: { time: ["2026-10-02T18:00", "2026-10-02T19:00"], temperature_2m: [19, 20], precipitation: [0, .1], wind_speed_10m: [3, 4] },
+    hourly_units: { time: "iso8601", temperature_2m: "°C", precipitation: "mm", wind_speed_10m: "km/h" } });
+  await test("Hourly modeled context validates units and keeps its cache separate from current-only weather", async () => {
+    calls = []; responder = () => Response.json(hourlyPayload());
+    const result = await weather.GET(new Request("https://aqualens.test/api/conditions?lat=40.211111&lon=-8.428889&hourly=1"));
+    assert.equal(result.status, 200); const value = await result.json();
+    assert.equal(value.hourly.time.length, 2); assert.match(calls[0][0], /past_days=1&forecast_days=2/);
+    await weather.GET(new Request("https://aqualens.test/api/conditions?lat=40.211111&lon=-8.428889"));
+    assert.equal(calls.length, 2); assert.ok(!calls[1][0].includes("hourly="));
+    assert.equal((await (await weather.GET(new Request("https://aqualens.test/api/conditions?lat=40.211111&lon=-8.428889&hourly=1"))).json()).hourly.time.length, 2);
+    assert.equal(calls.length, 2);
+  });
+  await test("Misaligned, unsorted or impossible hourly timestamps never become a context chart", async () => {
+    const broken = [
+      (p) => { p.hourly.temperature_2m = [19]; },
+      (p) => { p.hourly.time.reverse(); },
+      (p) => { p.hourly.time[0] = "2026-02-30T18:00"; },
+      (p) => { p.hourly.precipitation[0] = -1; },
+    ];
+    for (let index = 0; index < broken.length; index++) {
+      const payload = hourlyPayload(); broken[index](payload); responder = () => Response.json(payload);
+      assert.equal((await weather.GET(new Request(`https://aqualens.test/api/conditions?lat=${42 + index}&lon=0&hourly=1`))).status, 503);
+    }
+  });
+  await test("Wrong hourly units or missing hourly data fail without invented samples", async () => {
+    const payload = hourlyPayload(); payload.hourly_units.temperature_2m = "°F"; responder = () => Response.json(payload);
+    assert.equal((await weather.GET(new Request("https://aqualens.test/api/conditions?lat=49&lon=0&hourly=1"))).status, 503);
+    delete payload.hourly; responder = () => Response.json(payload);
+    assert.equal((await weather.GET(new Request("https://aqualens.test/api/conditions?lat=50&lon=0&hourly=1"))).status, 503);
+  });
+  await test("Impossible model-current calendar timestamps cannot be labeled as live context", async () => {
+    const payload = hourlyPayload(); payload.current.time = "2026-02-30T19:00"; responder = () => Response.json(payload);
+    assert.equal((await weather.GET(new Request("https://aqualens.test/api/conditions?lat=51&lon=0&hourly=1"))).status, 503);
   });
 } finally { globalThis.fetch = originalFetch; }
 const report = { suite: "AquaLens route contracts", generatedAt: new Date().toISOString(), liveAI: false, providerTests: "Mocked fetch and Worker environment; actual route code. No live service or ecological validation.", passed: results.filter((r) => r.passed).length, total: results.length, results };

@@ -7,7 +7,7 @@ import ts from "typescript";
 // Execute real component functions with explicit hook, media and timer doubles.
 // This verifies event logic; it does not render a browser or operate a camera.
 const require = createRequire(import.meta.url);
-const filenames = ["lib/ai-metadata.ts", "lib/field.ts", "lib/references.ts", "lib/atlas.ts", "lib/mission-control.ts", "lib/assessment.ts", "lib/evidence-lab.ts", ...["field-studio", "photo-inspector", "evidence-visuals", "mission-control"].map((name) => `components/${name}.tsx`)];
+const filenames = ["lib/european-sites.ts", "lib/weather-context.ts","lib/ai-metadata.ts", "lib/field.ts", "lib/references.ts", "lib/atlas.ts", "lib/mission-control.ts", "lib/assessment.ts", "lib/evidence-lab.ts", ...["field-studio", "photo-inspector", "evidence-visuals", "mission-control"].map((name) => `components/${name}.tsx`)];
 const source = new Map(await Promise.all(filenames.map(async (name) => [name, await readFile(name, "utf8")])));
 const jsx = { Fragment: "fragment", jsx: (type, props, key) => ({ type, props, key }), jsxs: (type, props, key) => ({ type, props, key }) };
 const icons = new Proxy({}, { get: (_, name) => `icon:${String(name)}` });
@@ -52,6 +52,7 @@ function hooks() {
 function component(file, runtime, overrides = {}, globals = {}) {
   return execute(file, (name) => {
     if (Object.hasOwn(overrides, name)) return overrides[name];
+    if (name === "./european-context") return { EuropeanContext: "european-context-component-double" };
     if (name === "react") return runtime.api;
     if (name === "react/jsx-runtime") return jsx;
     if (name === "lucide-react") return icons;
@@ -244,6 +245,23 @@ await test("Photo consent expires on a changed provider scope and stale actions 
   tree = render(); assert.equal(checkbox(tree).props.checked, false); assert.equal(button(tree, "Ask visual AI").props.disabled, true);
   await button(tree, "Ask visual AI").props.onClick(); assert.equal(readCount, 0);
   runtime.unmount();
+});
+
+await test("Recorded preview regions retain source provenance and never create media or a field record", () => {
+  const runtime = hooks();
+  const { PhotoInspector } = component("components/photo-inspector.tsx", runtime, { "./field-studio": { EvidenceImage: "evidence-image" } });
+  const frame = mission.evidenceFrames([])[1], before = JSON.stringify(frame);
+  const recordedVisual = { photoId: frame.reference.id, sha256: frame.reference.sha256, recorded: true, model: "gemini-test-fixture", at: "2026-10-02T19:00:00Z", humanReview: "not_performed", findings: [{ kind: "vegetation", region: "right", confidence: "low" }] };
+  const tree = runtime.render(PhotoInspector, { frame, recordedVisual });
+  assert.match(textOf(tree), /Recorded regions 1/); assert.match(textOf(tree), /human review not performed/);
+  assert.equal(JSON.stringify(frame), before);
+});
+await test("A recorded analysis for changed bytes never enables a photo's region overlay", () => {
+  const runtime = hooks();
+  const { PhotoInspector } = component("components/photo-inspector.tsx", runtime, { "./field-studio": { EvidenceImage: "evidence-image" } });
+  const frame = mission.evidenceFrames([])[0];
+  const tree = runtime.render(PhotoInspector, { frame, recordedVisual: { photoId: frame.reference.id, sha256: "a".repeat(64), recorded: true, findings: [{ kind: "vegetation", region: "right", confidence: "low" }] } });
+  assert.equal(button(tree, "AI regions 0").props.disabled, true); assert.doesNotMatch(textOf(tree), /Recorded regions/);
 });
 
 await mkdir(".sites-runtime/component-tests", { recursive: true });

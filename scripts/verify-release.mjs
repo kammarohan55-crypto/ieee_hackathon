@@ -49,11 +49,16 @@ for (const name of ["evaluation", "api-evaluation", "workspace-evaluation", "mis
 }
 const sourceCatalogue = await import(pathToFileURL(path.resolve(".sites-runtime/domain-tests/references.mjs")));
 const offlineWorker = await readFile("dist/client/sw.js", "utf8");
-for (const photo of sourceCatalogue.referencePhotos) {
+for (const photo of sourceCatalogue.allReferencePhotos) {
   const bytes = await readFile(`dist/client${photo.src}`);
   assert.equal(createHash("sha256").update(bytes).digest("hex"), photo.sha256, "Built reference image must preserve its source digest");
   assert.ok(offlineWorker.includes(photo.src.slice(1)), "Reference photograph missing from offline cache");
 }
+const contextSource = await readFile("public/european-context.json", "utf8");
+const { europeanBundleSchema } = await import(pathToFileURL(path.resolve(".sites-runtime/api-tests/european-sites.mjs")));
+europeanBundleSchema.parse(JSON.parse(contextSource));
+assert.equal(await readFile("dist/client/european-context.json", "utf8"), contextSource, "Rebuild changed recorded context assets");
+assert.ok(offlineWorker.includes("european-context.json"), "Recorded source context must remain labeled offline");
 assert.ok((await stat("dist/client/images/references/CREDITS.md")).size > 0, "Photograph licence notice must ship with the images");
 await mkdir(".sites-runtime", { recursive: true });
 await writeFile(".sites-runtime/source-files.json", JSON.stringify(source, null, 2));

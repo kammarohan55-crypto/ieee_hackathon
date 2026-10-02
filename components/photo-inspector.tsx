@@ -6,6 +6,7 @@ import { Crosshair, Grid2X2, Layers, MapPin, Minus, Plus, RotateCcw, X } from "l
 import { EvidenceImage } from "./field-studio";
 import { imagePoint, type EvidenceFrame, type ImageDimensions } from "@/lib/mission-control";
 import { findingLabels, type PhotoAnnotationInput } from "@/lib/field";
+import type { EuropeanBundle } from "@/lib/european-sites";
 import { displayEvidenceTime } from "@/lib/references";
 
 export function FrameImage({ frame, onAvailability, onDimensions }: { frame: EvidenceFrame; onAvailability?: (available: boolean) => void; onDimensions?: (dimensions: ImageDimensions | null) => void }) {
@@ -15,7 +16,7 @@ export function FrameImage({ frame, onAvailability, onDimensions }: { frame: Evi
 const regions: Record<string, [number, number, number, number]> = { whole_frame: [2, 2, 96, 96], upper: [2, 2, 96, 46], lower: [2, 52, 96, 46], left: [2, 2, 46, 96], right: [52, 2, 46, 96], center: [27, 27, 46, 46] };
 const noteLabels = { detail: "Visible detail", uncertain: "Uncertain detail", followup: "Follow-up question" };
 
-export function PhotoInspector({ frame, onAnnotate }: { frame: EvidenceFrame; onAnnotate?: (input: PhotoAnnotationInput) => void }) {
+export function PhotoInspector({ frame, onAnnotate, recordedVisual }: { frame: EvidenceFrame; onAnnotate?: (input: PhotoAnnotationInput) => void; recordedVisual?: EuropeanBundle["analyses"][number] }) {
   const id = useId();
   const [zoom, setZoom] = useState(1), [grid, setGrid] = useState(false), [pins, setPins] = useState(true), [ai, setAI] = useState(false);
   const [ready, setReady] = useState(false), [placing, setPlacing] = useState(false), [point, setPoint] = useState<{ x: number; y: number } | null>(null);
@@ -24,7 +25,8 @@ export function PhotoInspector({ frame, onAnnotate }: { frame: EvidenceFrame; on
   const [selected, setSelected] = useState("");
   const annotations = frame.report?.field?.annotations?.filter((annotation) => annotation.mediaId === frame.media?.id) ?? [];
   const selectedNote = annotations.find((annotation) => annotation.id === selected);
-  const findings = frame.media?.visual?.findings ?? [];
+  const sourceAnalysis = !frame.report && recordedVisual?.recorded && recordedVisual.photoId === frame.reference?.id && recordedVisual.sha256 === frame.reference?.sha256 ? recordedVisual : undefined;
+  const findings = frame.media?.visual?.findings ?? sourceAnalysis?.findings ?? [];
   const imageReady = ready && !!dimensions && dimensions.width > 0 && dimensions.height > 0;
   function place(event: MouseEvent<HTMLDivElement>) {
     if (!placing || !imageReady || !dimensions) return;
@@ -41,8 +43,9 @@ export function PhotoInspector({ frame, onAnnotate }: { frame: EvidenceFrame; on
   }
   return <section className="photo-inspector" aria-label="Photograph inspection tools">
     <div className="pi-tools"><div className="pi-tool-group"><button type="button" aria-label="Zoom out" disabled={zoom <= 1} onClick={() => setZoom((value) => Math.max(1, value - .25))}><Minus size={15} /></button><output aria-label="Image zoom">{Math.round(zoom * 100)}%</output><button type="button" aria-label="Zoom in" disabled={zoom >= 2.5} onClick={() => setZoom((value) => Math.min(2.5, value + .25))}><Plus size={15} /></button><button type="button" aria-label="Reset zoom" onClick={() => setZoom(1)}><RotateCcw size={14} /></button></div>
-      <div className="pi-tool-group"><button type="button" aria-pressed={grid} onClick={() => setGrid(!grid)}><Grid2X2 size={14} /><span>Grid</span></button><button type="button" aria-pressed={pins} onClick={() => setPins(!pins)}><MapPin size={14} /><span>Notes {annotations.length}</span></button><button type="button" aria-pressed={ai} disabled={!findings.length} title={findings.length ? "Show the model’s coarse frame regions" : "No visual AI candidates are recorded"} onClick={() => setAI(!ai)}><Layers size={14} /><span>AI regions {findings.length}</span></button></div>
+      <div className="pi-tool-group"><button type="button" aria-pressed={grid} onClick={() => setGrid(!grid)}><Grid2X2 size={14} /><span>Grid</span></button><button type="button" aria-pressed={pins} onClick={() => setPins(!pins)}><MapPin size={14} /><span>Notes {annotations.length}</span></button><button type="button" aria-pressed={ai} disabled={!findings.length} title={findings.length ? "Show the model’s coarse frame regions" : "No visual AI candidates are recorded"} onClick={() => setAI(!ai)}><Layers size={14} /><span>{sourceAnalysis ? "Recorded regions" : "AI regions"} {findings.length}</span></button></div>
     </div>
+    {sourceAnalysis && <p className="eu-footnote">Recorded {sourceAnalysis.model} analysis · {displayEvidenceTime(sourceAnalysis.at)} · coarse candidate regions, human review not performed.</p>}
     <div className={`pi-stage${placing ? " pi-placing" : ""}`}>
       <div className="pi-image-plane" style={{ "--frame-ratio": imageReady ? dimensions.width / dimensions.height : frame.width / frame.height, "--frame-zoom": zoom } as CSSProperties} onClick={place}>
         <FrameImage frame={frame} onAvailability={setReady} onDimensions={setDimensions} />

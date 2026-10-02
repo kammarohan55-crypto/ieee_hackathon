@@ -2,7 +2,7 @@ import { z } from "zod";
 
 // Public historical photographs, never seeded citizen observations.
 // Source metadata was checked against the Wikimedia Commons file pages.
-export const referencePhotos = [
+export const archivedReferencePhotos = [
   {
     id: "mutha-river",
     title: "Mutha River, Pune",
@@ -49,7 +49,32 @@ export const referencePhotos = [
     derivative: "Wikimedia 1280px thumbnail; no project pixel edits. Display may crop to fit.",
   },
 ] as const;
-export type ReferencePhoto = (typeof referencePhotos)[number];
+// Active European source gallery. Old sources remain valid for existing receipts only.
+export const referencePhotos = [
+  { id: "mondego-coimbra", title: "Mondego · Coimbra", site: "Mondego River, Coimbra, Portugal", role: "01 / River & city",
+    alt: "Wide river foreground, a bridge and buildings climbing the Coimbra hillside beneath a blue sky.", src: "/images/references/mondego-coimbra.jpg",
+    author: "Leandro Neumann Ciuffo", sourceUrl: "https://commons.wikimedia.org/wiki/File:Coimbra_e_o_rio_Mondego_(6167200429).jpg",
+    license: "CC BY 2.0", licenseUrl: "https://creativecommons.org/licenses/by/2.0/", capturedDate: "2011-09-20",
+    sha256: "11fd35e5308a706ab533e84e249f3f51fd8f57d664858c0b3a836f43ee7e851d", width: 1280, height: 859,
+    derivative: "Wikimedia 1280px thumbnail; no project pixel edits. Display may crop to fit." },
+  { id: "garonne-toulouse", title: "Garonne · Toulouse", site: "Garonne River, Toulouse, France", role: "02 / Surface & structures",
+    alt: "Panoramic river scene with a weir, exposed textured surfaces, reflections, bridges and buildings on the opposite bank.", src: "/images/references/garonne-toulouse.jpg",
+    author: "Tiia Monto", sourceUrl: "https://commons.wikimedia.org/wiki/File:Toulouse_-_Garonne.jpg",
+    license: "CC BY-SA 3.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/", capturedDate: "2012-08-28",
+    sha256: "34c11fa89a03c1aa0dbf43de16c1f2732a3e046c0055c869c96bad447eb794de", width: 1280, height: 481,
+    derivative: "Wikimedia 1280px thumbnail; source photograph is panoramic. No project pixel edits. Display may crop to fit." },
+  { id: "hoffselva-oslo", title: "Hoffselva · Oslo", site: "Hoffselva at Skøyen, Oslo, Norway", role: "03 / An urban stream",
+    alt: "Narrow stream between vegetated banks, a modern building and a railing, running beneath a road bridge.", src: "/images/references/hoffselva-oslo.jpg",
+    author: "Jan-Tore Egge", sourceUrl: "https://commons.wikimedia.org/wiki/File:Hoffselva_ved_Sk%C3%B8yen_I.jpg",
+    license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", capturedDate: "2014-05-12",
+    sha256: "8d5217786fdf35351f94c8ba3e105225046766eeb50d75e4da93be770c573053", width: 1280, height: 960,
+    derivative: "Wikimedia 1280px thumbnail; no project pixel edits. Display may crop to fit." },
+] as const;
+export const allReferencePhotos = [...referencePhotos, ...archivedReferencePhotos];
+export type ReferencePhoto = (typeof allReferencePhotos)[number];
+export function referenceDimensions(photo: ReferencePhoto) {
+  return "width" in photo ? { width: photo.width, height: photo.height } : { width: 1280, height: photo.id === "scenic-reflection" ? 853 : 960 };
+}
 
 const evidenceDateSchema = z.string().date();
 const recordedTimestampSchema = z.string().datetime({ offset: true });
