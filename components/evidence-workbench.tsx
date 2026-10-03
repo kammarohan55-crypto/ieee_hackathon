@@ -109,27 +109,42 @@ export function QualityScore({
 
 export function EvidenceGraph({ report }: { report: Report }) {
   const [selection, setSelection] = useState<{ reportId: string; nodeId: string } | null>(null);
+  const [animatePath, setAnimatePath] = useState(true);
   const data = useMemo(() => {
     const trail = evidenceTrail(report);
+    const currentId = selection?.reportId === report.id ? selection.nodeId : undefined;
+    const upstream = new Set<string>();
+    if (currentId) {
+      const pending = [currentId];
+      while (pending.length) {
+        const id = pending.pop()!;
+        if (upstream.has(id)) continue;
+        upstream.add(id);
+        trail.edges.filter((edge) => edge.target === id).forEach((edge) => pending.push(edge.source));
+      }
+    }
     const nodes: Node[] = trail.nodes.map((n) => ({
       id: n.id, position: { x: n.x, y: n.y },
       data: { label: n.label, detail: n.detail, source: n.source },
-          className: `trail-node nopan trail-${n.source}`,
+      className: `trail-node nopan trail-${n.source}${currentId ? upstream.has(n.id) ? " trail-on-route" : " trail-off-route" : ""}`,
       ariaLabel: `${n.label}. Press Enter to inspect.`,
       selected: selection?.reportId === report.id && selection.nodeId === n.id,
     }));
-    const edges: Edge[] = trail.edges;
+    const edges: Edge[] = trail.edges.map((edge) => ({ ...edge,
+      animated: animatePath && upstream.has(edge.source) && upstream.has(edge.target),
+      className: upstream.has(edge.source) && upstream.has(edge.target) ? "trail-edge-active" : "trail-edge-resting",
+    }));
     return { nodes, edges };
-  }, [report, selection]);
+  }, [report, selection, animatePath]);
   const selectedNode = selection?.reportId === report.id ? data.nodes.find((n) => n.id === selection.nodeId) : undefined;
   const inspect = (nodeId: string) => setSelection({ reportId: report.id, nodeId });
   return (
     <section className="graph-section">
       <div className="section-heading">
         <h3>
-          <GitBranch size={18} /> Follow the evidence
+          <GitBranch size={18} /> Evidence constellation
         </h3>
-        <span className="tag">Interactive provenance graph</span>
+        <button type="button" className="trail-motion-toggle" aria-pressed={animatePath} onClick={() => setAnimatePath(!animatePath)}>{animatePath ? "Pause path motion" : "Animate selected path"}</button>
       </div>
       <div className="trail-legend" aria-label="Graph sources">
         <span className="trail-citizen">Citizen evidence</span><span className="trail-reference">Public photo source</span><span className="trail-rules">Local rules</span><span className="trail-ai">AI candidates</span><span className="trail-human">Human decisions</span><span className="trail-pending">Pending</span>

@@ -1,4 +1,24 @@
-# Current verification — browser-tested visual redesign
+# Current verification — clean UI / globe / layered receipt
+
+2026-10-03 India time. Started from published7a2aa3. Preserved existing domain, originals, source assets, storage, provider consent and exports. No live AI/physical permission/private-data transmission. Production-only temporary helper and isolated installed-Chrome profiles, never user windows/storage. App stopped after final checks.
+
+- 407/407 authored checks:94 domain,43 workspace,34 mission,52 API,25 capture/photo,14 Lab,26 map,19 presentation/visit,20 brief,29 actions,10 Europe,10 presentation workspace,24 source-weather,7 scene. Six new checks cover globe controls/city/source-coordinate separation and actual ReceiptLayers original/unknown/confirmation/disagreement/availability boundaries. Four bundled reports223,184 separate. Software doubles are not scientific accuracy/GPU/device validation.
+- TypeScript, full ESLint (zero errors/warnings),16 parsed CSS files and final production build pass. Offline47 assets / 10,140,512bytes. Release scan:253 source /135 built files, two configured keys, zero matches; source identities unchanged. Existing >500kB scene/Vinext route notices remain. Exact metrics in ignored outputs/refinement-release.log; this is not comprehensive security.
+- Fixed actual CSS3D pointer failure: nested preserve-3d caused missed layer clicks; flattened children before perspective. Retested all five layers via real pointer and keyboard in the fresh production build. Stack/Separate works; reduced-motion transition0s. Phone375 root375/modal357. Retained AI/provider/confidence/disposition/reason and no-AI/unknown/invalid-confirmation states covered by actual-component contract checks.
+- Eight-node Garonne graph rendered; selected upstream route3 animated edges; Pause removed animated edges, resume restored path. Nodes/list retain source detail; no causal/diagnostic claim.
+- Public map renders actual dark globe, three real city-context markers, Globe/Flat switch, Oslo flight/dossier. Markers rounded with no generic numbered-label halo; final Coimbra label offset prevents initial Toulouse overlap. No citizen coordinates invented. Existing context-layer/date/coverage/missing/synthetic/error contracts retained.
+- All six primary views fit375/850/1440; Mission also680/1120. Root/body never exceed those widths in measured viewports. Focus canvas one full-width column; native inspector details toggle with Enter. Not every breakpoint, screen reader or physical touch device tested.
+- Actual Garonne JSON receipt downloaded without failure in isolated profile, retained original/source/review metadata. No new review/save/provider call required by read-only UI. Previous capture/confirmation/review/reload/disagreement/offline checks below are historical, not rerun in full this session.
+- Initial production startup failed resolving generated rolldown-runtime module; restarting the finished build recovered, including later fresh startup/profile. No permanent packaging fix/cause established. Do not rebuild while preview watches dist. One intermediate upstream missing wood-pattern sprite warning occurred; fresh profile zero warnings/page exceptions. External service availability is not guaranteed.
+- Ignored proof: outputs/refinement-globe-final.png, refinement-receipt-mobile.png, refinement-receipt.json and refinement-* logs. Source ZIP created after clean published commit; manifest identifies exact revision. No new dependency/credential/generated source photograph; preserved individual attribution/licences.
+
+Remaining: physical camera/video/mic/GPS/ghost, installed PWA/import/all formats, low-end GPU, other browsers/touch/200% zoom/full accessibility, actual user/expert review, hosted judge access, submission/video. No win guarantee or production/scientific certification.
+
+---
+
+# Previous published revision verification (historical)
+
+# Published 7a2aa3 verification — historical visual redesign
 
 October3,2026 (India time). Latest user explicitly authorized running/testing/debugging the website, superseding the earlier no-preview instruction. Started from published95d57a7. Development5173 and a temporary production4173 helper were tested in fresh installed-Chrome profiles through the existing runtime Playwright library; no project dependency added. User windows/storage were untouched. Codex browser open returned queued; native-panel rendering was not inspected. Computer-use could not establish the user-window URL and stopped; no further user-window automation. No live AI request, private evidence transmission or physical camera/mic/GPS permission.
 

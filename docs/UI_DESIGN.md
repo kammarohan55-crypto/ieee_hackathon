@@ -21,7 +21,7 @@ An environmental field instrument with editorial typography: midnight aquatic su
 
 ## Verification and remaining device checks
 
-Terminal verification: full401-check suite, TypeScript, ESLint,15 CSS parses and production build. Seven new lifecycle checks use real Three.js geometry/math with doubled GPU/DOM boundaries. They exercise finite geometry, portrait/zero sizing, throttling, pause/resume, pointer response, disposal, context loss and initialization/render failure. They **do not** establish successful WebGL drawing, device performance or visual quality.
+Terminal verification: full407-check suite, TypeScript, ESLint,16 CSS parses and production build. Seven new lifecycle checks use real Three.js geometry/math with doubled GPU/DOM boundaries. They exercise finite geometry, portrait/zero sizing, throttling, pause/resume, pointer response, disposal, context loss and initialization/render failure. They **do not** establish successful WebGL drawing, device performance or visual quality.
 
 The latest user explicitly authorized running/testing the website, superseding the earlier no-preview instruction. Isolated installed-Chrome profiles exercised the current development and production interfaces; user windows/storage were untouched. Actual scene rendering, stable paused frames, changing played frames, reduced-motion still view and injected context-loss fallback passed. Screenshots of the desktop hero and phone Lab/receipt were inspected. Mission/Insights layouts fit375/680/850/1120/1440px; their internal matrix remains scrollable. All primary views and four Lab/presentation chapters work. Browser QA corrected mobile Insights overflow, legacy pale receipt background and a clipped provenance tag. Ctrl+K, photo grid/zoom, comparison, graph, confirmation/review/reload, disagreement and one completed JSON receipt download were exercised. No live AI or physical permission used. Full results/limits are in QA.md.
 
@@ -38,3 +38,14 @@ User walkthrough on the existing local server (or start with npm run dev):
 7. Report the route, viewport/device, action and any screenshot or console message for a visual issue. No API key is required for this visual update.
 
 Physical camera/microphone/GPS, installed PWA, native import/all export formats, other browsers and expert review remain separate gaps. One JSON receipt download completed in the isolated browser; this is not proof of every device/format. Decorative polish does not establish environmental accuracy or competition outcomes.
+
+
+## Clean workspace / source-aware depth refinement
+
+The full supplied visual brief led to scoped improvements, not15 competing visual systems. app/clarity.css loads last and owns the calmer density: short hero, restrained cards, compact photographic source rail, clearer heading hierarchy and native details for secondary information. Mandatory provenance/uncertainty/consent remains visible where decisions are made. The existing decorative Three.js scene stays unchanged.
+
+GeographicEvidenceMap starts the public gallery on a real MapLibre globe using the dark vector basemap, with source-aware city chips, Globe/Flat controls and bounded city flights. NASA/WorldCover remain separate context layers. Perspective is navigation, never terrain/sensing or a physical twin.
+
+EvidenceGraph retains its graph/readable list and highlights the selected upstream path. Only that route animates; Pause and reduced-motion alternatives remain. Source node styles distinguish solid originals/human decisions from dashed AI candidates. ReceiptLayers renders five real provenance layers with CSS perspective, Stack/Separate, pointer/keyboard detail and unchanged exports. Nested preserve-3d caused an actual Chrome pointer bug; child controls are flattened before the single perspective transform. Reduced motion disables transitions. No synthetic physics or additional canvas needed.
+
+Focused final production checks: all six views375/850/1440 with no page overflow; Mission also680/1120; focused canvas full width; Enter disclosure; globe/city/flat actions; eight-node graph path and pause; five receipt pointer/keyboard layers, stack/separate, phone375/reduced motion and actual JSON download. These complement, rather than repeat, prior hero/capture/offline QA. Screenshots/logs are ignored outputs; QA.md records limits. App stopped. For review, request/start npm run dev, use /showcase and follow DEMO_GUIDE.md.

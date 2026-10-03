@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Compass, Crosshair, FileSearch, Globe2, MapPin, MapPinOff, RefreshCw, Satellite, ShieldCheck } from "lucide-react";
 import type { Report } from "@/lib/assessment";
 import { displayEvidenceTime, evidenceTimePrecision, referencePhotos, type ReferencePhoto } from "@/lib/references";
@@ -13,7 +13,7 @@ import { EuropeanContext } from "./european-context";
 
 const methodLabel = { device: "Device position", manual: "Manually entered", synthetic: "Synthetic coordinates" };
 const statusLabel = { awaiting_review: "Awaiting human review", needs_information: "More information requested", reviewed: "Human reviewed · local demo" };
-const locationLabel = { mapped: "Coordinates recorded", missing: "No coordinates", invalid: "Invalid coordinates", polar: "Outside map projection" };
+const locationLabel = { mapped: "Coordinates recorded", missing: "No coordinates", invalid: "Invalid coordinates", polar: "Outside plotted range" };
 const researchCitySources = [
   { slug: "benevento", name: "Benevento", country: "Italy" },
   { slug: "coimbra", name: "Coimbra", country: "Portugal" },
@@ -33,6 +33,9 @@ function observationTime(report: Report) {
 export function GeographicEvidenceMap({ records, onOpen, publicContext = false, initialReferenceCity, onReviewReference }: { records: Report[]; onOpen: (id: string) => void; publicContext?: boolean; initialReferenceCity?: string; onReviewReference?: (photo: ReferencePhoto) => void }) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("maplibre-gl").Map | null>(null);
+  const projectionRef = useRef<"globe" | "mercator">(publicContext ? "globe" : "mercator");
+  const overviewRef = useRef(publicContext);
+  const [projection, setProjection] = useState<"globe" | "mercator">(publicContext ? "globe" : "mercator");
   const cameraRef = useRef<{ center: [number, number]; zoom: number; bearing: number; locationSignature: string } | null>(null);
   const markerButtons = useRef<Map<string, HTMLButtonElement>>(new Map());
   const cityButtons = useRef<Map<string, HTMLButtonElement>>(new Map());
@@ -47,7 +50,7 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
   const [listFilter, setListFilter] = useState<"all" | "unplotted">("all");
   const [revision, setRevision] = useState(0);
   const [mapStatus, setMapStatus] = useState<"loading" | "ready" | "limited" | "unavailable">("loading");
-  const [basemap, setBasemap] = useState<GeographicBasemap>(publicContext ? "landscape" : "satellite");
+  const [basemap, setBasemap] = useState<GeographicBasemap>(publicContext ? "street" : "satellite");
   const [satelliteDate, setSatelliteDate] = useState(defaultSatelliteDate);
   const [dateDraft, setDateDraft] = useState(defaultSatelliteDate);
   const [dateError, setDateError] = useState<string | null>(null);
@@ -66,6 +69,14 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
   const maxZoom = basemap === "satellite" ? SATELLITE_CONTEXT.maxZoom : basemap === "landscape" ? LANDSCAPE_CONTEXT.maxZoom : 22;
   const landscapeOutsideCoverage = basemap === "landscape" && selected?.field?.coordinates && (selected.field.coordinates.lat < LANDSCAPE_CONTEXT.bounds[1] || selected.field.coordinates.lat > LANDSCAPE_CONTEXT.bounds[3]);
 
+  const selectCity = useCallback((id: string) => {
+    const city = europeanPlaces.find((value) => value.id === id);
+    if (!city) return;
+    overviewRef.current = false;
+    cityRef.current = city.id; setCityId(city.id); setSourceSelected(true);
+    mapRef.current?.flyTo({ center: [city.lon, city.lat], zoom: Math.min(12, maxZoom), pitch: projectionRef.current === "globe" ? 45 : 0, duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 1100 });
+  }, [maxZoom]);
+
   useEffect(() => {
     let disposed = false;
     let map: import("maplibre-gl").Map | undefined;
@@ -78,27 +89,30 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
       if (disposed || !container.current) return;
       setMapStatus("loading");
       try {
-        const camera = cameraRef.current?.locationSignature === locationSignature ? cameraRef.current : null;
+        const overview = overviewRef.current;
+        const camera = !overview && cameraRef.current?.locationSignature === locationSignature ? cameraRef.current : null;
         map = new lib.Map({
           container: container.current,
-          style: basemap === "satellite" ? satelliteMapStyle(satelliteDate) : basemap === "landscape" ? landscapeMapStyle() : "https://tiles.openfreemap.org/styles/liberty",
-          center: camera?.center ?? (groups.length === 1 ? [groups[0].lon, groups[0].lat] : publicContext ? [europeanPlaces.find((p) => p.id === cityRef.current)!.lon, europeanPlaces.find((p) => p.id === cityRef.current)!.lat] : [0, 15]),
-          zoom: Math.min(camera?.zoom ?? (groups.length === 1 ? 13 : publicContext ? 12 : 1.15), maxZoom),
+          style: basemap === "satellite" ? satelliteMapStyle(satelliteDate) : basemap === "landscape" ? landscapeMapStyle() : "https://tiles.openfreemap.org/styles/dark",
+          center: overview ? [10, 38] : camera?.center ?? (groups.length === 1 ? [groups[0].lon, groups[0].lat] : publicContext ? [europeanPlaces.find((p) => p.id === cityRef.current)!.lon, europeanPlaces.find((p) => p.id === cityRef.current)!.lat] : [0, 15]),
+          zoom: overview ? 1.45 : Math.min(camera?.zoom ?? (groups.length === 1 ? 13 : publicContext ? 12 : 1.15), maxZoom),
           bearing: camera?.bearing ?? 0,
           maxZoom,
-          pitch: 0,
+          pitch: !overview && projectionRef.current === "globe" && (camera?.zoom ?? 0) > 6 ? 45 : 0,
           attributionControl: { compact: true },
           cooperativeGestures: true,
         });
         mapRef.current = map;
-        map.addControl(new lib.NavigationControl({ visualizePitch: false }), "top-right");
+        map.addControl(new lib.NavigationControl({ visualizePitch: true }), "top-right");
         const canvas = map.getCanvas();
         canvas.setAttribute("aria-label", `${basemap === "satellite" ? `NASA satellite context requested for ${satelliteDate} UTC` : basemap === "landscape" ? "Historical 2021 annual Sentinel-2 landscape composite; detail available at zoom 6–14" : "Geographic street basemap"}. Recorded locations are also available in the location list.`);
         const bounds = geographicBounds(groups);
-        if (!camera && groups.length > 1 && bounds) map.fitBounds(bounds, { padding: 62, maxZoom: Math.min(14, maxZoom), duration: 0 });
+        if (!overview && !camera && groups.length > 1 && bounds) map.fitBounds(bounds, { padding: 62, maxZoom: Math.min(14, maxZoom), duration: 0 });
         map.on("load", () => {
           if (disposed) return;
           if (timeout) clearTimeout(timeout);
+          map!.setProjection({ type: projectionRef.current });
+          map!.setSky({ "sky-color": "#071722", "horizon-color": "#387885", "fog-color": "#0d2936", "atmosphere-blend": .75 });
           setMapStatus(errored ? "limited" : "ready");
         });
         map.on("error", () => {
@@ -124,10 +138,11 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
         if (publicContext) europeanPlaces.forEach((city) => {
           const button = document.createElement("button"); button.type = "button";
           button.className = "geo-marker geo-city-marker";
+          button.setAttribute("data-city", city.id);
           button.setAttribute("aria-label", `${city.city} city overview; public source context, not a citizen observation or sampling station`);
           button.setAttribute("aria-pressed", String(city.id === cityRef.current));
           const label = document.createElement("span"); label.textContent = city.city; button.appendChild(label);
-          button.onclick = () => { cityRef.current = city.id; setCityId(city.id); setSourceSelected(true); mapRef.current?.easeTo({ center: [city.lon, city.lat], zoom: Math.min(12, maxZoom), duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 550 }); };
+          button.onclick = () => selectCity(city.id);
           cityMarkers.set(city.id, button);
           markers.push(new lib.Marker({ element: button }).setLngLat([city.lon, city.lat]).addTo(map!));
         });
@@ -157,7 +172,7 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
       map?.remove();
       if (mapRef.current === map) mapRef.current = null;
     };
-  }, [groups, revision, basemap, satelliteDate, maxZoom, locationSignature, publicContext]);
+  }, [groups, revision, basemap, satelliteDate, maxZoom, locationSignature, publicContext, selectCity]);
 
   useEffect(() => {
     selectedKeyRef.current = selectedKey;
@@ -167,13 +182,8 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
   useEffect(() => {
     cityButtons.current.forEach((button, key) => button.setAttribute("aria-pressed", String(key === cityId)));
   }, [cityId, mapStatus]);
-  function selectCity(id: string) {
-    const city = europeanPlaces.find((value) => value.id === id);
-    if (!city) return;
-    cityRef.current = city.id; setCityId(city.id); setSourceSelected(true);
-    mapRef.current?.easeTo({ center: [city.lon, city.lat], zoom: Math.min(12, maxZoom), duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 550 });
-  }
   function selectReport(report: Report) {
+    overviewRef.current = false;
     setSourceSelected(false); setSelectedId(report.id);
     const c = report.field?.coordinates;
     if (c && locationState(report) === "mapped" && mapRef.current) {
@@ -184,6 +194,7 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
   function fitLocations() {
     const map = mapRef.current;
     if (!map) return;
+    overviewRef.current = false;
     const bounds = geographicBounds(groups);
     if (bounds) map.fitBounds(bounds, { padding: 62, maxZoom: Math.min(14, maxZoom), duration: 0 });
     else if (publicContext) {
@@ -192,6 +203,17 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
       if (basemap === "landscape") setBasemap("street");
     }
     else map.jumpTo({ center: [0, 15], zoom: 1.15, pitch: 0, bearing: 0 });
+  }
+  function showProjection(value: "globe" | "mercator") {
+    projectionRef.current = value; setProjection(value);
+    const map = mapRef.current;
+    if (!map) return;
+    map.setProjection({ type: value });
+    if (value === "globe") {
+      overviewRef.current = true;
+      map.jumpTo({ center: [10, 38], zoom: 1.45, pitch: 0, bearing: 0 });
+      if (basemap !== "street") setBasemap("street");
+    } else { overviewRef.current = false; map.easeTo({ pitch: 0, duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 450 }); }
   }
   function chooseDate(value: string) {
     if (!validSatelliteDate(value)) {
@@ -223,6 +245,7 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
         <img src={photo.src} alt="" width={160} height={100} /><span><small>{city.country} / SOURCE CONTEXT</small><strong>{city.river}</strong><span>{city.city} · photo {photo.capturedDate.slice(0, 4)}</span></span><MapPin size={17} />
       </button>;
     })}</div>}
+    <div className="geo-projection-switch" role="group" aria-label="Geographic perspective"><div><span className="mc-kicker">GEOGRAPHIC PERSPECTIVE</span><small>City context and supplied positions stay distinct.</small></div><button type="button" aria-pressed={projection === "globe"} disabled={mapStatus === "loading" || mapStatus === "unavailable"} onClick={() => showProjection("globe")}><Globe2 size={16} /> Globe overview</button><button type="button" aria-pressed={projection === "mercator"} disabled={mapStatus === "loading" || mapStatus === "unavailable"} onClick={() => showProjection("mercator")}><MapPin size={15} /> Flat map</button></div>
     <div className="geo-context-controls">
       <div className="geo-basemap-switch" role="group" aria-label="Map background"><button type="button" aria-pressed={basemap === "street"} onClick={() => setBasemap("street")}><MapPin size={15} /> Street map</button><button type="button" aria-pressed={basemap === "satellite"} onClick={() => setBasemap("satellite")}><Satellite size={16} /> NASA satellite</button><button type="button" aria-pressed={basemap === "landscape"} onClick={() => setBasemap("landscape")}><Globe2 size={16} /> Landscape · 2021</button></div>
       {basemap === "satellite" ? <form className="geo-date-controls" onSubmit={(event) => { event.preventDefault(); chooseDate(dateDraft); }}>
@@ -234,7 +257,7 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
     {dateError && basemap === "satellite" && <p id="geo-date-error" className="geo-date-error" role="alert">{dateError} The map still requests {satelliteDate}.</p>}
     {landscapeOutsideCoverage && <p className="geo-date-error" role="status">The selected location is outside this historical layer’s latitude coverage (60°S–83°N). Its position and evidence remain available. <button type="button" onClick={() => setBasemap("street")}>Use street map</button></p>}
     <div className="geo-layout">
-      <div className="geo-stage">
+      <div className="geo-stage" data-projection={projection}>
         <div ref={container} className="geo-map" />
         <div className="geo-map-top"><span><MapPin size={14} /> {groups.length} exact location{groups.length === 1 ? "" : "s"}</span><button type="button" onClick={fitLocations} disabled={mapStatus === "loading" || mapStatus === "unavailable"}><Crosshair size={16} /> {groups.length ? "Fit locations" : publicContext ? `European overview${basemap === "landscape" ? " · streets" : ""}` : "World view"}</button></div>
         {((!groups.length && !publicContext) || mapStatus === "unavailable") && <div className="geo-map-message"><Globe2 size={32} /><h3>{mapStatus === "unavailable" ? "Your evidence is still here." : basemap === "street" ? "Coordinates make the connection." : "Explore Earth. Add evidence later."}</h3><p>{mapStatus === "unavailable" ? "The map needs WebGL and an available basemap connection. Inspect each record in the location list." : basemap === "landscape" ? "Historical 2021 landscape context. No observation positions are plotted. Pan and zoom to 6–14 for imagery; no site or visit is invented." : basemap === "satellite" ? "This is world satellite context. No observation positions are plotted. Pan and choose a date; supplied coordinates can connect your own records later." : "No records in this view have coordinates that this map can plot. Site names alone are never placed on the map."}</p></div>}
@@ -255,7 +278,7 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
           <div className="geo-badges">{isSyntheticRecord(selected) && <span className="geo-synthetic">Synthetic record</span>}<span>{statusLabel[selected.status]}</span>{coordinates?.method === "synthetic" && <span className="geo-synthetic">Synthetic coordinates</span>}</div>
           <dl className="geo-metadata"><div><dt>Location</dt><dd>{locationLabel[locationState(selected)]}</dd></div>{coordinates && <><div><dt>Reported latitude / longitude</dt><dd className="geo-coordinate">{String(coordinates.lat)} / {String(coordinates.lon)}</dd></div><div><dt>Coordinate source</dt><dd>{methodLabel[coordinates.method]}</dd></div><div><dt>Reported accuracy</dt><dd>{Number.isFinite(coordinates.accuracy) && coordinates.accuracy! >= 0 ? `± ${coordinates.accuracy} m · unverified` : "Not recorded"}</dd></div></>}<div><dt>Observation time · citizen supplied</dt><dd>{observationTime(selected)}</dd></div><div><dt>Retained media metadata</dt><dd>{selected.field?.media.length ?? 0} item{selected.field?.media.length === 1 ? "" : "s"}</dd></div></dl>
           {basemap === "satellite" && <div className="geo-observation-day"><p>{observationDate ? `Citizen time falls on ${observationDate} UTC. A same-day satellite composite may have a different acquisition time.` : "No valid observation day is available for a satellite date comparison."}</p>{observationDate && <button type="button" onClick={() => chooseDate(observationDate)} disabled={satelliteDate === observationDate}><CalendarDays size={14} /> Request observation day</button>}</div>}
-          {locationState(selected) === "polar" && <p className="geo-location-note">Valid polar coordinates lie outside this Mercator map. The original coordinates remain in this record and its export.</p>}
+          {locationState(selected) === "polar" && <p className="geo-location-note">Valid polar coordinates lie outside this workspace’s plotted Mercator range. Globe perspective does not change those grouping rules; the original coordinates remain in this record and its export.</p>}
           {locationState(selected) === "invalid" && <p className="geo-location-note">These coordinates fail range or numeric checks. A human needs to clarify them; no corrected position is guessed.</p>}
           <blockquote>{selected.original.note || "No original field note recorded."}</blockquote>
           {selectedGroup && selectedGroup.reports.length > 1 && <div className="geo-same-location"><p>{selectedGroup.reports.length} records at these exact coordinates</p><div>{selectedGroup.reports.toReversed().map((r) => <button type="button" key={r.id} aria-pressed={r.id === selected.id} onClick={() => selectReport(r)}>{observationTime(r)}{syntheticLocation(r) ? " · synthetic" : ""}</button>)}</div></div>}

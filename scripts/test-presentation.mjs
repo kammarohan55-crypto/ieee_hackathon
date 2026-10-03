@@ -95,6 +95,7 @@ function fixture(report) {
     if (name === "lucide-react") return icons;
     if (name === "./field-studio") return { EvidenceImage: "EvidenceImage" };
     if (name === "./demonstration-note") return { DemonstrationNote: "DemonstrationNote" }; // Provenance disclosure; no mutation handler.
+    if (name === "./receipt-layers") return { ReceiptLayers: "ReceiptLayers" }; // Its actual data/interaction contracts are exercised below.
     if (name.startsWith("@/lib/")) { const lib = library(name.slice(6)); return name === "@/lib/field" ? { ...lib, downloadFile: (...args) => exports.push(args) } : lib; }
     throw new Error(`Unexpected import ${name}`);
   });
@@ -143,6 +144,56 @@ await test("Presentation CSS parses and provides responsive/reduced-motion/focus
   const css = readFileSync("app/presentation.css", "utf8"); postcss.parse(css); assert.match(css, /prefers-reduced-motion/); assert.match(css, /max-width:460px/); assert.match(css, /:focus-visible/);
   const source = readFileSync("components/decision-presentation.tsx", "utf8"); for (const token of ["Dialog.Title", "Dialog.Description", "Dialog.Close", "Tabs.List", "aria-live"]) assert.ok(source.includes(token));
 });
+function layerFixture(report) {
+  const runtime = hooks();
+  const { ReceiptLayers } = execute("components/receipt-layers.tsx", (name) => {
+    if (name === "react") return { ...runtime.react, useId: () => "authored-layer-fixture" };
+    if (name === "react/jsx-runtime") return jsx;
+    if (name === "lucide-react") return icons;
+    if (name.startsWith("@/lib/")) return library(name.slice(6));
+    throw new Error(`Unexpected layer import ${name}`);
+  });
+  return {
+    render: () => runtime.render(ReceiptLayers, { report }),
+    choose(tree, label) { const button = nodes(tree).find((node) => node.type === "button" && textOf(node).includes(label)); assert.ok(button, `Missing layer ${label}`); button.props.onClick(); },
+    detail(tree) { return textOf(nodes(tree).find((node) => String(node.props?.className).startsWith("rl-detail "))); },
+  };
+}
+await test("Receipt layer navigation and separation preserve unusual original evidence and every decision", () => {
+  const report = record(); report.original.note = "Original <script>literal</script>\nUnknown remains unknown."; report.field.media = [media()];
+  const original = JSON.stringify(report), f = layerFixture(report); let tree = f.render();
+  assert.ok(f.detail(tree).includes(report.original.note)); assert.ok(f.detail(tree).includes(report.field.media[0].sha256));
+  for (const label of ["Deterministic checks", "Optional AI proposals", "Explicit confirmation", "Human judgment", "Stack layers", "Separate layers", "Original evidence"]) { f.choose(tree, label); tree = f.render(); }
+  assert.equal(JSON.stringify(report), original); assert.ok(f.detail(tree).includes(report.original.note));
+});
+await test("Receipt layers distinguish absent AI and invalid confirmation/review from approval", () => {
+  const report = record(); report.status = "reviewed"; report.confirmedAt = "unknown";
+  const original = JSON.stringify(report), f = layerFixture(report); let tree = f.render();
+  f.choose(tree, "Optional AI proposals"); tree = f.render(); assert.match(f.detail(tree), /No AI candidates are retained/);
+  f.choose(tree, "Explicit confirmation"); tree = f.render(); assert.match(f.detail(tree), /usable confirmation is not retained/);
+  f.choose(tree, "Human judgment"); tree = f.render(); assert.match(f.detail(tree), /No review event retained/); assert.match(f.detail(tree), /does not approve/);
+  assert.equal(JSON.stringify(report), original);
+});
+await test("Receipt AI layer retains latest human disagreement and unknown provider without claiming accuracy", () => {
+  const report = record(), photo = media();
+  photo.visual = { model: "authored-model", at: now.toISOString(), findings: [{ kind: "surface_foam", region: "center", confidence: "low" }] };
+  report.field.media = [photo]; report.field.dispositions = [
+    { mediaId: photo.id, finding: "surface_foam", decision: "supports", reason: "Earlier authored judgment", at: now.toISOString(), actor: "demo_reviewer" },
+    { mediaId: photo.id, finding: "surface_foam", decision: "disagrees", reason: "Authored QA: reflection remains possible.", at: now.toISOString(), actor: "demo_reviewer" },
+  ];
+  const original = JSON.stringify(report), f = layerFixture(report); const initial = f.render(); f.choose(initial, "Optional AI proposals");
+  const detail = f.detail(f.render()); assert.match(detail, /Provider not retained/); assert.match(detail, /low confidence · uncalibrated/); assert.match(detail, /Human: disagrees/); assert.match(detail, /reflection remains possible/); assert.ok(!detail.includes("Human: supports"));
+  assert.equal(JSON.stringify(report), original);
+});
+await test("Receipt historical layer shows retained credit and digest availability limits without manufacturing a visit", () => {
+  const source = referencePhotos[0], draft = createReferenceDraft(source), report = record();
+  report.original = { ...draft.draft, note: "Authored software review of a historical photograph." }; report.field = draft.field;
+  report.field.media = [{ ...media(), origin: "public_reference", sha256: source.sha256 }]; // Authored metadata fixture; no media bytes are supplied.
+  const original = JSON.stringify(report), f = layerFixture(report), detail = f.detail(f.render());
+  for (const value of [source.author, source.license, source.sha256]) assert.ok(detail.includes(value));
+  assert.match(detail, /historical photograph/); assert.match(detail, /do not guarantee/); assert.equal(JSON.stringify(report), original);
+});
+
 await mkdir(".sites-runtime/presentation-tests", { recursive: true });
 await writeFile(".sites-runtime/presentation-tests/results.json", JSON.stringify({ generatedAt: new Date().toISOString(), passed: results.filter((r) => r.passed).length, total: results.length, liveAI: false, limitations: ["Authored software fixtures and explicit hooks/JSX/media doubles; no browser focus/rendering, downloads, live AI or scientific evaluation."], results }, null, 2));
 for (const r of results) if (!r.passed) console.error(`FAIL ${r.name}: ${r.error}`);

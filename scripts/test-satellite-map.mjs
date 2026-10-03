@@ -96,6 +96,7 @@ function hooks() {
       if (!old || dependencies.some((value, i) => !Object.is(value, old.dependencies[i]))) slots[index] = { value: callback(), dependencies };
       return slots[index].value;
     },
+    useCallback(callback, dependencies) { return api.useMemo(() => callback, dependencies); },
     useEffect(callback, dependencies) {
       const index = cursor++, old = slots[index];
       if (!old || dependencies.some((value, i) => !Object.is(value, old.dependencies[i]))) effects.push(() => { old?.cleanup?.(); slots[index] = { dependencies, cleanup: callback() }; });
@@ -115,6 +116,9 @@ function mapFixture(records = [], options = {}) {
     getBearing() { return this.bearing; }
     fitBounds(bounds, options) { this.fit = { bounds, options }; }
     easeTo(options) { this.ease = options; }
+    flyTo(options) { this.flight = options; }
+    setProjection(options) { this.projection = options; }
+    setSky(options) { this.sky = options; }
     jumpTo(options) { this.jump = options; }
     resize() {}
     remove() { this.removed = true; }
@@ -217,7 +221,7 @@ await test("Tile errors retain evidence and expose a labeled street-map fallback
   assert.match(textOf(tree), /Satellite tiles unavailable or incomplete/);
   assert.match(textOf(tree), /Original note/);
   button(tree, "Use street map").props.onClick(); fixture.render(); await flush();
-  assert.equal(fixture.maps.at(-1).options.style, "https://tiles.openfreemap.org/styles/liberty");
+  assert.equal(fixture.maps.at(-1).options.style, "https://tiles.openfreemap.org/styles/dark");
   assert.equal(fixture.markers.at(-1).map, fixture.maps.at(-1));
   fixture.unmount();
 });
@@ -273,7 +277,7 @@ await test("Historical tile failures and uncovered recorded latitudes expose str
   const polar = { ...record, id: "latitude-84", field: { ...record.field, coordinates: { lat: 84, lon: 10, method: "manual" } } };
   const fixture = mapFixture([polar]); fixture.render(); await flush(); button(fixture.render(), "Landscape").props.onClick(); fixture.render(); await flush();
   fixture.maps.at(-1).events.error(); const tree = fixture.render(); assert.match(textOf(tree), /outside this historical layer/); assert.equal(fixture.markers.at(-1).coordinates[1], 84);
-  button(tree, "Use street map").props.onClick(); fixture.render(); await flush(); assert.equal(fixture.maps.at(-1).options.style, "https://tiles.openfreemap.org/styles/liberty");
+  button(tree, "Use street map").props.onClick(); fixture.render(); await flush(); assert.equal(fixture.maps.at(-1).options.style, "https://tiles.openfreemap.org/styles/dark");
   fixture.unmount();
 });
 await test("Location labels preserve date-only precision and do not infer a missing time zone", async () => {
@@ -295,8 +299,10 @@ await test("An invalid imported day or clock never becomes a normalized map obse
 });
 await test("European source context opens a real city overview while citizen counts stay zero", async () => {
   const fixture = mapFixture([], { publicContext: true }); const tree = fixture.render(); await flush();
-  assert.deepEqual(plain(fixture.maps[0].options.center), [-8.428889, 40.211111]);
-  assert.equal(fixture.maps[0].options.zoom, 12); assert.equal(fixture.markers.length, 3);
+  assert.deepEqual(plain(fixture.maps[0].options.center), [10, 38]);
+  assert.equal(fixture.maps[0].options.zoom, 1.45); assert.equal(fixture.markers.length, 3);
+  fixture.maps[0].events.load();
+  assert.equal(fixture.maps[0].projection.type, "globe");
   assert.match(textOf(tree), /0plotted records0not plotted/); assert.match(textOf(tree), /Not the camera position/);
   assert.ok(fixture.markers.every((m) => m.options.element.attributes["aria-label"].includes("not a citizen observation")));
   fixture.unmount(); assert.ok(fixture.markers.every((m) => m.removed));
@@ -305,8 +311,8 @@ await test("European city selection moves the map without rewriting or manufactu
   const fixture = mapFixture([record], { publicContext: true }); fixture.render(); await flush();
   const original = JSON.stringify(record); const tree = fixture.render();
   button(tree, "Hoffselva").props.onClick(); const next = fixture.render();
-  assert.deepEqual(plain(fixture.maps[0].ease.center), [10.738889, 59.913333]);
-  assert.equal(fixture.maps[0].ease.duration, 0); assert.match(textOf(next), /Hoffselva · Oslo/);
+  assert.deepEqual(plain(fixture.maps[0].flight.center), [10.738889, 59.913333]);
+  assert.equal(fixture.maps[0].flight.duration, 0); assert.equal(fixture.maps[0].flight.pitch, 45); assert.match(textOf(next), /Hoffselva · Oslo/);
   assert.equal(JSON.stringify(record), original); assert.equal(fixture.markers.length, 4);
   const citizen = fixture.markers.find((marker) => marker.options.element.attributes["aria-label"].includes("recorded observation"));
   assert.deepEqual(plain(citizen.coordinates), [73.85, 18.52]);
@@ -318,10 +324,34 @@ await test("Unknown reference city falls back to sourced context; Europe overvie
   const bounds = plain(fixture.maps[0].fit.bounds);
   assert.equal(bounds[0][1], 40.211111); assert.equal(bounds[1][1], 59.913333);
   assert.equal(fixture.maps[0].fit.options.maxZoom, 6);
-  assert.match(textOf(tree), /European overview · streets/);
+  assert.match(textOf(tree), /European overview/);
   fixture.render(); await flush();
-  assert.equal(fixture.maps.at(-1).options.style, "https://tiles.openfreemap.org/styles/liberty");
+  assert.equal(fixture.maps.at(-1).options.style, "https://tiles.openfreemap.org/styles/dark");
   assert.match(textOf(fixture.render()), /0plotted records0not plotted/);
+  fixture.unmount();
+});
+
+await test("Globe and flat perspectives keep all records intact and reset pitch without forced motion", async () => {
+  const original = JSON.stringify(record), fixture = mapFixture([record], { publicContext: true });
+  fixture.render(); await flush(); const map = fixture.maps[0]; map.events.load();
+  button(fixture.render(), "Flat map").props.onClick();
+  assert.equal(map.projection.type, "mercator"); assert.equal(map.ease.pitch, 0); assert.equal(map.ease.duration, 0);
+  button(fixture.render(), "Globe overview").props.onClick();
+  assert.equal(map.projection.type, "globe"); assert.deepEqual(plain(map.jump.center), [10, 38]);
+  assert.equal(map.jump.zoom, 1.45); assert.equal(JSON.stringify(record), original);
+  fixture.unmount(); assert.ok(map.removed);
+});
+
+await test("Globe request from historical landscape restores world-scale streets and preserves source/coordinate separation", async () => {
+  const fixture = mapFixture([], { publicContext: true }); fixture.render(); await flush();
+  fixture.maps[0].events.load(); button(fixture.render(), "Landscape · 2021").props.onClick();
+  fixture.render(); await flush(); fixture.maps.at(-1).events.load();
+  button(fixture.render(), "Globe overview").props.onClick();
+  const tree = fixture.render(); await flush();
+  assert.equal(fixture.maps.at(-1).options.style, "https://tiles.openfreemap.org/styles/dark");
+  assert.equal(fixture.maps.at(-1).options.zoom, 1.45);
+  assert.match(textOf(tree), /0plotted records0not plotted/);
+  assert.match(textOf(tree), /Not the camera position/);
   fixture.unmount();
 });
 for (const result of tests) console.log(`${result.passed ? "PASS" : "FAIL"} ${result.name}${result.error ? `: ${result.error}` : ""}`);
