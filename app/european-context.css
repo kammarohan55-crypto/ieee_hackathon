@@ -1,3 +1,29 @@
+.eu-archive { margin-top: 24px; border: 1px solid #3b6071; border-radius: 12px; background: linear-gradient(125deg, #173a464f, #101b304d); overflow: hidden; }
+.eu-archive > summary { display: flex; gap: 12px; align-items: center; padding: 17px; cursor: pointer; min-height: 68px; color: #a9dfd4; }
+.eu-archive > summary > span:first-of-type { flex: 1; min-width: 0; }
+.eu-archive summary strong { display: block; font-size: 14px; color: #eef8fd; line-height: 1.5; }
+.eu-archive summary small { display: block; font-size: 10px; line-height: 1.6; color: #b5cad9; }
+.eu-archive-chip { border: 1px solid #497c7f; background: #244b523d; color: #b8eade; padding: 5px 7px; border-radius: 5px; font-size: 9px; letter-spacing: .06em; }
+.eu-archive[open] > summary { border-bottom: 1px solid #344e61; }
+.eu-archive-content { padding: clamp(13px, 2vw, 21px); }
+.eu-archive-anchor { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; }
+.eu-archive-anchor img { width: 104px; height: 104px; flex-shrink: 0; border-radius: 9px; object-fit: cover; border: 1px solid #506779; }
+.eu-archive-anchor h4 { font: 400 21px/1.3 Georgia, serif; color: #f2f8ff; margin: 0 0 7px; }
+.eu-archive-anchor p:not(.eu-kicker), .eu-archive-anchor small { display: block; font-size: 11px; line-height: 1.65; margin: 0; color: #b9cedb; }
+.eu-archive-toolbar, .eu-archive-links { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 14px 0; }
+.eu-archive-toolbar > span { font-size: 11px; color: #d2dac2; line-height: 1.6; }
+.eu-archive-chart { height: 235px; }
+.eu-archive .eu-source-day { background: #c1a46417; color: #ffe0a6; }
+.eu-archive > summary:focus-visible { outline: 2px solid #bceee2; outline-offset: -4px; border-radius: 10px; }
+@media (max-width: 680px) {
+  .eu-archive-chip { display: none; }
+  .eu-archive > summary { padding: 13px; }
+  .eu-archive-anchor { align-items: flex-start; gap: 10px; }
+  .eu-archive-anchor img { width: 70px; height: 85px; }
+  .eu-archive-anchor h4 { font-size: 18px; }
+  .eu-archive .eu-archive-stats { grid-template-columns: 1fr; }
+  .eu-archive .eu-archive-stats > div + div { border-left: 0; border-top: 1px solid #2c4559; }
+}
 .eu-context { --eu-ink: #eef6ff; margin: 18px 0; padding: clamp(16px, 2.5vw, 28px); color: var(--eu-ink); background: radial-gradient(ellipse at 0 0, #173f4b75, transparent 60%), linear-gradient(125deg, #102339, #0d192b); border: 1px solid #2f495c; border-radius: 18px; overflow: hidden; min-width: 0; }
 .geographic-evidence > .eu-context { margin: 22px; }
 .eu-context button { cursor: pointer; font: inherit; }

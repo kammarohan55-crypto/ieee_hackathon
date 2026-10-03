@@ -8,8 +8,9 @@ import { weatherContextSchema, weatherSeries, type WeatherContext } from "@/lib/
 import { referencePhotos, displayEvidenceTime } from "@/lib/references";
 import { downloadFile, findingLabels } from "@/lib/field";
 import { weatherFreshness } from "@/lib/weather-freshness";
+import { SourceDateWeather } from "./source-date-weather";
 
-export function EuropeanContext({ place, weatherEnabled = true, onBundle }: { place: EuropeanPlace; weatherEnabled?: boolean; onBundle?: (bundle: EuropeanBundle) => void }) {
+export function EuropeanContext({ place, photoId = place.photoId, weatherEnabled = true, onBundle }: { place: EuropeanPlace; photoId?: string; weatherEnabled?: boolean; onBundle?: (bundle: EuropeanBundle) => void }) {
   const [bundle, setBundle] = useState<EuropeanBundle | null>(null), [sourceError, setSourceError] = useState("");
   const [live, setLive] = useState<{ placeId: string; value: WeatherContext } | null>(null);
   const [requestState, setRequestState] = useState({ placeId: place.id, busy: false, error: "" });
@@ -19,7 +20,7 @@ export function EuropeanContext({ place, weatherEnabled = true, onBundle }: { pl
   const [metric, setMetric] = useState<"temperature" | "rain" | "wind">("temperature");
   const [range, setRange] = useState<"past" | "next">("next"), [now, setNow] = useState(0);
   const request = useRef<AbortController | null>(null), id = useId().replaceAll(":", "");
-  const photo = referencePhotos.find((value) => value.id === place.photoId)!;
+  const photo = referencePhotos.find((value) => value.id === photoId && value.site.includes(place.city)) ?? referencePhotos.find((value) => value.id === place.photoId)!;
   const analysis = bundle?.analyses.find((value) => value.photoId === photo.id);
   const weather = live?.placeId === place.id ? live.value : bundle?.weather.find((value) => value.placeId === place.id)?.snapshot;
   const current = now || (weather ? Date.parse(weather.fetchedAt) : 0);
@@ -83,5 +84,6 @@ export function EuropeanContext({ place, weatherEnabled = true, onBundle }: { pl
         <p className="eu-weather-provenance"><Clock3 size={13} /> {mode} · retrieved {displayEvidenceTime(weather.fetchedAt)} {freshness?.stale && "· Older than two hours; refresh before treating as current"}</p><p className="eu-footnote">Requested city overview {weather.requestedCoordinates.lat.toFixed(4)}, {weather.requestedCoordinates.lon.toFixed(4)} · model grid {weather.gridCoordinates.lat.toFixed(3)}, {weather.gridCoordinates.lon.toFixed(3)}. Current weather is independent of the historical photograph and its visual analysis.</p><a className="eu-source-link" href={weather.sourceUrl} target="_blank" rel="noreferrer">Open-Meteo source request · CC BY 4.0 <ArrowUpRight size={13} /></a></> : <p className="eu-no-finding">No weather snapshot is retained. Request live context when connected.</p>}
       {error && <p className="eu-error" role="alert">{error}</p>}
     </div>}
+    <SourceDateWeather key={photo.id} photoId={photo.id} />
   </section>;
 }

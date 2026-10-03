@@ -7,7 +7,7 @@ import ts from "typescript";
 // Execute real component functions with explicit hook, media and timer doubles.
 // This verifies event logic; it does not render a browser or operate a camera.
 const require = createRequire(import.meta.url);
-const filenames = ["lib/european-sites.ts", "lib/weather-context.ts","lib/ai-metadata.ts", "lib/field.ts", "lib/references.ts", "lib/atlas.ts", "lib/mission-control.ts", "lib/assessment.ts", "lib/evidence-lab.ts", ...["field-studio", "photo-inspector", "evidence-visuals", "mission-control"].map((name) => `components/${name}.tsx`)];
+const filenames = ["lib/source-weather.ts", "lib/european-sites.ts", "lib/weather-context.ts","lib/ai-metadata.ts", "lib/field.ts", "lib/references.ts", "lib/atlas.ts", "lib/mission-control.ts", "lib/assessment.ts", "lib/evidence-lab.ts", ...["source-date-weather", "field-studio", "photo-inspector", "evidence-visuals", "mission-control"].map((name) => `components/${name}.tsx`)];
 const source = new Map(await Promise.all(filenames.map(async (name) => [name, await readFile(name, "utf8")])));
 const jsx = { Fragment: "fragment", jsx: (type, props, key) => ({ type, props, key }), jsxs: (type, props, key) => ({ type, props, key }) };
 const icons = new Proxy({}, { get: (_, name) => `icon:${String(name)}` });
@@ -53,9 +53,11 @@ function component(file, runtime, overrides = {}, globals = {}) {
   return execute(file, (name) => {
     if (Object.hasOwn(overrides, name)) return overrides[name];
     if (name === "./european-context") return { EuropeanContext: "european-context-component-double" };
+    if (name === "./source-date-weather") return { SourceDateWeather: "source-date-weather-component-double" };
     if (name === "react") return runtime.api;
     if (name === "react/jsx-runtime") return jsx;
     if (name === "lucide-react") return icons;
+    if (name === "recharts") return new Proxy({}, { get: (_, name) => `chart:${String(name)}` });
     if (name === "zod") return require(name);
     if (name.startsWith("@/lib/")) return library(`lib/${name.slice(6)}.ts`);
     if (name.startsWith("@/components/ui/")) return new Proxy({}, { get: (_, value) => `ui:${String(value)}` });
@@ -73,7 +75,7 @@ function textOf(tree) {
   if (Array.isArray(tree)) return tree.map(textOf).join("");
   return tree?.props ? textOf(tree.props.children) : "";
 }
-function button(tree, text) { const found = nodes(tree).find((node) => node.type === "button" && textOf(node) === text); assert.ok(found, `Missing button ${text}`); return found; }
+function button(tree, text) { const found = nodes(tree).find((node) => node.type === "button" && textOf(node).trim() === text.trim()); assert.ok(found, `Missing button ${text}`); return found; }
 const drain = async () => { for (let i = 0; i < 12; i++) await Promise.resolve(); };
 const fixtureMedia = { id: "photo-fixture", kind: "photo", width: 0, height: 0, mime: "image/jpeg", bytes: 5, sha256: "a".repeat(64), origin: "upload", createdAt: "2026-10-01T12:00:00Z", quality: { brightness: 0, edgeDetail: 0, warnings: [], method: "canvas-luma-v1" } };
 const results = [];
@@ -263,6 +265,72 @@ await test("A recorded analysis for changed bytes never enables a photo's region
   const frame = mission.evidenceFrames([])[0];
   const tree = runtime.render(PhotoInspector, { frame, recordedVisual: { photoId: frame.reference.id, sha256: "a".repeat(64), recorded: true, findings: [{ kind: "vegetation", region: "right", confidence: "low" }] } });
   assert.equal(button(tree, "AI regions 0").props.disabled, true); assert.doesNotMatch(textOf(tree), /Recorded regions/);
+});
+
+await test("All nine public photo selections bind their own source context rather than a city's first frame", () => {
+  const runtime = hooks();
+  const { MissionControl } = component("components/mission-control.tsx", runtime, {
+    "./photo-inspector": { PhotoInspector: "photo-inspector", FrameImage: "frame-image" },
+    "./evidence-visuals": { PhotoCompare: "photo-compare", EvidenceFlow: "evidence-flow", EvidenceReplay: "evidence-replay" },
+    "./site-conditions": { SiteConditions: "site-conditions" }, "./geographic-evidence-map": { GeographicEvidenceMap: "geographic-map" }, "./sampling-plan": { SamplingPlan: "sampling-plan" },
+  }, { document: { addEventListener() {}, removeEventListener() {} } });
+  const props = { records: [], onStart() {}, onReviewReference() {}, onOpen() {}, onUpdate() {}, onInsights() {}, onKit() {} }, render = () => runtime.render(MissionControl, props);
+  for (const frame of mission.evidenceFrames([])) {
+    const tree = render(), selector = nodes(tree).find((node) => node.props?.className?.startsWith("mc-source-card") && textOf(node).includes(frame.title)); selector.props.onClick();
+    const context = nodes(render()).find((node) => node.type === "european-context-component-double");
+    assert.equal(context.props.photoId, frame.reference.id);
+    assert.equal(context.props.place.id, library("lib/source-weather.ts").sourceWeatherAnchor(frame.reference.id).place.id);
+  }
+});
+const recordedArchive = JSON.parse(await readFile("public/source-weather-v1.json", "utf8"));
+function archiveFixture() {
+  const runtime = hooks(), calls = [], downloads = []; let responder = async () => ({ ok: true, json: async () => recordedArchive });
+  const { SourceDateWeather } = component("components/source-date-weather.tsx", runtime, { "@/lib/field": { downloadFile: (...args) => downloads.push(args) } }, {
+    AbortController, fetch: async (url, options) => { calls.push({ url, options }); return responder(url, options); },
+  });
+  const props = { photoId: recordedArchive.entries[0].photoId }, render = () => runtime.render(SourceDateWeather, props);
+  const open = async () => { render().props.onToggle({ currentTarget: { open: true } }); render(); await drain(); };
+  return { runtime, props, render, calls, downloads, open, respond(next) { responder = next; } };
+}
+await test("Opening archive loads only public recorded data and displays its original time", async () => {
+  const fixture = archiveFixture(); assert.equal(fixture.calls.length, 0); await fixture.open();
+  assert.equal(fixture.calls.length, 1); assert.equal(fixture.calls[0].url, "/source-weather-v1.json");
+  assert.match(textOf(fixture.render()), /Recorded archive · regional model/); assert.match(textOf(fixture.render()), /Capture time and timezone are unknown/);
+});
+await test("Selecting fifteen days never plots a retained seven-day series", async () => {
+  const fixture = archiveFixture(); await fixture.open(); button(fixture.render(), "15 days").props.onClick(); const tree = fixture.render();
+  assert.match(textOf(tree), /No retained values for this window/); assert.equal(nodes(tree).filter((node) => node.type === "chart:BarChart").length, 0);
+});
+await test("Wrong-photo API response fails validation and keeps matching recorded data", async () => {
+  const fixture = archiveFixture(); await fixture.open(); fixture.respond(async () => ({ ok: true, json: async () => recordedArchive.entries[1] }));
+  button(fixture.render(), "Refresh archive").props.onClick(); await drain(); const tree = fixture.render();
+  assert.match(textOf(tree), /request failed validation/); assert.match(textOf(tree), /Recorded archive · regional model/);
+});
+await test("Network failure retains the original archive and restores the retry control", async () => {
+  const fixture = archiveFixture(); await fixture.open(); fixture.respond(async () => { throw new Error("Authored network failure"); });
+  button(fixture.render(), "Refresh archive").props.onClick(); await drain(); const tree = fixture.render();
+  assert.match(textOf(tree), /request failed validation/); assert.equal(button(tree, "Refresh archive").props.disabled, false);
+});
+await test("Delayed response from a different source cannot attach to the next photograph", async () => {
+  const fixture = archiveFixture(); await fixture.open(); let finish;
+  fixture.respond(() => new Promise((resolve) => { finish = resolve; })); const pending = button(fixture.render(), "Refresh archive").props.onClick();
+  fixture.props.photoId = recordedArchive.entries[1].photoId; fixture.render();
+  finish({ ok: true, json: async () => recordedArchive.entries[0] }); await pending; await drain();
+  const tree = fixture.render(); assert.match(textOf(tree), /Recorded archive · regional model/);
+  assert.equal(nodes(tree).find((node) => node.type === "h4").props.children, library("lib/source-weather.ts").sourceWeatherAnchor(fixture.props.photoId).photo.title);
+});
+await test("Aborting an in-flight request by switching windows leaves seven-day controls usable", async () => {
+  const fixture = archiveFixture(); await fixture.open(); let finish;
+  fixture.respond(() => new Promise((resolve) => { finish = resolve; })); const pending = button(fixture.render(), "Refresh archive").props.onClick(); fixture.render();
+  button(fixture.render(), "15 days").props.onClick(); fixture.render(); finish({ ok: true, json: async () => recordedArchive.entries[0] }); await pending; await drain();
+  button(fixture.render(), "7 days").props.onClick(); const tree = fixture.render(); assert.equal(button(tree, "Refresh archive").props.disabled, false);
+});
+await test("Archive export preserves dates, nulls, photo digest, units and limits without an approval claim", async () => {
+  const fixture = archiveFixture(); await fixture.open(); await drain(); const tree = fixture.render();
+  assert.match(textOf(tree), /Recorded archive · regional model/); button(tree, "Archive JSON").props.onClick();
+  const value = JSON.parse(fixture.downloads[0][0]); assert.equal(value.kind, "historical_weather_model_context"); assert.equal(value.humanReview, "not_performed");
+  assert.deepEqual(value.daily, recordedArchive.entries[0].daily); assert.equal(value.photoSha256, recordedArchive.entries[0].photoSha256);
+  assert.equal(value.units.precipitation_sum, "mm"); assert.match(value.limitations, /Not a Decision Receipt/); assert.equal(value.observations, undefined);
 });
 
 await mkdir(".sites-runtime/component-tests", { recursive: true });

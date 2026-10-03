@@ -1,6 +1,6 @@
 # AquaLens · Evidence in focus
 
-Latest browser debug pass (2026-10-03): fixed local Worker AI request compatibility and mobile/theme defects; fresh production-browser Gemini text/photo requests, confirmation/review/disagreement, Evidence Lab, map/weather, comparison and presentation were exercised. 362 authored checks, TypeScript, lint and production build pass. Physical-device capture/offline behavior and native download completion remain unverified. See [QA.md](docs/QA.md) for exact evidence and limits.
+Latest extension (2026-10-03): genuine historical ERA5 weather around all nine European source-photo dates, with metric/window charts, UTC tables and provenance export. Browser checks covered archive requests, map/source selection, mobile layout and keyboard disclosure. Previous production-browser checks covered Gemini and the review/Lab/presentation flows. 394 authored checks, TypeScript, lint and build pass. Physical capture/offline use and native download completion remain unverified. See [QA.md](docs/QA.md).
 
 [Source repository](https://github.com/kammarohan55-crypto/ieee_hackathon) · OneAquaHealth hackathon prototype
 
@@ -86,6 +86,12 @@ The interface uses a dark navy control-room layout with cyan, violet, mint and a
 - Workbox production asset precache and navigation caching after an online controlled visit. Reload online after first installation before expecting offline navigation. Local capture/rules/review remain available; AI, weather and tiles need network.
 - Browser speech recognition with reviewed transcript adoption when supported. It may use the browser provider's remote service. It does not infer measurements/location from speech.
 
+## Historical weather tied to the photograph
+
+In Photo desk or Geographic map, expand **Weather around the source date**. Nine credited European photos have genuine recorded seven-day ERA5 context; choose rainfall, mean air temperature or maximum wind, inspect UTC values and the source-date marker, or explicitly load fifteen days. Export **Archive JSON** separately from a Decision Receipt. Source date/timezone and city/model-grid limits remain visible; no water-health or causal conclusion is inferred.
+
+`npm run prepare:history` creates the keyless source kit only if absent and preserves an existing immutable bundle. No additional key, dependency or private evidence is needed. The production asset cache includes the recorded kit; remote refresh needs a server/network. See [research review](docs/RESEARCH_REVIEW_2026-10-03.md) and [primary sources/limits](docs/SOURCES.md).
+
 ## Architecture
 
 | File | Responsibility |
@@ -129,7 +135,7 @@ See [satellite limits](docs/SATELLITE_CONTEXT.md), [official platform review](do
 
 ## Verification and boundaries
 
-Latest complete suite: **362/362** authored checks; TypeScript, full lint and production build pass. The build precaches 35 assets / 9,286,408 bytes; existing large-chunk and Vinext route-classification notices remain. Final release results are recorded in [QA](docs/QA.md). Four bundled reports cover 223 checks; another 139 regressions run through npm test. None measure ecological or model accuracy. Automated tests double hooks/recorders/MapLibre/timers. A separate production-browser pass exercised rendering, primary flows and320/390/1440px layouts; measured colors/overflow defects were fixed. Device performance and physical permissions remain unmeasured. Optional `node scripts/test-live-ai.mjs --consent` makes synthetic requests against a separately running app; it is excluded from npm test and is not a benchmark. The latest requested server is running at http://localhost:5173/.
+Latest complete suite: **394/394** authored checks; TypeScript, full lint and production build pass. The build precaches 36 assets / 9,343,560 bytes; existing large-chunk and Vinext route-classification notices remain. Final release results are recorded in [QA](docs/QA.md). Four bundled reports cover 223 checks; another 171 regressions run through npm test. None measure ecological or model accuracy. Automated tests double hooks/recorders/MapLibre/timers. A separate production-browser pass exercised rendering, primary flows and320/390/1440px layouts; measured colors/overflow defects were fixed. Device performance and physical permissions remain unmeasured. Optional `node scripts/test-live-ai.mjs --consent` makes synthetic requests against a separately running app; it is excluded from npm test and is not a benchmark. The latest requested server is running at http://localhost:5173/.
 
 October3 local-time integration checks: actual text and image route handlers received HTTP200 from Gemini 3.5 Flash-Lite and passed shared validation. The initial access check used one synthetic note and a now-retired historical Scenic Reflection photo. The earlier authorized three-photo run retained 0/1/1 candidate findings and weather context for all three cities. Five subsequent public-photo requests returned valid responses, giving eight recorded analyses and ten unverified candidates; one people-visible frame was deliberately not transmitted. Recorded outputs are labeled and human review remains pending; no citizen records or approvals were created. These establish bounded access, not model accuracy, a field study or browser verification. Earlier 3.8 requests returned503, and October2 xAI received403; sanitized local logs retain these failures. Availability and quota may change. Successful xAI/Groq image output remains unverified.
 

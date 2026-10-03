@@ -9,9 +9,11 @@ import { PhotoInspector, FrameImage } from "./photo-inspector";
 import { EvidenceFlow, EvidenceReplay, PhotoCompare } from "./evidence-visuals";
 import { SiteConditions } from "./site-conditions";
 import { GeographicEvidenceMap } from "./geographic-evidence-map";
-import { europeanPlaces, type EuropeanBundle } from "@/lib/european-sites";
+import { type EuropeanBundle } from "@/lib/european-sites";
+import { sourceWeatherAnchor } from "@/lib/source-weather";
 import { EuropeanContext } from "./european-context";
 import { SamplingPlan } from "./sampling-plan";
+import { SourceDateWeather } from "./source-date-weather";
 
 type View = "photo" | "compare" | "flow" | "map";
 export function MissionControl({ records, aiReady, online, onStart, onReviewReference, onOpen, onFollowup, onUpdate, onInsights, onKit }: {
@@ -27,7 +29,7 @@ export function MissionControl({ records, aiReady, online, onStart, onReviewRefe
   const frames = useMemo(() => evidenceFrames(records), [records]);
   const filtered = frames.filter((frame) => (scope === "all" || (scope === "field" ? !!frame.report && !frame.reference : !!frame.reference)) && query.toLowerCase().trim().split(/\s+/).every((word) => `${frame.title} ${frame.report?.original.note ?? ""} ${frame.reference?.author ?? ""} ${frame.report?.id ?? ""}`.toLowerCase().includes(word)));
   const selected = filtered.find((frame) => frame.key === selectedKey) ?? filtered[0];
-  const sourcePlace = europeanPlaces.find((place) => place.photoId === selected?.reference?.id);
+  const sourcePlace = selected?.reference ? sourceWeatherAnchor(selected.reference.id)?.place : undefined;
   const analytics = useMemo(() => workspaceAnalytics(records), [records]);
   const queue = useMemo(() => reviewQueue(records), [records]);
   const fieldRecords = useMemo(() => scopedRecords(records, "field"), [records]);
@@ -60,7 +62,8 @@ export function MissionControl({ records, aiReady, online, onStart, onReviewRefe
         {view === "map" ? <div className="mc-map-container"><GeographicEvidenceMap records={fieldRecords} onOpen={onOpen} publicContext initialReferenceCity={sourcePlace?.id} onReviewReference={onReviewReference} />{fieldRecords.some((record) => record.field?.coordinates) && <details className="mc-site-weather"><summary>Load weather for a saved field location</summary><SiteConditions records={fieldRecords} /></details>}</div> : selected ? <>
           <div className="mc-canvas-heading"><div><span className="mc-kicker">{view === "photo" ? "VISUAL INSPECTION" : view === "compare" ? "MANUAL COMPARISON" : "SOURCE → QUESTION → HUMAN DECISION"}</span><h2>{view === "compare" ? "Inspect two frames." : selected.title}</h2></div>{view !== "compare" && <span className={`mc-chip${selected.reference ? " violet" : ""}`}>{selected.reference ? "HISTORICAL SOURCE" : "FIELD EVIDENCE"}</span>}</div>
           {view === "photo" && <PhotoInspector key={selected.key} frame={selected} recordedVisual={!selected.report ? sourceBundle?.analyses.find((value) => value.photoId === selected.reference?.id) : undefined} onAnnotate={selected.report ? (input) => onUpdate(addPhotoAnnotation(selected.report!, input)) : undefined} />}
-          {view === "photo" && sourcePlace && !selected.report && <EuropeanContext key={sourcePlace.id} place={sourcePlace} weatherEnabled={false} onBundle={setSourceBundle} />}
+          {view === "photo" && sourcePlace && !selected.report && <EuropeanContext key={selected.reference?.id} place={sourcePlace} photoId={selected.reference?.id} weatherEnabled={false} onBundle={setSourceBundle} />}
+          {view === "photo" && sourcePlace && selected.report && selected.reference && <section className="eu-context" aria-label={`${sourcePlace.city} historical model weather`}><SourceDateWeather key={selected.reference.id} photoId={selected.reference.id} /></section>}
           {view === "compare" && <PhotoCompare frames={filtered} onReview={reviewFrame} />}
           {view === "flow" && <EvidenceFlow key={selected.key} frame={selected} />}
           {view !== "compare" && <><FrameAttribution frame={selected} />

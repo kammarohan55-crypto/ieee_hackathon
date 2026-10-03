@@ -1,3 +1,7 @@
+# October 3 research follow-through
+
+Latest bounded addition: historical source-date weather is **working** (nine real seven-day ERA5 records, validated keyless seven/fifteen-day route, chart/table/export and mobile/keyboard browser checks). Installed offline/native-download behavior remains **partial**. Existing OSM/MapLibre and historical2021 annual Sentinel-2 composite are **working**; photo-date-matched individual scenes/NDWI are **missing/deferred**, with no validated new-service contract. No broken placeholder or fake result added. Human/expert evaluation remains **missing**; authored test/example judgments do not replace it. See RESEARCH_REVIEW_2026-10-03.md and QA.md; historical statuses below remain dated.
+
 # AquaLens feature audit — 2026-10-03
 
 Source and command results establish the status below. Working means implemented and supported by relevant authored software tests or earlier documented workflow checks. Partial means provider/device/rendering evidence is still missing. Missing means deliberately unimplemented. Broken describes a currently observed failed access path. None establishes ecological accuracy, production certification or a competition outcome.

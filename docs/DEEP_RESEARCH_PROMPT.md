@@ -1,6 +1,6 @@
 # AquaLens — complete Deep Research prompt
 
-Prepared 2026-10-03. Copy the entire block into ChatGPT Deep Research. Application-code baseline: 202ead3f923802520c031e264b085b1bbe2ee54b; later documentation commits may exist. If GitHub access fails, attach the checked source-only outputs/aqualens-source.zip and this brief. Never upload .dev.vars, .env, credentials or private browser/field data. Research only; no implementation, deployment, account actions or submissions are authorized by this brief.
+Prepared 2026-10-03; updated after reviewing the returned report. Historical source-date weather now works: nine genuine seven-day ERA5 windows, keyless seven/fifteen-day validated route, chart/UTC table/context export; no stream measurement or causal claim. OSM and the dated2021 annual Sentinel-2 layer already existed. See RESEARCH_REVIEW_2026-10-03.md. Inspect the actual current Git revision for these additions. Copy the entire block into ChatGPT Deep Research. Historical pre-extension baseline: 202ead3f923802520c031e264b085b1bbe2ee54b; newer implementation exists. If GitHub access fails, attach the checked source-only outputs/aqualens-source.zip and this brief. Never upload .dev.vars, .env, credentials or private browser/field data. Research only; no implementation, deployment, account actions or submissions are authorized by this brief.
 
 ```text
 Act as a critical environmental citizen-science researcher, product designer and software architect reviewing my existing AquaLens / StreamCheck project for the OneAquaHealth IEEE Global Hackathon 2026.
@@ -10,7 +10,7 @@ I want the strongest defensible submission we can finish before the deadline: be
 1. SOURCE OF TRUTH
 
 Repository: https://github.com/kammarohan55-crypto/ieee_hackathon
-Verified application-code baseline: 202ead3f923802520c031e264b085b1bbe2ee54b, October3,2026 India time. Inspect main and report the revision actually read; newer documentation/implementation may exist.
+Historical pre-extension baseline: 202ead3f923802520c031e264b085b1bbe2ee54b, October3,2026 India time; source-date weather was subsequently added. Inspect main and report the revision actually read; newer documentation/implementation may exist.
 
 Start with PROJECT_CONTEXT.md, README.md, docs/FEATURE_AUDIT.md, docs/QA.md, docs/DEMO_GUIDE.md, docs/SOURCES.md, docs/OFFICIAL_PLATFORM_REVIEW.md, docs/REAL_DATA_READINESS.md and docs/DEPENDENCIES.md. Inspect relevant code before declaring a feature working/missing or recommending rebuilding it. Historical doc sections describe earlier states. If repository access fails, say which files you cannot read; use this snapshot provisionally and request a source archive rather than pretending you inspected code.
 
@@ -87,11 +87,13 @@ Nine unchanged licensed Commons1280px photos, three each Mondego/Coimbra, Garonn
 
 Stack: React19/TypeScript, Next-style app on Vinext/Vite/Cloudflare Worker routes; Zod/idb/localStorage, MapLibre/ReactFlow/Recharts/Radix/Workbox/Lucide/CSS. No new dependency in latest polish. Database/example scaffolding does not establish a deployed authenticated/shared backend. Original-code licence/team attribution still need approved owner facts; media/dependency licences remain separate.
 
-Project-reported verification:362/362 authored software checks, TypeScript/full lint/production build pass. Contract tests use mocks and do not measure AI/ecological accuracy. Agent browser QA exercised principal review/Lab/map/weather/presentation/source-preparation flows and the9record/10candidate preset. Physical capture/mic/GPS, installed offline behavior, other browsers, quota/concurrent tabs, screen readers and native download completion remain checks; an in-app download wait timed out. Mobile body fits tested width but a root/internal-overflow measurement issue remains. Existing chunk/framework notices remain. No independent human/domain evaluation, expert approval, production deployment, submitted video or competition result.
+New verified feature: all nine historical European source photos have genuine recorded seven-day ERA5 daily weather, with a validated keyless seven/fifteen-day archive route, date-marker rainfall/temperature/wind charts, UTC table and separate context JSON. Reuses Recharts/Zod; exact source hash/date/city binding and retained nulls. Photo dates have unknown capture timezone and returned model grid is regional, not a river sensor. Preserve this feature.
+
+Project-reported verification:394/394 authored software checks, TypeScript/full lint/production build pass. Contract tests use mocks and do not measure AI/ecological accuracy. Agent browser QA exercised principal review/Lab/map/weather/presentation/source-preparation flows and the9record/10candidate preset. Physical capture/mic/GPS, installed offline behavior, other browsers, quota/concurrent tabs, screen readers and native download completion remain checks; an in-app download wait timed out. Mobile body fits tested width but a root/internal-overflow measurement issue remains. Existing chunk/framework notices remain. No independent human/domain evaluation, expert approval, production deployment, submitted video or competition result.
 
 5. RESEARCH TASKS
 
-Audit against the weighted rubric. Identify weaknesses that reduce impact/novelty/reliability/usability/feasibility. Separate unsupported science, bugs, UX defects, missing evaluation/user evidence and optional polish. Do not equate beautiful charts or362tests with environmental value.
+Audit against the weighted rubric. Identify weaknesses that reduce impact/novelty/reliability/usability/feasibility. Separate unsupported science, bugs, UX defects, missing evaluation/user evidence and optional polish. Do not equate beautiful charts or394tests with environmental value.
 
 Compare fairly with the official platform's ACTUAL public behavior. October2 browser review observed five cities Benevento/Coimbra/Ghent/Oslo/Toulouse,106site rows, historical researcher tables, EO tools/resilience menus. These are dated observations, not freshly reverified facts. Empty HTML is not missing functionality; inspect rendered UI if available. Sign-in features unknown. Do not reuse public frontend tokens, guess private APIs or copy registry/risk labels/EO imagery without explicit applicable rights. Identify complementary value and duplication.
 

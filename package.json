@@ -6,7 +6,7 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "test": "node scripts/test-domain.mjs && node scripts/test-workspace.mjs && node scripts/test-mission.mjs && node scripts/test-api.mjs && node scripts/test-capture-photo.mjs && node scripts/test-evidence-lab.mjs && node scripts/test-satellite-map.mjs && node scripts/test-presentation.mjs && node scripts/test-decision-brief.mjs && node scripts/test-sampling-plan.mjs && node scripts/test-european-context.mjs && node scripts/test-presentation-workspace.mjs",
+    "test": "node scripts/test-domain.mjs && node scripts/test-workspace.mjs && node scripts/test-mission.mjs && node scripts/test-api.mjs && node scripts/test-capture-photo.mjs && node scripts/test-evidence-lab.mjs && node scripts/test-satellite-map.mjs && node scripts/test-presentation.mjs && node scripts/test-decision-brief.mjs && node scripts/test-sampling-plan.mjs && node scripts/test-european-context.mjs && node scripts/test-presentation-workspace.mjs && node scripts/test-source-weather.mjs",
     "typecheck": "tsc --noEmit",
     "install:ci": "node scripts/install-ci.mjs",
     "dev": "node scripts/run-framework.mjs dev",
@@ -17,7 +17,8 @@
     "db:generate": "drizzle-kit generate",
     "prepare:media": "node scripts/prepare-presentation-media.mjs",
     "verify:ai": "node scripts/verify-ai-connection.mjs",
-    "prepare:context": "node scripts/prepare-european-context.mjs"
+    "prepare:context": "node scripts/prepare-european-context.mjs",
+    "prepare:history": "node scripts/prepare-source-weather.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

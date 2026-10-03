@@ -62,6 +62,12 @@ assert.ok(offlineWorker.includes("european-context.json"), "Recorded source cont
 assert.equal(await readFile(`public${EUROPEAN_CONTEXT_ASSET}`, "utf8"), contextSource, "Versioned and legacy context must agree");
 assert.equal(await readFile(`dist/client${EUROPEAN_CONTEXT_ASSET}`, "utf8"), contextSource, "Versioned context must ship unchanged");
 assert.ok(offlineWorker.includes(EUROPEAN_CONTEXT_ASSET.slice(1)), "Versioned source context must be cached for the new presentation");
+const { sourceWeatherBundleSchema, SOURCE_WEATHER_ASSET } = await import(pathToFileURL(path.resolve(".sites-runtime/source-weather-tests/source-weather.mjs")));
+const archiveSource = await readFile(`public${SOURCE_WEATHER_ASSET}`, "utf8");
+const archive = sourceWeatherBundleSchema.parse(JSON.parse(archiveSource));
+assert.equal(archive.entries.length, sourceCatalogue.referencePhotos.length, "Each active European source must have its own recorded archive");
+assert.equal(await readFile(`dist/client${SOURCE_WEATHER_ASSET}`, "utf8"), archiveSource, "Rebuild changed archive assets");
+assert.ok(offlineWorker.includes(SOURCE_WEATHER_ASSET.slice(1)), "Recorded weather archive must ship for offline reuse");
 assert.ok((await stat("dist/client/images/references/CREDITS.md")).size > 0, "Photograph licence notice must ship with the images");
 await mkdir(".sites-runtime", { recursive: true });
 await writeFile(".sites-runtime/source-files.json", JSON.stringify(source, null, 2));
