@@ -5,7 +5,7 @@ import { ArrowUpRight, CalendarDays, ChevronLeft, ChevronRight, Compass, Crossha
 import type { Report } from "@/lib/assessment";
 import { displayEvidenceTime, evidenceTimePrecision, referencePhotos, type ReferencePhoto } from "@/lib/references";
 import { isSyntheticRecord } from "@/lib/atlas";
-import { geographicBounds, geographicGroups, locationState, syntheticLocation } from "@/lib/geographic";
+import { geographicBounds, geographicGroups, globeOverviewZoom, locationState, syntheticLocation } from "@/lib/geographic";
 import { defaultSatelliteDate, SATELLITE_CONTEXT, LANDSCAPE_CONTEXT, landscapeMapStyle, satelliteMapStyle, satelliteObservationDate, shiftSatelliteDate, utcDate, validSatelliteDate, type GeographicBasemap } from "@/lib/satellite-context";
 
 import { europeanPlaces } from "@/lib/european-sites";
@@ -30,7 +30,7 @@ function observationTime(report: Report) {
   return displayEvidenceTime(value);
 }
 
-export function GeographicEvidenceMap({ records, onOpen, publicContext = false, initialReferenceCity, onReviewReference }: { records: Report[]; onOpen: (id: string) => void; publicContext?: boolean; initialReferenceCity?: string; onReviewReference?: (photo: ReferencePhoto) => void }) {
+export function GeographicEvidenceMap({ records, onOpen, publicContext = false, initialReferenceCity, onReviewReference, referenceActionLabel }: { records: Report[]; onOpen: (id: string) => void; publicContext?: boolean; initialReferenceCity?: string; onReviewReference?: (photo: ReferencePhoto) => void; referenceActionLabel?: string }) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<import("maplibre-gl").Map | null>(null);
   const projectionRef = useRef<"globe" | "mercator">(publicContext ? "globe" : "mercator");
@@ -95,7 +95,7 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
           container: container.current,
           style: basemap === "satellite" ? satelliteMapStyle(satelliteDate) : basemap === "landscape" ? landscapeMapStyle() : "https://tiles.openfreemap.org/styles/dark",
           center: overview ? [10, 38] : camera?.center ?? (groups.length === 1 ? [groups[0].lon, groups[0].lat] : publicContext ? [europeanPlaces.find((p) => p.id === cityRef.current)!.lon, europeanPlaces.find((p) => p.id === cityRef.current)!.lat] : [0, 15]),
-          zoom: overview ? 1.45 : Math.min(camera?.zoom ?? (groups.length === 1 ? 13 : publicContext ? 12 : 1.15), maxZoom),
+          zoom: overview ? globeOverviewZoom(container.current.clientWidth, container.current.clientHeight) : Math.min(camera?.zoom ?? (groups.length === 1 ? 13 : publicContext ? 12 : 1.15), maxZoom),
           bearing: camera?.bearing ?? 0,
           maxZoom,
           pitch: !overview && projectionRef.current === "globe" && (camera?.zoom ?? 0) > 6 ? 45 : 0,
@@ -112,7 +112,21 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
           if (disposed) return;
           if (timeout) clearTimeout(timeout);
           map!.setProjection({ type: projectionRef.current });
+          if (overviewRef.current && projectionRef.current === "globe") map!.jumpTo({ center: [10, 38], zoom: globeOverviewZoom(container.current?.clientWidth ?? 700, container.current?.clientHeight ?? 510), pitch: 0, bearing: 0 });
           map!.setSky({ "sky-color": "#071722", "horizon-color": "#387885", "fog-color": "#0d2936", "atmosphere-blend": .75 });
+          // Theme the street cartography only. Historical/satellite raster pixels
+          // and all source photograph bytes remain untouched.
+          if (basemap === "street" && typeof map!.getStyle === "function") {
+            for (const layer of map!.getStyle().layers ?? []) {
+              if (layer.type === "background") map!.setPaintProperty(layer.id, "background-color", "#233e42");
+              if (layer.type === "fill" && /^water(?:$|[_-])/.test(layer.id)) map!.setPaintProperty(layer.id, "fill-color", "#15394d");
+              if (layer.type === "symbol" && layer.layout?.["text-field"]) {
+                map!.setPaintProperty(layer.id, "text-color", "#c4d9d7");
+                map!.setPaintProperty(layer.id, "text-halo-color", "#102d37");
+                map!.setPaintProperty(layer.id, "text-halo-width", .75);
+              }
+            }
+          }
           setMapStatus(errored ? "limited" : "ready");
         });
         map.on("error", () => {
@@ -146,7 +160,12 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
           cityMarkers.set(city.id, button);
           markers.push(new lib.Marker({ element: button }).setLngLat([city.lon, city.lat]).addTo(map!));
         });
-        resizeObserver = new ResizeObserver(() => { if (!disposed) map?.resize(); });
+        map.on("movestart", (event) => { if (event.originalEvent) overviewRef.current = false; });
+        resizeObserver = new ResizeObserver(() => {
+          if (disposed || !map) return;
+          map.resize();
+          if (overviewRef.current && projectionRef.current === "globe") map.jumpTo({ zoom: globeOverviewZoom(container.current?.clientWidth ?? 700, container.current?.clientHeight ?? 510), pitch: 0 });
+        });
         resizeObserver.observe(container.current);
       } catch {
         if (!disposed) setMapStatus("unavailable");
@@ -211,7 +230,7 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
     map.setProjection({ type: value });
     if (value === "globe") {
       overviewRef.current = true;
-      map.jumpTo({ center: [10, 38], zoom: 1.45, pitch: 0, bearing: 0 });
+      map.jumpTo({ center: [10, 38], zoom: globeOverviewZoom(container.current?.clientWidth ?? 700, container.current?.clientHeight ?? 510), pitch: 0, bearing: 0 });
       if (basemap !== "street") setBasemap("street");
     } else { overviewRef.current = false; map.easeTo({ pitch: 0, duration: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 450 }); }
   }
@@ -272,7 +291,7 @@ export function GeographicEvidenceMap({ records, onOpen, publicContext = false, 
           <p>{place.description}. This is geographic context in an official research city, not an identified project sampling station.</p>
           <dl className="geo-metadata"><div><dt>Photograph source date</dt><dd>{displayEvidenceTime(sourcePhoto.capturedDate)}</dd></div><div><dt>Photographer / licence</dt><dd>{sourcePhoto.author} · <a href={sourcePhoto.licenseUrl} target="_blank" rel="noreferrer">{sourcePhoto.license}</a></dd></div><div><dt>Map position</dt><dd>City overview · Wikidata CC0 · {place.lat.toFixed(4)}, {place.lon.toFixed(4)}. Not the camera position or a field reading.</dd></div></dl>
           <div className="eu-dossier-links"><a href={sourcePhoto.sourceUrl} target="_blank" rel="noreferrer">Photo source <ArrowUpRight size={13} /></a><a href={place.official} target="_blank" rel="noreferrer">OneAquaHealth city <ArrowUpRight size={13} /></a><a href={`https://www.wikidata.org/wiki/${place.wikidata}`} target="_blank" rel="noreferrer">Position source <ArrowUpRight size={13} /></a></div>
-          {onReviewReference && <button type="button" className="geo-open-record" onClick={() => onReviewReference(sourcePhoto)}>Review this real photograph <ArrowUpRight size={15} /></button>}
+          {onReviewReference && <button type="button" className="geo-open-record" onClick={() => onReviewReference(sourcePhoto)}>{referenceActionLabel || "Review this real photograph"} <ArrowUpRight size={15} /></button>}
         </div> : selected ? <>
           <p className="geo-kicker">LOCATION DOSSIER</p><h3>{selected.original.site || "Unnamed observation site"}</h3>
           <div className="geo-badges">{isSyntheticRecord(selected) && <span className="geo-synthetic">Synthetic record</span>}<span>{statusLabel[selected.status]}</span>{coordinates?.method === "synthetic" && <span className="geo-synthetic">Synthetic coordinates</span>}</div>

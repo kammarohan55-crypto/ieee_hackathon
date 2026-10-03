@@ -1,4 +1,8 @@
-# Latest River Atlas refinement
+# Current observatory expansion status — 2026-10-03
+
+Working:39-source archive, read-only /visuals chronicle/compare/globe/constellation, source-derived analytics/export, readable graph/list, adaptive globe, expanded Atlas, consented Gemini→Groq alternative and401-only Groq backups.423 authored checks and focused browser/production/offline checks pass. No new saved observations or scientific validation. Detailed working/partial/missing classification: OBSERVATORY_2026-10-03.md. Physical/other-browser/full-accessibility/real human study/shared backend/hosting/submission remain partial or missing. Recorded source weather remains nine windows; new39 anchors support explicit fetch. No key required for visual work.
+
+# Historical River Atlas refinement
 
 **Working in focused Chrome QA:** nine-source River Atlas with three chapters, exact-photo candidate binding, source credits/full-frame/filmstrip, empty/missing/retry paths, atlas→receipt and actual JSON export; direct divider dragging/keyboard; selected-flow motion/pause/reduced motion.412 authored checks, typecheck/lint,17 CSS parses/build pass. No dependency, live-provider call, observation fabrication or schema/storage change. Existing globe/layered receipt retained. User permits natural multi-track scope; final eligibility/entry not verified. Dev127.0.0.1:5173 running; temporary production stopped. Physical-device/full accessibility/expert/hosted/submission gaps remain.
 

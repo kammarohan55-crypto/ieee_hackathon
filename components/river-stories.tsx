@@ -6,7 +6,7 @@ import { ArrowUpRight, Camera, ChevronLeft, ChevronRight, Expand, Eye, Fingerpri
 import type { Report } from "@/lib/assessment";
 import type { ReferencePhoto } from "@/lib/references";
 import { europeanPlaces } from "@/lib/european-sites";
-import { displayEvidenceTime } from "@/lib/references";
+import { displayEvidenceTime, photoViewingTitle } from "@/lib/references";
 import { riverStory } from "@/lib/river-stories";
 import { labDecisionBrief } from "@/lib/evidence-lab";
 import { findingLabels } from "@/lib/field";
@@ -37,7 +37,7 @@ export function RiverStories({ records, onOpen, onReview, initialCity = "coimbra
             <span className="rs-photo-kind">HISTORICAL SOURCE / {place.country.toUpperCase()}</span>
             <button type="button" className="rs-framing" aria-pressed={fullFrame} onClick={() => setFullFrame(!fullFrame)}><Expand size={14} />{fullFrame ? "Full frame" : "Display crop"}</button>
           </div>
-          <div className="rs-photo-caption"><div><h3>{photo.title}</h3><time dateTime={photo.capturedDate}>{displayEvidenceTime(photo.capturedDate)}</time></div><p><a href={photo.sourceUrl} target="_blank" rel="noreferrer">{photo.author} <ArrowUpRight size={12} /></a> · <a href={photo.licenseUrl} target="_blank" rel="noreferrer">{photo.license}</a></p><small>{fullFrame ? "Complete source frame" : "Display crop only"} · source pixels unchanged · no current field visit</small></div>
+          <div className="rs-photo-caption"><div><h3 title={photo.title}>{photoViewingTitle(photo)}</h3><time dateTime={photo.capturedDate}>{displayEvidenceTime(photo.capturedDate)}</time></div><p><a href={photo.sourceUrl} target="_blank" rel="noreferrer">{photo.author} <ArrowUpRight size={12} /></a> · <a href={photo.licenseUrl} target="_blank" rel="noreferrer">{photo.license}</a></p><small>{fullFrame ? "Complete source frame" : "Display crop only"} · source pixels unchanged · no current field visit</small></div>
           <div className="rs-filmstrip" role="group" aria-label="Source-photo chronology">{photos.map((item) => <button type="button" key={item.id} aria-label={`View ${item.title}, ${item.capturedDate}`} aria-pressed={item.id === photo.id} onClick={() => setPhotoId(item.id)}><img src={item.src} alt="" width={item.width} height={item.height} /><time dateTime={item.capturedDate}>{item.capturedDate}</time></button>)}</div>
           <p className="rs-chronology-limit">Different viewpoints and dates, not aligned repeat photographs or proof of environmental change.</p>
         </section>

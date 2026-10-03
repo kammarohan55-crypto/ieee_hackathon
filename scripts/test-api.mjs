@@ -54,6 +54,41 @@ const configure = (selected = "xai") => {
 };
 const candidate = { kind: "surface_foam", confidence: "low", region: "center" };
 try {
+  await test("Groq invalid credential recovers with a configured backup without leaking any key", async () => {
+    configure("groq"); env.GROQ_API_KEY_2 = "test-only-groq-backup"; env.GROQ_API_KEY_3 = "test-only-groq-third"; calls = [];
+    responder = (_, options) => options.headers.Authorization === `Bearer ${env.GROQ_API_KEY}` ? new Response("private-provider-body", { status: 401 }) : completion({ issues: [] });
+    const response = await assess.POST(request("assess", { observation, useAI: true }));
+    const output = await response.json(); assert.equal(output.mode, "ai"); assert.equal(output.provider, "groq"); assert.equal(calls.length, 2);
+    assert.equal(calls[1][1].headers.Authorization, `Bearer ${env.GROQ_API_KEY_2}`);
+    const publicStatus = JSON.stringify(await (await assess.GET()).json());
+    assert.ok(!publicStatus.includes(env.GROQ_API_KEY_2) && !publicStatus.includes(env.GROQ_API_KEY_3));
+  });
+  await test("Groq rate, permission, service and malformed-output failures never rotate same-service credentials", async () => {
+    for (const status of [429, 403, 500, 200]) {
+      configure("groq"); env.GROQ_API_KEY_2 = "test-only-groq-backup"; calls = [];
+      responder = () => new Response(status === 200 ? "not-json" : "private-provider-body", { status });
+      const response = await visual.POST(request("visual", image));
+      assert.equal(response.status, 503); assert.equal(calls.length, 1);
+      assert.ok(!(await response.text()).includes("private-provider-body"));
+    }
+  });
+  await test("Backup credential changes preserve recipient/model consent identity; all rejected keys remain bounded", async () => {
+    configure("groq"); const scope = aiConsentScope(env); env.GROQ_API_KEY_2 = "test-only-groq-backup"; env.GROQ_API_KEY_3 = env.GROQ_API_KEY_2; env.GROQ_API_KEY_4 = "test-only-groq-fourth";
+    assert.equal(aiConsentScope(env), scope); calls = []; responder = () => new Response("private-auth-body", { status: 401 });
+    const response = await visual.POST(request("visual", image)); assert.equal(response.status, 503); assert.equal(calls.length, 3);
+    assert.ok(!(await response.text()).includes("private-auth-body"));
+  });
+  await test("A stalled primary reserves time for the consented alternative instead of consuming its whole deadline", async () => {
+    configure("gemini"); env.AI_FALLBACK_PROVIDER="groq"; env.GROQ_API_KEY="test-only-groq-credential"; calls=[];
+    const keepAlive=setInterval(()=>{},1000);
+    responder=(url,options)=>String(url).includes("generativelanguage.googleapis.com")
+      ? new Promise((_,reject)=>options.signal.addEventListener("abort",()=>reject(new Error("Authored stalled-provider fixture")),{once:true}))
+      : completion({issues:[]},"stop",{model:groqModel});
+    try {
+      const response=await assess.POST(request("assess",{observation,useAI:true})), output=await response.json();
+      assert.equal(output.mode,"ai"); assert.equal(output.provider,"groq"); assert.equal(calls.length,2); assert.ok(calls[0][1].signal.aborted); assert.ok(!calls[1][1].signal.aborted);
+    } finally { clearInterval(keepAlive); }
+  });
   await test("Configuration exposes capability, never the key", async () => {
     configure();
     const response = await assess.GET();
@@ -431,7 +466,11 @@ try {
     assert.equal(calls.length, 2);
     assert.equal(calls[0][1].headers.Authorization, `Bearer ${env.XAI_API_KEY}`);
     assert.equal(calls[1][1].headers.Authorization, `Bearer ${env.GROQ_API_KEY}`);
-    assert.equal(calls[0][1].signal, calls[1][1].signal);
+    assert.ok(calls[0][1].signal instanceof AbortSignal);
+    assert.ok(calls[1][1].signal instanceof AbortSignal);
+    assert.notEqual(calls[0][1].signal, calls[1][1].signal);
+    assert.equal(calls[0][1].signal.aborted, false);
+    assert.equal(calls[1][1].signal.aborted, false);
     calls = [];
     responder = (url) => url.includes("api.x.ai") ? new Response("private outage", { status: 503 }) : completion({ issues: [] }, "stop", { model: groqModel });
     const text = await (await assess.POST(request("assess", { observation, useAI: true }))).json();

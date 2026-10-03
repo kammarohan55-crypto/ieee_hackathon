@@ -8,7 +8,7 @@ const file = path.resolve(".sites-runtime/domain-tests/presentation-workspace.mj
 const output = ts.transpileModule(await readFile("lib/presentation-workspace.ts", "utf8"), { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } }).outputText.replace(/from "\.\/(assessment|field|references)"/g, 'from "./$1.mjs"');
 await writeFile(file, output);
 const { buildPresentationRecords, PRESENTATION_KEY, PRESENTATION_DRAFT_KEY } = await import(pathToFileURL(file));
-const { referencePhotos } = await import("../.sites-runtime/domain-tests/references.mjs");
+const { referencePhotos, europeanPhotoLibrary } = await import("../.sites-runtime/domain-tests/references.mjs");
 const { exportReport, reviewReport } = await import("../.sites-runtime/domain-tests/assessment.mjs");
 const { decisionReceipt, exportCSV, exportGeoJSON, assertReferenceRecord } = await import("../.sites-runtime/domain-tests/field.mjs");
 const { realRecords, parseWorkspace, prepareImport, WORKSPACE_KEY } = await import("../.sites-runtime/domain-tests/workspace.mjs");
@@ -44,7 +44,7 @@ await test("Example states and notes are visibly authored, never backdated to ma
  assert.equal(records.at(-1).field.annotations.length,1);assert.match(records.at(-1).field.annotations[0].note,/Authored example/);
 });
 await test("Examples populate genuine source coverage and do not duplicate source-only frames", () => {
- const stats=workspaceAnalytics(records,now);assert.equal(stats.total,9);assert.equal(stats.field,0);assert.equal(stats.references,9);assert.equal(evidenceFrames(records).length,9);assert.equal(stats.visualCandidates,bundle.analyses.reduce((n,a)=>n+a.findings.length,0));
+ const stats=workspaceAnalytics(records,now);assert.equal(stats.total,9);assert.equal(stats.field,0);assert.equal(stats.references,9);assert.equal(evidenceFrames(records).length,europeanPhotoLibrary.length);assert.equal(stats.visualCandidates,bundle.analyses.reduce((n,a)=>n+a.findings.length,0));
 });
 await test("JSON, receipt and CSV exports preserve example provenance; GeoJSON invents no points", () => {
  const parsed=parseWorkspace(JSON.parse(JSON.stringify(records)));assert.deepEqual(parsed[0].demonstration,records[0].demonstration);

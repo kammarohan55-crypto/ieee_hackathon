@@ -1,3 +1,17 @@
+# Start with the visual observatory — latest2026-10-03
+
+Open http://127.0.0.1:5173/showcase first; wait for nine labelled examples. Then **Visual observatory** opens /visuals?collection=showcase. No new input is saved from the observatory.
+
+1. **Photo chronicle:**39credited historical photographs, source dates2005–2026. Select a city/year/frame; show the source-year chart and honest empty years. Play/Pause is optional; full-frame/credits always remain. Thirty new photos have no invented review or AI.
+2. **Compare frames:** choose independent sources, drag/keyboard the wipe or use Side by side. Inspect source returns to its chronology; different viewpoints do not establish river change.
+3. **Explore Earth:** show the whole responsive globe, choose Oslo/Toulouse/Coimbra, return Globe overview or Flat map. City positions/dated imagery/modeled weather are context, not photo GPS or ecological scores.
+4. **Evidence constellation:** choose Garonne·Toulouse·example. Read source cards/keyboard list, inspect actual upstream links and Pause path motion. Open **Present this evidence** → four chapters → Decision receipt → five retained layers and JSON receipt.
+5. Return **Evidence workspace** to demonstrate the core citizen→checks→confirmation→human judgment workflow. Explain that initial example notes/decisions are authored software examples; only eight recorded AI responses are real provider outputs and still unverified. No expert validation implied.
+
+Gemini remains primary; Groq is the explicitly consented availability alternative, with401-only backup credentials. Live Groq text/photo check passed on October3; future access/quota can fail and local rules remain. No new key needed. Source JSON exports metadata, not approved observations. Production /visuals offline reload passed after an online SW-controlled visit; maps/weather/AI need network. Actual physical-device/human/video/hosting/submission work remains user-owned; current QA in QA.md.
+
+Earlier sequences below still explain the retained nine-review workflow; their earlier library/provider counts are historical where superseded above.
+
 # AquaLens demonstration and user QA — October 3, 2026
 
 Latest user direction permits a natural multi-track demonstration: citizen UX, contextual insight, responsible AI assessment and awareness/storytelling. Lead with the citizen-to-reviewer evidence journey. Organizer extension permits naturally spanning tracks; final submission/entrant eligibility remains unverified. No winning odds inferred. Latest user authorized agent-run browser testing; the actual tested flows and remaining device limits are in QA.md.
@@ -17,13 +31,13 @@ Start at **http://localhost:5173/showcase**. First opening prepares nine real Eu
 3. **Evidence Lab:** choose one of nine records, read the preserved note, inspect actual candidate/model/time, then replay local rules without overwriting evidence. Reviewed/needs-information/awaiting are workflow states, not scientific conclusions.
 4. **Review desk:** open an awaiting example, record a reasoned visual judgment for each candidate, then an overall review note. The original AI stays visible even when you disagree. Export the Decision Receipt or open Present this evidence for four chapters. New user input in this workspace is labelled separately from initial AI-authored example inputs.
 5. **Geographic map:** show the three sourced city overviews and imagery/weather controls. These are city context, not nine invented photo GPS locations. Historical images, recorded AI and current modeled weather have separate clocks. Refresh weather explicitly when demonstrating live context.
-6. **Field kit:** filter the nine-source gallery by city and inspect licences. Example exports keep provenance; they cannot be restored into personal records. Return to My observations for genuine new input or personal backup/restore.
+6. **Field kit:** filter the nine-source gallery by city and inspect licences (39catalogue photos; nine saved examples). Example exports keep provenance; they cannot be restored into personal records. Return to My observations for genuine new input or personal backup/restore.
 
 Suggested pitch: **“AquaLens turns a river photo and citizen description into an inspectable evidence record. It checks missing context, keeps AI suggestions uncertain, and lets people record their reasons before sharing a portable receipt.”** Explain that visible appearance cannot identify pollutants, pathogens or water safety. The prototype's strength is traceability and human oversight.
 
 ## River Atlas opening sequence (about90 seconds)
 
-1. Mission Control → **Open River Atlas**. Choose Mondego, Garonne or Hoffselva. The source-date filmstrip has three real licensed historical photographs per city; Full frame preserves the entire view, Display crop is only presentation.
+1. Mission Control → **Open River Atlas**. Choose Mondego, Garonne or Hoffselva. The source-date filmstrip has 18Mondego,17Garonne and4Hoffselva licensed historical photographs; Full frame preserves the entire view, Display crop is only presentation.
 2. **Look** shows the literal retained note, or an explicit catalogue description when no review exists. Mention the source date/photographer/licence and the clearly labelled example inputs.
 3. Choose **Garonne → Toulouse → Question** to inspect its actual retained Gemini vegetation candidate, uncalibrated confidence, region and authored uncertain human reason. No AI request runs. No chemistry/safety/species conclusion follows.
 4. **Decide** shows actual local workflow/confirmation/review history. **Inspect complete evidence** opens the existing receipt; Present this evidence gives the five retained layers and JSON export. When no record exists, **Start a credited photo review** reuses the original citizen flow; it does not save automatically.

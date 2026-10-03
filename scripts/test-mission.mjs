@@ -4,7 +4,7 @@ import { assess, createReport, reviewReport, decideIssue, exportReport } from ".
 import { newField, addPhotoAnnotation, assertPhotoAnnotations, createReferenceDraft, recordVisualJudgment } from "../.sites-runtime/domain-tests/field.mjs";
 import { evidenceFrames, imagePoint, scopedRecords, workspaceAnalytics, recordSignals, reviewQueue, pendingVisualCount, evidenceReplay } from "../.sites-runtime/domain-tests/mission-control.mjs";
 import { evidenceTrail } from "../.sites-runtime/domain-tests/evidence-trail.mjs";
-import { referencePhotos } from "../.sites-runtime/domain-tests/references.mjs";
+import { referencePhotos, europeanPhotoLibrary } from "../.sites-runtime/domain-tests/references.mjs";
 import { createFieldPack, prepareImport, parseWorkspace, digestBlob } from "../.sites-runtime/domain-tests/workspace.mjs";
 
 // Authored software fixtures, never seeded into the application as field evidence.
@@ -54,10 +54,10 @@ await test("Activity does not normalize impossible days or supply a missing time
 });
 await test("Bundled photographs are source frames, not saved observations", () => {
   const frames = evidenceFrames([]);
-  assert.equal(frames.length, referencePhotos.length);
+  assert.equal(frames.length, europeanPhotoLibrary.length);
   assert.equal(frames[0].reference.id, "mondego-coimbra");
   assert.ok(frames.every((frame) => !frame.report && !frame.media && frame.reference));
-  assert.deepEqual(new Set(frames.map((frame) => frame.reference.id)), new Set(referencePhotos.map((photo) => photo.id)));
+  assert.deepEqual(new Set(frames.map((frame) => frame.reference.id)), new Set(europeanPhotoLibrary.map((photo) => photo.id)));
 });
 await test("Scopes exclude synthetic reports, synthetic locations and illustrations", () => {
   const synthetic = { ...base, original: { ...input, synthetic: true } };
@@ -71,7 +71,7 @@ await test("Scopes exclude synthetic reports, synthetic locations and illustrati
 });
 await test("Photo desk keeps saved source association and does not treat video as a still", () => {
   const frames = evidenceFrames([historical, { ...photoRecord, field: { ...photoRecord.field, media: [media, { ...media, id: "clip", kind: "video" }] } }]);
-  assert.equal(frames.length, referencePhotos.length + 1);
+  assert.equal(frames.length, europeanPhotoLibrary.length + 1);
   assert.equal(frames.filter((frame) => frame.reference?.id === source.id).length, 1, "A retained review replaces its duplicate source-only frame");
   assert.equal(frames[0].reference.id, source.id);
   assert.equal(frames[0].report.id, historical.id);

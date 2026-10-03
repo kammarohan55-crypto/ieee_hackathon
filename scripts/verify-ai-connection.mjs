@@ -8,8 +8,14 @@ const { env } = await import("../.sites-runtime/api-tests/env.mjs");
 const { GET, POST } = await import("../.sites-runtime/api-tests/route-assess.mjs");
 const visual = await import("../.sites-runtime/api-tests/route-visual.mjs");
 for (const key of Object.keys(env)) delete env[key];
-for (const match of (await readFile(".dev.vars", "utf8")).matchAll(/^([A-Z_]+)\s*=\s*(.*)$/gm)) {
+for (const match of (await readFile(".dev.vars", "utf8")).matchAll(/^([A-Z0-9_]+)\s*=\s*(.*)$/gm)) {
   if (/^(AI_|GEMINI_|XAI_|GROQ_)/.test(match[1])) env[match[1]] = match[2].trim().replace(/^(["'])(.*)\1$/, "$2");
+}
+const override = process.argv.find((argument) => argument.startsWith("--provider="))?.split("=")[1];
+if (override) {
+  if (!["gemini", "groq", "xai"].includes(override)) throw new Error("Choose --provider=gemini, groq or xai; no request was made.");
+  env.AI_PROVIDER = override;
+  env.AI_FALLBACK_PROVIDER = ""; // Isolated capability check; never alter local configuration.
 }
 const status = await (await GET()).json();
 if (!status.liveAI || !status.consentScope) throw new Error("A usable server-side provider configuration is required; no evidence was sent.");
@@ -41,6 +47,6 @@ try {
 }
 result.upstream = upstream;
 await mkdir(".sites-runtime", { recursive: true });
-await writeFile(".sites-runtime/gemini-connection.json", JSON.stringify(result, null, 2));
+await writeFile(`.sites-runtime/${override || "gemini"}-connection.json`, JSON.stringify(result, null, 2));
 console.log(JSON.stringify({ provider: result.provider, textSuccess: result.checks[0]?.success, visualSuccess: result.checks[1]?.success, upstream, browserTested: false }));
 if (result.checks.some((check) => !check.success)) process.exitCode = 1;

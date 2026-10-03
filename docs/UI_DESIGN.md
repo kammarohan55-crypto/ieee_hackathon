@@ -1,3 +1,7 @@
+# Current visual observatory ownership — 2026-10-03
+
+app/observatory.css loads after stories.css. It scopes the separate editorial /visuals layout and fixes shared graph contrast/wider nodes/readable navigator and Atlas horizontal filmstrip. components/visual-observatory.tsx uses one primary view at a time; city/year/format controls belong to source views, not globe/graph. Every full photograph keeps credits; library crops are display only. Graph cards/list show provenance, never health colors. Globe framing is responsive presentation, not a physical twin. Source-year/quarter/frame-format analytics derive only catalogue metadata. Play starts only explicitly and respects reduced motion. Canonical source titles/dates/hashes are unchanged; curated viewing titles improve readability. Existing records, primary workflow, dependencies and durable storage namespaces retained. See OBSERVATORY_2026-10-03.md and QA.md.
+
 # AquaLens visual system — October 3, 2026
 
 ## Direction and scope

@@ -1,3 +1,7 @@
+# Current expansion completion — 2026-10-03
+
+Visual tasks complete:39licensed source photos, standalone observatory, truthful source chronology/analytics, readable graph/cards, responsive globe, reused Atlas/compare/receipts, optional playback/reduced motion, source export and controlled offline navigation.423checks/typecheck/lint/18CSS/build and focused browser checks pass. Four supplied Groq credentials saved only locally, Gemini→Groq consented availability fallback and401-only backup recovery implemented; actual Groq text/image200. No additional key required. Nine authored example records/eight recorded AI responses remain unchanged in count;30new sources are not field visits or approvals. Device/actual human study/hosting/video/Devpost gaps below remain; no victory guarantee.
+
 # AquaLens — final completion checklist
 
 Updated 2026-10-03. This is a readiness checklist, not a completed field study, device test, deployment or submission. Latest user permits natural multi-track scope across citizen UX/context/assessment/storytelling; final entry choices remain user-owned. Use FEATURE_AUDIT for implementation boundaries and QA for measured software checks.
@@ -10,7 +14,7 @@ The /showcase route now supplies nine real, credited historical European photos 
 
 | Item | Exact input | Why / status |
 | --- | --- | --- |
-| AI access | No additional key is currently needed. The supplied Gemini key is saved in ignored `.dev.vars`, with `AI_PROVIDER="gemini"` and Gemini 3.5 Flash-Lite. | Actual text/image source-route checks returnedHTTP200 and passed strict validation. Fresh production-browser text/photo calls also succeeded; future quota remains uncertain; local rules/review survive provider failure. No map/weather key is needed. |
+| AI access | No additional key is currently needed. Gemini primary and four supplied Groq credentials are in ignored `.dev.vars`; Groq is the consented availability alternative, with401-only same-service backups. | Actual text/image source-route checks returnedHTTP200 and passed strict validation. Fresh production-browser text/photo calls also succeeded; future quota remains uncertain; local rules/review survive provider failure. No map/weather key is needed. |
 | Firsthand evidence | Suggested three original photos: wide site, surface detail, bank context; actual site/landmark, date/local time/time zone, file mapping, direct note and photographer/use permission. Fill VISIT_NOTES_TEMPLATE.txt. | Recommended for a real field demo. Nine bundled European historical images and the checked presentation-media ZIP already support a credited photo-review demo; use Photo desk → Review this photo. Unknown time/context must not be invented. |
 | Map location, if demonstrated | Actual WGS84 latitude/longitude and source/uncertainty, or device GPS when safely available. | Optional observation metadata. Enables your real site on the map; no fabricated marker. No water instruments or hardware required. |
 | Actual human review | A person inspects the source, records agreement/disagreement/uncertainty and their own reason. A separate reviewer can provide approved name/role/method/date/feedback. | Same-person citizen/reviewer demo is permitted by this app and must be disclosed. No authenticated reviewer or expert-validation claim. |

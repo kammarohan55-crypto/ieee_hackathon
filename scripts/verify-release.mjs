@@ -9,7 +9,7 @@ import { createHash } from "node:crypto";
 let keys = [];
 try {
   const vars = await readFile(".dev.vars", "utf8");
-  keys = [...vars.matchAll(/^(?:GEMINI|XAI|GROQ)_API_KEY\s*=\s*(.*)$/gm)]
+  keys = [...vars.matchAll(/^(?:GEMINI|XAI|GROQ)_API_KEY(?:_[2-4])?\s*=\s*(.*)$/gm)]
     .map((match) => match[1].trim().replace(/^(["'])(.*)\1$/, "$2")).filter(Boolean);
 } catch { /* A no-key installation is valid. */ }
 const ignored = new Set(["node_modules", "dist", ".git", ".wrangler", ".sites-runtime", ".next", ".vinext", ".agents", ".codex", "outputs", "work"]);

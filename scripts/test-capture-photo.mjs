@@ -269,7 +269,7 @@ await test("A recorded analysis for changed bytes never enables a photo's region
   assert.equal(button(tree, "AI regions 0").props.disabled, true); assert.doesNotMatch(textOf(tree), /Recorded regions/);
 });
 
-await test("All nine public photo selections bind their own source context rather than a city's first frame", () => {
+await test("All 39 public photo selections bind their own source context rather than a city's first frame", () => {
   const runtime = hooks();
   const { MissionControl } = component("components/mission-control.tsx", runtime, {
     "./photo-inspector": { PhotoInspector: "photo-inspector", FrameImage: "frame-image" },
@@ -278,6 +278,7 @@ await test("All nine public photo selections bind their own source context rathe
     "./site-conditions": { SiteConditions: "site-conditions" }, "./geographic-evidence-map": { GeographicEvidenceMap: "geographic-map" }, "./sampling-plan": { SamplingPlan: "sampling-plan" },
   }, { document: { addEventListener() {}, removeEventListener() {} } });
   const props = { records: [], onStart() {}, onReviewReference() {}, onOpen() {}, onUpdate() {}, onInsights() {}, onKit() {} }, render = () => runtime.render(MissionControl, props);
+  button(render(), "Show 20 more sources").props.onClick();
   for (const frame of mission.evidenceFrames([])) {
     const tree = render(), selector = nodes(tree).find((node) => node.props?.className?.startsWith("mc-source-card") && textOf(node).includes(frame.title)); selector.props.onClick();
     const context = nodes(render()).find((node) => node.type === "european-context-component-double");

@@ -1,11 +1,11 @@
 import { z } from "zod";
-import { referencePhotos } from "./references";
+import { europeanPhotoLibrary } from "./references";
 import { europeanPlaces } from "./european-sites";
 
 export const SOURCE_WEATHER_ASSET = "/source-weather-v1.json";
 export const archiveMetrics = "temperature_2m_mean,precipitation_sum,wind_speed_10m_max";
 export function sourceWeatherAnchor(photoId: string) {
-  const photo = referencePhotos.find((item) => item.id === photoId);
+  const photo = europeanPhotoLibrary.find((item) => item.id === photoId);
   const city = photoId.startsWith("mondego-") ? "coimbra" : photoId.startsWith("garonne-") ? "toulouse" : photoId.startsWith("hoffselva-") ? "oslo" : null;
   const place = europeanPlaces.find((item) => item.id === city);
   return photo && place ? { photo, place } : null;

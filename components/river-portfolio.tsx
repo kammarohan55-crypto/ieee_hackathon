@@ -5,7 +5,7 @@ import { ArrowUpRight, Camera, Fingerprint, ScanEye } from "lucide-react";
 import type { CSSProperties } from "react";
 import type { Report } from "@/lib/assessment";
 import { europeanPlaces } from "@/lib/european-sites";
-import { referencePhotos, displayEvidenceTime } from "@/lib/references";
+import { europeanPhotoLibrary, referencePhotos, displayEvidenceTime } from "@/lib/references";
 import { RiverStories } from "./river-stories";
 
 export function photoCity(photoId?: string) {
@@ -28,7 +28,7 @@ export function RiverPortfolio({ records, city, onCity, onOpen }: { records: Rep
     })}</div>
     <div className="portfolio-timeline-heading"><span><Fingerprint size={14} /> SOURCE PHOTO CHRONOLOGY</span><small>{timeline.length} retained reviews · dates supplied by photographers</small></div>
     <div className="portfolio-timeline">{timeline.map((record) => {
-      const photo = referencePhotos.find((item) => item.id === record.field!.reference!.id)!;
+      const photo = europeanPhotoLibrary.find((item) => item.id === record.field!.reference!.id)!;
       const candidates = record.field!.media.reduce((sum, media) => sum + (media.visual?.findings.length ?? 0), 0);
       return <button key={record.id} type="button" onClick={() => onOpen(record.id)} aria-label={`Open ${photo.title}, source date ${photo.capturedDate}`}><span className="portfolio-thumb"><img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" /><span><ScanEye size={12} /> {candidates}</span></span><time dateTime={photo.capturedDate}>{displayEvidenceTime(photo.capturedDate).replace(" · date only", "")}</time><strong>{photo.title}</strong><small>{record.status === "reviewed" ? "Review recorded" : record.status === "needs_information" ? "Information requested" : "Awaiting review"}{record.demonstration ? " · example" : ""}</small></button>;
     })}</div>

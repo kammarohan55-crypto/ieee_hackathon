@@ -12,6 +12,10 @@ XAI_API_KEY=""
 XAI_MODEL="grok-4.20-0309-non-reasoning"
 XAI_VISUAL_MODEL=""
 GROQ_API_KEY=""
+# Optional invalid-credential backups. No rotation on rate/permission failures.
+GROQ_API_KEY_2=""
+GROQ_API_KEY_3=""
+GROQ_API_KEY_4=""
 # This current Groq vision + structured-output model is marked preview.
 GROQ_MODEL="qwen/qwen3.8-27b"
 GROQ_VISUAL_MODEL=""

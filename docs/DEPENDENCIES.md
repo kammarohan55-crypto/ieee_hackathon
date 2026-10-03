@@ -1,3 +1,7 @@
+# Observatory reuse — 2026-10-03
+
+No package or dependency added. Existing MapLibre(BSD-3-Clause), React Flow/Recharts/React/Radix(MIT), Lucide(ISC), local fonts(OFL), native CSS and range controls provide the new page/graph/globe/analytics. Official custom-node, map and chart documentation checked before coding; no commercial template source copied. Thirty Commons files retain their individual CC BY/CC BY-SA/CC0 notices in public/images/references/CREDITS.md. Photo licences do not license our original application code or certify scientific use. Source URLs/limits in SOURCES S51.
+
 # Reuse and attribution
 
 Checked official documentation and installed licenses 2026-09-28/29 before implementation.

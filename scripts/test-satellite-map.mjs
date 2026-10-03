@@ -23,6 +23,7 @@ function library(file) {
   return libraries.get(file);
 }
 const satellite = library("lib/satellite-context.ts");
+const geographic = library("lib/geographic.ts");
 const now = new Date("2026-10-02T12:00:00Z");
 const tests = [];
 async function test(name, run) {
@@ -297,10 +298,17 @@ await test("An invalid imported day or clock never becomes a normalized map obse
     fixture.unmount();
   }
 });
+await test("Globe framing adapts to small canvases and remains finite for unavailable dimensions", () => {
+  assert.ok(geographic.globeOverviewZoom(320,510) < geographic.globeOverviewZoom(700,510));
+  assert.ok(geographic.globeOverviewZoom(700,330) < geographic.globeOverviewZoom(700,510));
+  for (const dimensions of [[0,0],[NaN,Infinity],[120,120],[2000,2000]]) {
+    const zoom=geographic.globeOverviewZoom(...dimensions); assert.ok(Number.isFinite(zoom) && zoom >= .1 && zoom <= 1.45);
+  }
+});
 await test("European source context opens a real city overview while citizen counts stay zero", async () => {
   const fixture = mapFixture([], { publicContext: true }); const tree = fixture.render(); await flush();
   assert.deepEqual(plain(fixture.maps[0].options.center), [10, 38]);
-  assert.equal(fixture.maps[0].options.zoom, 1.45); assert.equal(fixture.markers.length, 3);
+  assert.equal(fixture.maps[0].options.zoom, geographic.globeOverviewZoom(700, 510)); assert.equal(fixture.markers.length, 3);
   fixture.maps[0].events.load();
   assert.equal(fixture.maps[0].projection.type, "globe");
   assert.match(textOf(tree), /0plotted records0not plotted/); assert.match(textOf(tree), /Not the camera position/);
@@ -338,7 +346,7 @@ await test("Globe and flat perspectives keep all records intact and reset pitch 
   assert.equal(map.projection.type, "mercator"); assert.equal(map.ease.pitch, 0); assert.equal(map.ease.duration, 0);
   button(fixture.render(), "Globe overview").props.onClick();
   assert.equal(map.projection.type, "globe"); assert.deepEqual(plain(map.jump.center), [10, 38]);
-  assert.equal(map.jump.zoom, 1.45); assert.equal(JSON.stringify(record), original);
+  assert.equal(map.jump.zoom, geographic.globeOverviewZoom(700, 510)); assert.equal(JSON.stringify(record), original);
   fixture.unmount(); assert.ok(map.removed);
 });
 
@@ -349,7 +357,7 @@ await test("Globe request from historical landscape restores world-scale streets
   button(fixture.render(), "Globe overview").props.onClick();
   const tree = fixture.render(); await flush();
   assert.equal(fixture.maps.at(-1).options.style, "https://tiles.openfreemap.org/styles/dark");
-  assert.equal(fixture.maps.at(-1).options.zoom, 1.45);
+  assert.equal(fixture.maps.at(-1).options.zoom, geographic.globeOverviewZoom(700, 510));
   assert.match(textOf(tree), /0plotted records0not plotted/);
   assert.match(textOf(tree), /Not the camera position/);
   fixture.unmount();

@@ -601,6 +601,7 @@ export default function StreamCheck({ presentation = false }: { presentation?: b
         </button>
         <div className="header-right">
           <a className="workspace-switch" href={presentation ? "/" : "/showcase"}>{presentation ? "My observations" : "Presentation collection"}<ArrowUpRight size={14} /></a>
+          <a className="workspace-observatory-link" href={presentation ? "/visuals?collection=showcase" : "/visuals"}><ChartNoAxesCombined size={16} /> Visual observatory</a>
           <span className="workspace-label">
             <span className="live-dot" />{" "}
             {presentation ? "Presentation workspace" : online ? "Local workspace" : "Offline · local rules"}

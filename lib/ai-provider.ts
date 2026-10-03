@@ -14,6 +14,7 @@ type ProviderContent = { text: string; image?: string };
 type ProviderConfig = {
   provider: AIProvider;
   key: string;
+  backupKeys?: string[];
   textModel: string;
   visualModel: string;
 };
@@ -88,20 +89,26 @@ function validModel(value: string, secrets: string[]): boolean {
     && !/^(xai-|gsk_|AQ\.|AIza)/i.test(value)
     && !secrets.some((key) => key.length >= 8 && value.includes(key));
 }
+function configuredSecrets(config: WorkerConfig): string[] {
+  return Object.entries(config).filter(([name]) => /^(?:GEMINI|XAI|GROQ)_API_KEY(?:_[2-4])?$/.test(name))
+    .map(([, value]) => value?.trim() || "").filter(Boolean);
+}
 function providerConfig(config: WorkerConfig, provider: AIProvider): ProviderConfig | undefined {
   const prefix = provider === "xai" ? "XAI" : provider === "groq" ? "GROQ" : "GEMINI";
-  const key = config[`${prefix}_API_KEY`]?.trim();
+  const keys = [...new Set((provider === "groq" ? [config.GROQ_API_KEY, config.GROQ_API_KEY_2, config.GROQ_API_KEY_3, config.GROQ_API_KEY_4] : [config[`${prefix}_API_KEY`]])
+    .map((value) => value?.trim()).filter((value): value is string => !!value))];
+  const key = keys[0];
   const textModel = config[`${prefix}_MODEL`]?.trim() || (provider === "xai" ? XAI_MODEL : provider === "groq" ? GROQ_MODEL : GEMINI_MODEL);
   const visualModel = config[`${prefix}_VISUAL_MODEL`]?.trim() || textModel;
-  const secrets = [config.XAI_API_KEY || "", config.GROQ_API_KEY || "", config.GEMINI_API_KEY || ""].map((secret) => secret.trim());
+  const secrets = configuredSecrets(config);
   if (!key || !validModel(textModel, secrets) || !validModel(visualModel, secrets)) return;
-  return { provider, key, textModel, visualModel };
+  return { provider, key, ...(provider === "groq" ? { backupKeys: keys.slice(1) } : {}), textModel, visualModel };
 }
 export function resolveAIConfig(config: WorkerConfig) {
   const selected = providerName(config.AI_PROVIDER?.trim() || "gemini");
   const primary = selected ? providerConfig(config, selected) : undefined;
   const alternate = providerName(config.AI_FALLBACK_PROVIDER?.trim());
-  // No implicit routing or key rotation. An alternative must be explicitly selected,
+  // No implicit provider routing. An alternative must be explicitly selected,
   // separately configured, and different from the selected provider.
   const fallback = primary && alternate && alternate !== selected
     ? providerConfig(config, alternate)
@@ -134,7 +141,7 @@ export function aiAvailability(config: WorkerConfig) {
 }
 
 class ProviderFailure extends Error {
-  constructor(readonly canUseAlternative = false) {
+  constructor(readonly canUseAlternative = false, readonly credentialRejected = false) {
     super("AI provider did not return a usable response");
   }
 }
@@ -215,7 +222,7 @@ async function requestJSON(
   } catch {
     throw new ProviderFailure(true);
   }
-  if (!response.ok) throw new ProviderFailure(response.status === 429 || response.status >= 500);
+  if (!response.ok) throw new ProviderFailure(response.status === 429 || response.status >= 500, response.status === 401);
   // Never read or relay provider error bodies. Limit successful response bytes as
   // well as schema content, so unrelated reasoning cannot fill server memory.
   const reader = response.body?.getReader();
@@ -258,15 +265,29 @@ async function runAI<T>(
 ) {
   const { primary, fallback } = resolveAIConfig(config);
   if (!primary) throw new ProviderFailure();
-  const signal = AbortSignal.timeout(capability === "text" ? 18000 : 25000);
-  const secrets = [config.XAI_API_KEY || "", config.GROQ_API_KEY || "", config.GEMINI_API_KEY || ""].map((secret) => secret.trim());
+  const totalBudget = capability === "text" ? 18000 : 25000;
+  const overallSignal = AbortSignal.timeout(totalBudget), startedAt = Date.now();
+  const secrets = configuredSecrets(config);
   const candidates = fallback ? [primary, fallback] : [primary];
   for (const [index, provider] of candidates.entries()) {
-    try {
-      const result = await requestJSON(provider, capability, content, signal, secrets, fetcher);
-      return { value: validate(result.value, result.model), model: result.model, provider: provider.provider, fallbackUsed: index > 0 };
-    } catch (error) {
-      if (!(error instanceof ProviderFailure) || !error.canUseAlternative || signal.aborted || index === candidates.length - 1) throw new ProviderFailure();
+    if (overallSignal.aborted) throw new ProviderFailure();
+    // Reserve time for the consented alternative when the primary stalls. The
+    // overall operation remains bounded; each provider shares its key-retry budget.
+    const remaining = Math.max(1, totalBudget - (Date.now() - startedAt));
+    const providerBudget = index === 0 && fallback ? Math.min(remaining, totalBudget / 2) : remaining;
+    const signal = AbortSignal.any([overallSignal, AbortSignal.timeout(providerBudget)]);
+    const keys = [provider.key, ...(provider.backupKeys ?? [])];
+    for (const [keyIndex, key] of keys.entries()) {
+      try {
+        const result = await requestJSON({ ...provider, key }, capability, content, signal, secrets, fetcher);
+        return { value: validate(result.value, result.model), model: result.model, provider: provider.provider, fallbackUsed: index > 0 };
+      } catch (error) {
+        // Same-service backups recover an invalid/revoked credential only. Never
+        // rotate on quotas, permission blocks, invalid output or service outages.
+        if (error instanceof ProviderFailure && error.credentialRejected && !signal.aborted && keyIndex < keys.length - 1) continue;
+        if (!(error instanceof ProviderFailure) || !error.canUseAlternative || overallSignal.aborted || index === candidates.length - 1) throw new ProviderFailure();
+        break;
+      }
     }
   }
   throw new ProviderFailure();

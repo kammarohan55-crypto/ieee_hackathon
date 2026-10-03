@@ -4,7 +4,10 @@ import {
   ReactFlow,
   Background,
   Controls,
+  Handle,
+  Position,
   type Node,
+  type NodeProps,
   type Edge,
 } from "@xyflow/react";
 import {
@@ -107,6 +110,13 @@ export function QualityScore({
   );
 }
 
+type TrailCardData = { label: string; detail: string; source: string };
+const trailSourceLabels: Record<string, string> = { citizen: "Original input", reference: "Photo source", rules: "Local checks", ai: "AI proposal", human: "Human judgment", pending: "Pending evidence" };
+function TrailCard({ data }: NodeProps<Node<TrailCardData>>) {
+  return <div className="trail-card"><Handle type="target" position={Position.Left} /><span>{trailSourceLabels[data.source] || "Retained source"}</span><strong>{data.label}</strong><small>Inspect source &amp; reasoning ↗</small><Handle type="source" position={Position.Right} /></div>;
+}
+const trailNodeTypes = { evidence: TrailCard };
+
 export function EvidenceGraph({ report }: { report: Report }) {
   const [selection, setSelection] = useState<{ reportId: string; nodeId: string } | null>(null);
   const [animatePath, setAnimatePath] = useState(true);
@@ -124,7 +134,7 @@ export function EvidenceGraph({ report }: { report: Report }) {
       }
     }
     const nodes: Node[] = trail.nodes.map((n) => ({
-      id: n.id, position: { x: n.x, y: n.y },
+      id: n.id, type: "evidence", position: { x: n.x * 1.08, y: n.y * 1.3 },
       data: { label: n.label, detail: n.detail, source: n.source },
       className: `trail-node nopan trail-${n.source}${currentId ? upstream.has(n.id) ? " trail-on-route" : " trail-off-route" : ""}`,
       ariaLabel: `${n.label}. Press Enter to inspect.`,
@@ -153,6 +163,7 @@ export function EvidenceGraph({ report }: { report: Report }) {
         <ReactFlow
           key={report.id}
           nodes={data.nodes}
+          nodeTypes={trailNodeTypes}
           edges={data.edges}
           fitView
           nodesDraggable={false}
@@ -161,8 +172,8 @@ export function EvidenceGraph({ report }: { report: Report }) {
           onNodesChange={(changes) => { const change = changes.find((c) => c.type === "select" && c.selected); if (change?.type === "select") inspect(change.id); }}
           deleteKeyCode={null}
           edgesFocusable={false}
-          fitViewOptions={{ padding: 0.15 }}
-          minZoom={0.15}
+          fitViewOptions={{ padding: 0.1, minZoom: 0.65, maxZoom: 1 }}
+          minZoom={0.5}
           maxZoom={1.5}
         >
           <Background color="#aac4bf" gap={22} />
@@ -170,7 +181,7 @@ export function EvidenceGraph({ report }: { report: Report }) {
         </ReactFlow>
       </div>
       <div className="graph-detail" aria-live="polite"><b>{selectedNode ? String(selectedNode.data.label) : "Select a node to inspect its source."}</b><p>{selectedNode ? String(selectedNode.data.detail) : "Connections show retained evidence and workflow relationships. They do not establish causation or scientific truth."}</p></div>
-      <details className="trail-readable"><summary>Read the evidence trail as a list</summary><div>{data.nodes.map((n) => <button className={`trail-list-item trail-${n.data.source}`} key={n.id} aria-pressed={selectedNode?.id === n.id} onClick={() => inspect(n.id)}>{String(n.data.label)}</button>)}</div></details>
+      <div className="trail-readable trail-navigator" role="group" aria-label="Readable evidence nodes"><p>Every node, at reading size. Select a card or pan and zoom the diagram.</p><div>{data.nodes.map((n) => <button type="button" className={`trail-list-item trail-${n.data.source}`} key={n.id} aria-pressed={selectedNode?.id === n.id} onClick={() => inspect(n.id)}><small>{trailSourceLabels[String(n.data.source)] || "Retained source"}</small><strong>{String(n.data.label)}</strong></button>)}</div></div>
     </section>
   );
 }

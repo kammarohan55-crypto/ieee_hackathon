@@ -1,13 +1,13 @@
 import type { Report } from "./assessment";
 import { europeanPlaces } from "./european-sites";
-import { referencePhotos, validRecordedTimestamp } from "./references";
+import { europeanPhotoLibrary, validRecordedTimestamp } from "./references";
 import { scopedRecords } from "./mission-control";
 
 /** A read-only source tour. Never manufacture a review or attach another photo's candidates. */
 export function riverStory(records: Report[], cityId: string, photoId?: string) {
   const place = europeanPlaces.find((city) => city.id === cityId) ?? europeanPlaces[0];
   const prefix = place.id === "coimbra" ? "mondego-" : place.id === "toulouse" ? "garonne-" : "hoffselva-";
-  const photos = referencePhotos.filter((photo) => photo.id.startsWith(prefix))
+  const photos = europeanPhotoLibrary.filter((photo) => photo.id.startsWith(prefix))
     .sort((a, b) => a.capturedDate.localeCompare(b.capturedDate));
   const photo = photos.find((item) => item.id === photoId) ?? photos[0];
   const matches = scopedRecords(records, "reference").filter((record) =>

@@ -22,7 +22,7 @@ const { presentationBrief, nextPresentationStage } = library("presentation-brief
 const { visitLinks } = library("visit-links");
 const { createReport, assess } = library("assessment");
 const { newField, createReferenceDraft } = library("field");
-const { referencePhotos } = library("references");
+const { referencePhotos, europeanPhotoLibrary } = library("references");
 const now = new Date("2026-10-02T03:00:00Z");
 function record(id = "actual-fixture") {
   const input = { site: "Authored test site", observedAt: "2026-10-01T09:00:00Z", note: "I could not see the water. Its appearance is unknown.", appearance: "unsure", synthetic: false };
@@ -214,15 +214,15 @@ function storyTree(records, photoId) {
   }
   return tree;
 }
-await test("River stories keep the nine credited sources separate from an empty citizen collection", () => {
+await test("River stories keep the extended credited archive separate from an empty citizen collection", () => {
   const seen = new Set();
   for (const city of ["coimbra", "toulouse", "oslo"]) {
     const story = riverStory([], city);
-    assert.equal(story.photos.length, 3); assert.equal(story.report, undefined); assert.equal(story.media, undefined);
+    assert.equal(story.photos.length, europeanPhotoLibrary.filter((photo) => photo.site.includes(story.place.city)).length); assert.equal(story.report, undefined); assert.equal(story.media, undefined);
     assert.deepEqual(Array.from(story.photos, (p) => p.capturedDate), Array.from(story.photos, (p) => p.capturedDate).sort());
     story.photos.forEach((p) => seen.add(p.id));
   }
-  assert.equal(seen.size, 9);
+  assert.equal(seen.size, europeanPhotoLibrary.length);
 });
 await test("Invalid city and cross-city photo selection fall back to known source metadata without invented positions", () => {
   const fallback = riverStory([], "unknown", "hoffselva-oslo");

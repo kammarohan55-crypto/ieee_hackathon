@@ -19,6 +19,7 @@ import "./immersive.css";
 import "./review-atmosphere.css";
 import "./clarity.css";
 import "./stories.css";
+import "./observatory.css";
 
 export const metadata: Metadata = {
   title: "AquaLens — Evidence in focus",

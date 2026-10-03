@@ -1,6 +1,6 @@
 # AquaLens: what to supply and finish before submission
 
-Checked 2026-10-03. Current primary submission decision: **Track 3 — AI-Supported Assessment**, supported by Track 1 citizen UX, Track 2 context and Track 4 storytelling. This checklist distinguishes project recommendations, implemented inputs and official submission requirements. No field evidence, reviewer study or deployment is created by this document.
+Checked 2026-10-03. Latest user permits natural multi-track scope; retain the responsible assessment spine with citizen UX/context/storytelling. Final track/entry confirmation remains user-owned. This checklist distinguishes project recommendations, implemented inputs and official submission requirements. No field evidence, reviewer study or deployment is created by this document.
 
 ## Timing and official deliverables
 

@@ -2,6 +2,12 @@ import type { Report } from "./assessment";
 import { isSyntheticRecord } from "./atlas";
 
 export const MERCATOR_LATITUDE_LIMIT = 85.0511287798066;
+/** Presentation framing, not geographic measurement: reserve space for controls and attribution. */
+export function globeOverviewZoom(width: number, height: number) {
+  const safeWidth = Number.isFinite(width) && width > 0 ? width : 700;
+  const safeHeight = Number.isFinite(height) && height > 0 ? height : 510;
+  return Math.max(0.1, Math.min(1.45, Math.log2(Math.max(180, Math.min(safeWidth - 64, safeHeight - 112)) * Math.PI / 512)));
+}
 export type LocationState = "mapped" | "missing" | "invalid" | "polar";
 export function locationState(report: Report): LocationState {
   const c = report.field?.coordinates;

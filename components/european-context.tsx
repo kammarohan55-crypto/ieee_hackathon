@@ -5,7 +5,7 @@ import { Area, AreaChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Too
 import { ArrowUpRight, CloudRain, Clock3, Download, Fingerprint, RefreshCw, Sparkles, Thermometer, Wind } from "lucide-react";
 import { europeanBundleSchema, EUROPEAN_CONTEXT_ASSET, type EuropeanBundle, type EuropeanPlace } from "@/lib/european-sites";
 import { weatherContextSchema, weatherSeries, type WeatherContext } from "@/lib/weather-context";
-import { referencePhotos, displayEvidenceTime } from "@/lib/references";
+import { europeanPhotoLibrary, displayEvidenceTime } from "@/lib/references";
 import { downloadFile, findingLabels } from "@/lib/field";
 import { weatherFreshness } from "@/lib/weather-freshness";
 import { SourceDateWeather } from "./source-date-weather";
@@ -20,7 +20,7 @@ export function EuropeanContext({ place, photoId = place.photoId, weatherEnabled
   const [metric, setMetric] = useState<"temperature" | "rain" | "wind">("temperature");
   const [range, setRange] = useState<"past" | "next">("next"), [now, setNow] = useState(0);
   const request = useRef<AbortController | null>(null), id = useId().replaceAll(":", "");
-  const photo = referencePhotos.find((value) => value.id === photoId && value.site.includes(place.city)) ?? referencePhotos.find((value) => value.id === place.photoId)!;
+  const photo = europeanPhotoLibrary.find((value) => value.id === photoId && value.site.includes(place.city)) ?? europeanPhotoLibrary.find((value) => value.id === place.photoId)!;
   const analysis = bundle?.analyses.find((value) => value.photoId === photo.id);
   const weather = live?.placeId === place.id ? live.value : bundle?.weather.find((value) => value.placeId === place.id)?.snapshot;
   const current = now || (weather ? Date.parse(weather.fetchedAt) : 0);
