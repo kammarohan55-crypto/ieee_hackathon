@@ -19,11 +19,13 @@ An environmental field instrument with editorial typography: midnight aquatic su
 
 `app/immersive.css` owns the shell/hero/evidence desk; `review-atmosphere.css` owns the coordinated review/field skin. Existing scoped styles retain their layouts and the established evidence palette. Three.js and Motion MIT, Manrope/Instrument Serif OFL notices are copied from installed packages into public/VISUAL_LICENSES.txt and included in production offline assets. No commercial template or React Bits source was copied. See SOURCES S48 and DEPENDENCIES.
 
-## Verification and user preview
+## Verification and remaining device checks
 
 Terminal verification: full401-check suite, TypeScript, ESLint,15 CSS parses and production build. Seven new lifecycle checks use real Three.js geometry/math with doubled GPU/DOM boundaries. They exercise finite geometry, portrait/zero sizing, throttling, pause/resume, pointer response, disposal, context loss and initialization/render failure. They **do not** establish successful WebGL drawing, device performance or visual quality.
 
-The user explicitly asked the agent not to open/preview the website. No browser was opened, no screenshot made, no server started/restarted/stopped and no private data/AI request used for this redesign. Previous screenshots and browser results predate it.
+The latest user explicitly authorized running/testing the website, superseding the earlier no-preview instruction. Isolated installed-Chrome profiles exercised the current development and production interfaces; user windows/storage were untouched. Actual scene rendering, stable paused frames, changing played frames, reduced-motion still view and injected context-loss fallback passed. Screenshots of the desktop hero and phone Lab/receipt were inspected. Mission/Insights layouts fit375/680/850/1120/1440px; their internal matrix remains scrollable. All primary views and four Lab/presentation chapters work. Browser QA corrected mobile Insights overflow, legacy pale receipt background and a clipped provenance tag. Ctrl+K, photo grid/zoom, comparison, graph, confirmation/review/reload, disagreement and one completed JSON receipt download were exercised. No live AI or physical permission used. Full results/limits are in QA.md.
+
+Production navigation for both / and /showcase reloaded offline after controlled online visits; source images/fonts loaded. This does not prove installed-PWA behavior or remote-map/API availability. OpenFreeMap emitted three nonblocking missing-number road-shield warnings; no application page exceptions occurred. Physical device performance, other browsers,200% zoom/full accessibility and authentic expert review still need separate checks.
 
 User walkthrough on the existing local server (or start with npm run dev):
 
@@ -35,4 +37,4 @@ User walkthrough on the existing local server (or start with npm run dev):
 6. Enable OS reduced motion; check the still scene and keyboard controls. If WebGL2 is disabled/unavailable, static artwork and both hero shortcuts should remain usable.
 7. Report the route, viewport/device, action and any screenshot or console message for a visual issue. No API key is required for this visual update.
 
-Physical camera/microphone/GPS, actual offline installation, native downloads/imports, other browsers and expert review remain separate prior gaps. Decorative polish does not establish environmental accuracy or competition outcomes.
+Physical camera/microphone/GPS, installed PWA, native import/all export formats, other browsers and expert review remain separate gaps. One JSON receipt download completed in the isolated browser; this is not proof of every device/format. Decorative polish does not establish environmental accuracy or competition outcomes.

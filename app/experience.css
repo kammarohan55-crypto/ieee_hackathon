@@ -1299,7 +1299,7 @@ blockquote > span {
 .evidence-sheet {
   width: min(650px, 100vw) !important;
   max-width: 650px !important;
-  background: #fbfcfa !important;
+  background: var(--card);
   gap: 0 !important;
   overflow-y: auto;
 }

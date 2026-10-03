@@ -173,7 +173,10 @@ body .review-card-bottom > span:last-child > svg { transition: transform .2s eas
 body .evidence-sheet { border-color: #355263; background: radial-gradient(ellipse at top right, #194c591f, transparent 40%), #0d1e2c; box-shadow: -24px 0 80px #02091470; }
 .evidence-sheet [data-slot="sheet-header"] { padding: 30px 30px 24px; border-bottom: 1px solid #294657; background: #102737; }
 .evidence-sheet [data-slot="sheet-title"] { font-family: var(--font-display, Georgia), serif; font-size: clamp(30px, 4vw, 42px); font-weight: 400; line-height: 1.1; }
-.evidence-sheet .section-label > span { border-radius: 10px; border: 1px solid #3a6371; background: #14303d; color: #9fdacf; width: 33px; height: 33px; }
+.evidence-sheet .section-label > span:first-child { border-radius: 10px; border: 1px solid #3a6371; background: #14303d; color: #9fdacf; width: 33px; height: 33px; flex-shrink: 0; }
+.evidence-sheet .section-label > .tag { width: auto; height: auto; flex-shrink: 0; }
+body .evidence-sheet [data-slot="sheet-description"] { color: #a9c4ce; }
+body .evidence-sheet .evidence-section blockquote { background: #142f39; color: #d6e9e9; border-left-color: #81c8b4; }
 .evidence-sheet .section-label h3 { font-size: 17px; letter-spacing: -.02em; }
 .evidence-sheet .audit-trail { border-color: #3b635e; }
 .evidence-sheet .audit-point { background: #8dd1bc; box-shadow: 0 0 0 5px #163531; }

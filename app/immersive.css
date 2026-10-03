@@ -205,6 +205,8 @@ body .view-enter { animation: aqua-view-enter .42s cubic-bezier(.2,.7,.2,1) both
   .mc-command-bar { padding: 14px; }
 }
 @media (max-width: 680px) {
+  /* Keep transformed charts within the phone workspace; tables retain their own scrolling. */
+  .insights-console { contain: layout paint; }
   :root { --shell-header-height: 106px; }
   body .topbar { height: auto; min-height: var(--shell-header-height); padding: 13px 18px 12px; gap: 10px; align-content: center; }
   body .header-right { display: contents; }
