@@ -4,6 +4,8 @@ Updated 2026-10-03 (Asia/Kolkata). App: C:/Users/Rohan/OneDrive/Desktop/ieee hac
 
 ## Scope and latest request
 
+Latest handoff request: give the user configured API keys separately and synchronize the complete source to GitHub. Six individual credential files were created only under ignored outputs/private-api-keys; values are not in source, docs, GitHub or source ZIP. Gemini is primary, Groq is the configured alternative with three extra rejected-credential backups, xAI is inactive. The preview was stopped by user request; no server currently listens on5173. No app-code change or new verification claim is made by this credential/source handoff.
+
 User requested clearer Evidence constellation wording, an unclipped globe, 30 more real European river images, varied genuine dates, better visual analytics/animations, a separate visual page, and running/testing/debugging. Supplied four Groq keys (called them Grok); they are Groq credentials. Previous GitHub push authorization persists. Starting published HEAD: 60b6e04c8bc13d5222ed7cad18639de154809596. No deployment, Devpost/account actions, private evidence or physical-device permissions used. Do not bypass earlier Sites publishing rejection.
 
 Latest direction allows natural multi-track scope: citizen UX (1), context (2), responsible assessment (3), storytelling (4). Keep the citizen-to-reviewer spine. Organizer multi-track statement is sourced in S50; final entry/eligibility remains user-owned. No winning probability, guaranteed score or organizer endorsement is established.
@@ -35,6 +37,6 @@ Capture/upload → local image usability heuristics → separately consented opt
 
 ## Exact next step and remaining inputs
 
-Development preview stays at http://127.0.0.1:5173/showcase. Open it to prepare the separate examples, then Visual observatory → Photo chronicle → Compare frames → Explore Earth → Evidence constellation → Garonne example → Present this evidence → Decision receipt. Use docs/DEMO_GUIDE.md. Source ZIP/manifest refresh only after clean published Git; read it for exact revision. Temporary production helper/test browser close at session end.
+Development preview is stopped by user request. Run npm run dev from streamcheck, then use http://127.0.0.1:5173/showcase. Open it to prepare the separate examples, then Visual observatory → Photo chronicle → Compare frames → Explore Earth → Evidence constellation → Garonne example → Present this evidence → Decision receipt. Use docs/DEMO_GUIDE.md. Source ZIP/manifest refresh only after clean published Git; read it for exact revision. Temporary production helper/test browser close at session end.
 
 No new key is needed. Groq is optional backup, not unlimited/free-guaranteed service; rate limits apply at organization level. Real remaining gaps: physical camera/video/mic/GPS/ghost/native touch, installed PWA/other browsers/200% zoom/assistive technology, reasoned actual human/expert evaluation if claimed, optional firsthand field evidence, team/code licence credits, demo video, judge-access hosting and actual Devpost submission/eligibility confirmation. Never fabricate these. Current docs: OBSERVATORY_2026-10-03.md, FEATURE_AUDIT.md, QA.md, SOURCES S51.
