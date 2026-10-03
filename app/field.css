@@ -74,7 +74,7 @@
 }
 .camera-idle h2 {
   max-width: 440px;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-display, Georgia), serif;
   font-size: 36px;
   line-height: 1.2;
   font-weight: 400;
@@ -640,7 +640,7 @@
   box-shadow: 0 8px 24px #123a380e;
 }
 .decision-receipt h3 {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-display, Georgia), serif;
   font-size: 30px;
   font-weight: 400;
   line-height: 1.2;
@@ -950,7 +950,7 @@
 .atlas-map .maplibregl-ctrl-group { overflow: hidden; border: 1px solid #ccd9d0; border-radius: 10px; background: #fffefa; box-shadow: 0 4px 16px #1338321a; }
 .atlas-map .maplibregl-ctrl-group button { width: 44px; height: 44px; }
 .atlas-map .maplibregl-ctrl-attrib { color: #3f5952; font-size: 12px; }
-.atlas-view .panel h2 { color: #234e49; font-family: Georgia, "Times New Roman", serif; font-size: 28px; font-weight: 400; line-height: 1.25; letter-spacing: -0.6px; text-wrap: balance; }
+.atlas-view .panel h2 { color: #234e49; font-family: var(--font-display, Georgia), serif; font-size: 28px; font-weight: 400; line-height: 1.25; letter-spacing: -0.6px; text-wrap: balance; }
 .atlas-view .panel > p:not(.eyebrow) { color: #526a5e; line-height: 1.8; }
 .atlas-timeline button:hover { border-color: #dbe5d6; background: #f5f7ef; }
 .atlas-timeline button:last-child { margin-bottom: 0; }

@@ -6,7 +6,7 @@
     "node": ">=22.13.0"
   },
   "scripts": {
-    "test": "node scripts/test-domain.mjs && node scripts/test-workspace.mjs && node scripts/test-mission.mjs && node scripts/test-api.mjs && node scripts/test-capture-photo.mjs && node scripts/test-evidence-lab.mjs && node scripts/test-satellite-map.mjs && node scripts/test-presentation.mjs && node scripts/test-decision-brief.mjs && node scripts/test-sampling-plan.mjs && node scripts/test-european-context.mjs && node scripts/test-presentation-workspace.mjs && node scripts/test-source-weather.mjs",
+    "test": "node scripts/test-domain.mjs && node scripts/test-workspace.mjs && node scripts/test-mission.mjs && node scripts/test-api.mjs && node scripts/test-capture-photo.mjs && node scripts/test-evidence-lab.mjs && node scripts/test-satellite-map.mjs && node scripts/test-presentation.mjs && node scripts/test-decision-brief.mjs && node scripts/test-sampling-plan.mjs && node scripts/test-european-context.mjs && node scripts/test-presentation-workspace.mjs && node scripts/test-source-weather.mjs && node scripts/test-aqua-scene.mjs",
     "typecheck": "tsc --noEmit",
     "install:ci": "node scripts/install-ci.mjs",
     "dev": "node scripts/run-framework.mjs dev",
@@ -22,6 +22,8 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
+    "@fontsource-variable/manrope": "5.3.0",
+    "@fontsource/instrument-serif": "5.3.0",
     "@hookform/resolvers": "^5.7.1",
     "@shadcn/react": "^0.3.0",
     "@xyflow/react": "^12.12.0",
@@ -35,6 +37,7 @@
     "input-otp": "^1.4.2",
     "lucide-react": "^1.31.0",
     "maplibre-gl": "^6.11.2",
+    "motion": "14.0.0",
     "next": "16.3.4",
     "next-themes": "^0.4.6",
     "radix-ui": "^1.6.7",
@@ -46,6 +49,7 @@
     "recharts": "^3.8.0",
     "sonner": "^2.0.8",
     "tailwind-merge": "3.6.0",
+    "three": "0.186.1",
     "vaul": "^1.1.2",
     "zod": "^3.25.76"
   },
@@ -56,6 +60,7 @@
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
+    "@types/three": "0.186.0",
     "@vitejs/plugin-react": "6.0.2",
     "@vitejs/plugin-rsc": "0.5.26",
     "drizzle-kit": "0.31.10",

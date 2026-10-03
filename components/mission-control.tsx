@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { Activity, ArrowRight, ArrowUpRight, Camera, ChartNoAxesCombined, Check, ChevronRight, CircleHelp, Clock3, Crosshair, Expand, FileText, Fingerprint, GitBranch, Layers, MapPin, Minimize2, Search, ShieldCheck, Waves } from "lucide-react";
+import { Activity, ArrowRight, ArrowUpRight, Camera, ChartNoAxesCombined, Check, ChevronRight, CircleHelp, Clock3, Crosshair, Expand, FileText, Fingerprint, GitBranch, Layers, MapPin, Minimize2, Search, ShieldCheck } from "lucide-react";
+import { AquaHero } from "./aqua-hero";
 import type { Report } from "@/lib/assessment";
 import { addPhotoAnnotation, observationQuality } from "@/lib/field";
 import { evidenceFrames, recordSignals, reviewQueue, scopedRecords, workspaceAnalytics, workflowLabels, type EvidenceFrame, type EvidenceScope } from "@/lib/mission-control";
@@ -48,7 +49,7 @@ export function MissionControl({ records, aiReady, online, onStart, onReviewRefe
     { value: "flow", label: "Evidence flow", icon: <GitBranch size={15} /> }, { value: "map", label: "Geographic map", icon: <MapPin size={15} /> },
   ];
   return <div className={`mission-control${focus ? " is-focused" : ""}`}>
-    <header className="mc-page-heading"><div><p className="mc-kicker"><Waves size={15} /> RIVER EVIDENCE / MISSION CONTROL</p><h1>Make every observation <em>count.</em></h1><p>A closer look at the water. A clearer path from evidence to review.</p></div><div className="mc-heading-actions"><span className="mc-chip"><span className="mc-status-dot" />{online ? "BROWSER WORKSPACE" : "OFFLINE WORKSPACE"}</span><button type="button" className="mc-button accent" onClick={onStart}><Camera size={16} /> New observation <ArrowUpRight size={15} /></button></div></header>
+    <AquaHero online={online} onStart={onStart} onInsights={onInsights} />
     <div className="mc-top-metrics"><Metric icon={<FileText />} label="Field observations" value={analytics.field} detail="Saved in this browser" tone="cyan" /><Metric icon={<Camera />} label="Photo reviews" value={analytics.references} detail="Historical, source credited" tone="violet" /><Metric icon={<ShieldCheck />} label="Needs attention" value={queue.length} detail="Records needing attention" tone="amber" /><Metric icon={<MapPin />} label="Located field records" value={fieldRecords.filter((record) => !!record.field?.coordinates).length} detail="Supplied coordinates only" tone="mint" /></div>
     <div className="mc-command-bar"><label><Search size={16} /><input ref={search} type="search" value={query} onChange={(event) => { setQuery(event.target.value); setLimit(20); }} placeholder="Search photo sources, sites, notes…" aria-label="Search photo sources, sites or notes" /><kbd>Ctrl / ⌘ K</kbd></label><div className="mc-capabilities"><span><i className="ready" /> LOCAL RULES</span><span><i className={aiReady && online ? "ready" : "idle"} />{aiReady && online ? "AI CONFIGURED" : "AI UNAVAILABLE"}</span><span><Fingerprint size={13} /> SOURCE TRACEABLE</span></div></div>
     <div className={`mc-workbench${view === "map" ? " is-map" : ""}`}>

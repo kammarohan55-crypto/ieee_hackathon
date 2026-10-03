@@ -54,6 +54,7 @@ function component(file, runtime, overrides = {}, globals = {}) {
     if (Object.hasOwn(overrides, name)) return overrides[name];
     if (name === "./european-context") return { EuropeanContext: "european-context-component-double" };
     if (name === "./source-date-weather") return { SourceDateWeather: "source-date-weather-component-double" };
+    if (name === "./aqua-hero") return { AquaHero: "aqua-hero-component-double" };
     if (name === "react") return runtime.api;
     if (name === "react/jsx-runtime") return jsx;
     if (name === "lucide-react") return icons;

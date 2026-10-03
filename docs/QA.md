@@ -1,4 +1,15 @@
-# Current verification — research follow-through
+# Current verification — visual redesign
+
+October3,2026 (India time). Latest user explicitly forbids agent website preview; no browser opened, no screenshot taken and no server started/stopped/restarted. Existing evidence/AI/weather/assets/presentation logic retained. See UI_DESIGN.md for implemented surfaces and the user's preview checklist.
+
+- **401/401 authored checks pass** (previous394 plus7 Three.js lifecycle checks). Four bundled reports cover223;178 run separately. New tests execute actual Three.js geometry/math with renderer/DOM doubles: finite vertices, portrait/zero sizing, throttling, pause/resume without time jumps, pointer response, complete resource disposal, context loss and render/initialization failure. No GPU output or scientific accuracy is tested.
+- TypeScript, full ESLint and15 CSS parses pass. Production build passes: **47 offline assets / 10,114,153bytes**. Self-hosted fonts, dynamic renderer and full MIT/OFL notice ship. The new scene chunk is554,876bytes and loaded on visible hero; existing chunk/Vinext notices remain. No measured GPU/low-end performance claim.
+- Release scan: **250source / 135built files**, two configured keys, zero matches; original photo/context/archive identity checks pass. This checks configured credentials, not comprehensive security. No new private media/API request, data rewrite or additional API key.
+- **New UI browser/visual/mobile QA remains unverified by instruction.** Static fallback and reduced-motion behavior are implemented, but actual WebGL2 rendering, interactive frame pacing, layout/contrast at every breakpoint, keyboard/assistive technology and fallback-device experience await user testing. Existing tests inspect selected original source palette pairs, not every redesigned color combination.
+- Prior physical camera/video/mic/GPS, installed offline/native-download/import and hosted-access limitations persist. Original evidence, AI/human distinctions and explicit review/consent remain intact. The previous browser observations below describe the earlier interface only.
+
+---
+# Historical verification — source-weather revision before the UI redesign
 
 October 3, 2026 (India time), Windows/main. Kept Track3 and the functioning citizen/reviewer workflow. Added historical source-date weather; no private evidence, new AI request or device permission used this session. Existing European photos, recorded AI, presentation preset and personal records were not rewritten.
 

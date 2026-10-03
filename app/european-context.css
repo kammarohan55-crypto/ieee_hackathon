@@ -99,3 +99,46 @@
 @media (max-width: 1050px) { .eu-place-selector img { width: 55px; } .eu-weather-title { flex-direction: column; } .eu-weather-actions { flex-direction: row; } .eu-clocks > div { padding: 13px; } }
 @media (max-width: 680px) { .geographic-evidence > .eu-context { margin: 12px; } .eu-context-heading { flex-direction: column; } .eu-clocks { grid-template-columns: 1fr; } .eu-clocks > div + div { border-left: 0; border-top: 1px solid #334a5d; } .eu-clocks > div + div::before { display: none; } .eu-source-tag { margin-left: 0; } .eu-place-selector { grid-template-columns: 1fr; padding: 12px; gap: 8px; } .eu-place-selector img { width: 86px; height: 74px; } .eu-weather-stats > div { padding: 12px 9px; display: flex; flex-direction: column; align-items: flex-start; gap: 7px; } .eu-weather-stats small { font-size: 9px; } .eu-weather-stats strong { font-size: 22px; } .eu-weather-actions { width: 100%; flex-wrap: wrap; } .eu-chart-controls > div { width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .eu-place-selector button { transition: none; } .eu-context .spin { animation: none; } }
+
+/* The clocks and archive remain distinct; only their presentation is shared. */
+.eu-context { border-radius: 20px; border-color: #759ca346; background: radial-gradient(ellipse at 0 0, #2c726333, transparent 65%), linear-gradient(145deg, #112d38, #0c1d2b); box-shadow: inset 0 1px #d5fff00a; }
+.eu-context h3, .eu-archive-anchor h4 { font-family: var(--font-display, Georgia, serif); font-weight: 400; font-size: clamp(27px, 2.8vw, 36px); line-height: 1.13; }
+.eu-context-heading { margin-bottom: 5px; }
+.eu-clocks { border-radius: 15px; background: #05192566; border-color: #54898a50; }
+.eu-clocks > div { padding: 22px 19px; }
+.eu-clocks > div + div { border-color: #54898a50; }
+.eu-clocks strong { font-size: 14px; margin: 13px 0 8px; color: #e4f4ed; }
+.eu-clocks > div + div::before { border-radius: 50%; padding: 0 2px; color: #a7e0d1; background: #112e39; }
+.eu-clocks span { font-size: 8px; letter-spacing: .12em; }
+.eu-weather { margin-top: 29px; padding-top: 28px; }
+.eu-weather-stats { border-radius: 15px; border-color: #43687980; background: #09202b; box-shadow: inset 0 1px #c8fff006; }
+.eu-weather-stats > div { padding: 21px; }
+.eu-weather-stats strong { font-family: var(--font-display, Georgia, serif); font-weight: 400; font-size: 38px; line-height: 1.1; }
+.eu-weather-actions button, .eu-quiet-button { border-radius: 10px; box-shadow: inset 0 1px #cff5ec0f; transition: background .2s, border-color .2s; }
+.eu-chart-controls button { border-radius: 8px; }
+.eu-candidates { border-radius: 15px; padding: 20px; background: linear-gradient(120deg, #2c294c69, #17273b); }
+.eu-candidates li { border-radius: 10px; padding: 13px 15px; }
+.eu-archive { border-radius: 17px; background: radial-gradient(ellipse at 95% 0, #43857719, transparent 60%), #0b202e; box-shadow: inset 0 1px #d0fff00b; }
+.eu-archive > summary { padding: 20px; gap: 15px; }
+.eu-archive summary strong { font-size: 14px; font-weight: 550; }
+.eu-archive-content { padding: clamp(16px, 2.5vw, 25px); }
+.eu-archive-anchor { gap: 20px; }
+.eu-archive-anchor img { border-radius: 13px; box-shadow: 0 8px 20px #0003; }
+.eu-archive-anchor h4 { font-size: 28px; }
+.eu-archive-chip { border-radius: 6px; padding: 7px 9px; }
+.eu-place-selector button { border-radius: 13px; background: #142e3b; box-shadow: inset 0 1px #c1ebe60a; }
+.eu-place-selector img { border-radius: 10px; }
+.eu-place-selector button[aria-pressed=true] { border-color: #8eccb895; background: #1a3c43; }
+@media (max-width: 680px) {
+  .eu-context { padding: 18px 15px; border-radius: 16px; }
+  .eu-context h3 { font-size: 29px; }
+  .eu-clocks > div { padding: 17px; }
+  .eu-clocks strong { margin: 7px 0; font-size: 13px; }
+  .eu-weather-stats > div { padding: 16px 12px; }
+  .eu-weather-stats strong { font-size: 31px; }
+  .eu-archive > summary { padding: 16px 13px; gap: 10px; }
+  .eu-archive-content { padding: 15px 12px; }
+  .eu-archive-anchor { gap: 13px; }
+  .eu-archive-anchor h4 { font-size: 24px; }
+}
+@media (prefers-reduced-motion: reduce) { .eu-weather-actions button, .eu-quiet-button { transition: none; } }
