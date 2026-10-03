@@ -1,4 +1,22 @@
-# Current verification — clean UI / globe / layered receipt
+# Current verification — River Atlas / direct comparison / selected flow
+
+2026-10-03 India time, starting published1c73325. User authorized broader visual scope and running/preview/testing. New brief is byte-identical to the previously read attachment. No user windows/storage, physical permissions, live AI or private evidence used. Development preview http://127.0.0.1:5173/showcase; temporary production4173 closed. Codex panel open returned queued, not proof of native-panel rendering.
+
+- **412/412 authored checks**:94 domain,43 workspace,34 mission,52 API,25 capture/photo,14 Lab,26 map,24 presentation/visit,20 brief,29 actions,10 Europe,10 presentation workspace,24 source weather,7 scene. Five new source-tour guards (including actual-component literal/empty-note assertions) cover canonical empty chronology, cross-city fallback, exact-photo candidate binding, synthetic/wrong media exclusion and timestamp/immutability.223 bundled/189 separate; fixtures/doubles do not establish ecological accuracy.
+- TypeScript/full ESLint zero errors/warnings,17 CSS parses and final build pass:47 offline assets/10,161,106bytes. Final release scan256 source/68 built files, two configured keys/zero matches; original photo/recorded/archive identities retained. Existing large-chunk/Vinext notices remain. No dependency, key, asset, consent/schema/storage change.
+- Isolated Chrome development tour visited all9 source photos/all3 chapters, full-frame/crop, filmstrip, next/previous and Insights city→atlas initialization. Loaded images/source/example labels; root/modal widths fit320/375/680/850/1120/1440. Reduced-motion chapter animation none. Actual phone/touch/assistive technology untested.
+- Selected Human review flow had one highlighted branch; animation/pause/reduced motion worked.375px flow fit. Direct native divider dragged81%; ArrowLeft80%; external controls/side-by-side/credits retained. Paths describe workflow, not model execution or causation.
+- Fresh production profile: settled Garonne/Toulouse chapter displayed actual retained Gemini3.5 Flash-Lite vegetation/right/high uncalibrated confidence plus authored uncertain human reason. Atlas→complete evidence→presentation→JSON download had no failure. Parsed wrapper report source garonne-toulouse, one retained candidate and demonstration metadata. All six primary production views fit375; zero page exceptions.
+- Personal root tour showed source catalogue/no saved review/no visual response; credited-review action reused source preparation without saving. Injected DOM image-error callback retained credits; Retry restored real image; Escape returned opener focus. This tests callback recovery, not every real network failure.
+- Windows dev listener was::1-only and IPv4 refused. Checked installed Vinext --hostname before defaulting portable launcher127.0.0.1, with explicit overrides. New IPv4 listener verified. First navigation after restart still exceeded20s; later settled navigation loaded with no page exceptions. Cold-start cause/performance remains unproven; this is not a complete startup-performance fix.
+- Final code review found an empty original note could fall back to catalogue text under a literal-note label. Corrected; actual component regression assertions,24 presentation checks, typecheck, lint and final build passed. The earlier focused browser pass remains unchanged by this text-only correction.
+- Initial test failures were new-component mock omission and cross-VM array prototype mismatch; repaired without weakening source guards. Early browser text reads preceded React updates; settled candidate/export identity rechecked. Ignored proof: outputs/stories-desktop.png, stories-mobile.png, stories-production-receipt.json and stories-* logs. No new citizen record or scientific diagnosis.
+
+Physical camera/video/mic/GPS/ghost, actual touch/PWA/import/all formats, other browsers/full accessibility/200% zoom/low-end performance, experts/users/hosted delivery/video/submission remain unverified. No software test establishes water safety, production certification or a judging score.
+
+---
+
+# Previous 1c73325 verification — clean UI / globe / layered receipt
 
 2026-10-03 India time. Started from published7a2aa3. Preserved existing domain, originals, source assets, storage, provider consent and exports. No live AI/physical permission/private-data transmission. Production-only temporary helper and isolated installed-Chrome profiles, never user windows/storage. App stopped after final checks.
 

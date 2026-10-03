@@ -4,7 +4,7 @@ Updated 2026-10-03. Draft only: no submission, deployment or video is establishe
 
 ## Positioning
 
-**Primary project decision: Track 3 — AI-Supported Assessment.** Track 1 citizen UX, Track 2 context and Track 4 storytelling support this workflow. The official overview asks for one chosen track; this framing is not evidence of winning odds or eligibility in several categories. The supplied project instructions specify Track 3. October3 framing follows these instructions and live Gemini activation; the October2 Track 1 recommendation in SOURCES S30 is historical. See S38 for the current boundary.
+**Current scope:** citizen UX (Track1), contextual insights (Track2), responsible AI assessment (Track3), awareness/storytelling (Track4) naturally support one evidence journey. The user permits multi-track framing and the organizer extension explicitly allows it; this is not entrant-specific eligibility or a submitted selection. Existing Track3 choices are historical narrative decisions. See SOURCES S50.
 
 **Tagline:** Keep stream evidence and uncertainty together, from the first photograph to the next visit.
 

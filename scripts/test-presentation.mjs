@@ -194,6 +194,74 @@ await test("Receipt historical layer shows retained credit and digest availabili
   assert.match(detail, /historical photograph/); assert.match(detail, /do not guarantee/); assert.equal(JSON.stringify(report), original);
 });
 
+const { riverStory } = library("river-stories");
+function storyTree(records, photoId) {
+  const runtime = hooks();
+  const { RiverStories } = execute("components/river-stories.tsx", (name) => {
+    if (name === "react") return runtime.react;
+    if (name === "react/jsx-runtime") return jsx;
+    if (name === "radix-ui") return { Dialog: new Proxy({}, { get: (_, key) => `Dialog.${String(key)}` }) };
+    if (name === "lucide-react") return icons;
+    if (name.startsWith("@/lib/")) return library(name.slice(6));
+    throw new Error(`Unexpected import ${name}`);
+  });
+  const props = { records, onOpen() {}, initialCity: "coimbra" };
+  let tree = runtime.render(RiverStories, props);
+  if (photoId) {
+    const photo = referencePhotos.find((item) => item.id === photoId);
+    const button = nodes(tree).find((node) => node.type === "button" && node.props["aria-label"] === `View ${photo.title}, ${photo.capturedDate}`);
+    assert.ok(button); button.props.onClick(); tree = runtime.render(RiverStories, props);
+  }
+  return tree;
+}
+await test("River stories keep the nine credited sources separate from an empty citizen collection", () => {
+  const seen = new Set();
+  for (const city of ["coimbra", "toulouse", "oslo"]) {
+    const story = riverStory([], city);
+    assert.equal(story.photos.length, 3); assert.equal(story.report, undefined); assert.equal(story.media, undefined);
+    assert.deepEqual(Array.from(story.photos, (p) => p.capturedDate), Array.from(story.photos, (p) => p.capturedDate).sort());
+    story.photos.forEach((p) => seen.add(p.id));
+  }
+  assert.equal(seen.size, 9);
+});
+await test("Invalid city and cross-city photo selection fall back to known source metadata without invented positions", () => {
+  const fallback = riverStory([], "unknown", "hoffselva-oslo");
+  assert.equal(fallback.place.id, "coimbra"); assert.ok(fallback.photo.id.startsWith("mondego-"));
+  assert.equal(fallback.report, undefined); assert.equal(fallback.media, undefined);
+});
+function storyReport(id = "story-fixture", source = referencePhotos[0]) {
+  const r = record(id), draft = createReferenceDraft(source);
+  r.original = { ...draft.draft, note: "Authored test review; no real observer or ecological claim." };
+  r.field = draft.field; r.field.media = [{ ...media(), origin: "public_reference", sha256: source.sha256 }];
+  return r;
+}
+await test("Story candidates belong only to an exact source digest, never another media file", () => {
+  const r = storyReport(), extra = { ...media(), id: "unrelated", sha256: "b".repeat(64), visual: { model: "authored-test", at: now.toISOString(), findings: [{ kind: "surface_foam", confidence: "low", region: "center" }] } };
+  r.field.media.push(extra); const before = JSON.stringify(r);
+  const s = riverStory([r], "coimbra", referencePhotos[0].id);
+  assert.equal(s.report.id, r.id); assert.equal(s.media.sha256, referencePhotos[0].sha256); assert.equal(s.media.visual, undefined);
+  assert.equal(JSON.stringify(r), before);
+  const literalTree = storyTree([r], referencePhotos[0].id);
+  assert.equal(textOf(nodes(literalTree).find((node) => node.type === "blockquote")), r.original.note);
+  r.original.note = "";
+  const blankBefore = JSON.stringify(r), emptyTree = storyTree([r], referencePhotos[0].id);
+  assert.equal(textOf(nodes(emptyTree).find((node) => node.type === "blockquote")), "No original note retained.");
+  assert.match(textOf(emptyTree), /Original note unavailable/); assert.ok(!textOf(emptyTree).includes("Literal retained original note"));
+  assert.equal(JSON.stringify(r), blankBefore);
+});
+await test("Synthetic records and unmatched media cannot become a story review", () => {
+  const synthetic = storyReport("synthetic"); synthetic.original.synthetic = true;
+  const wrong = storyReport("wrong"); wrong.field.media[0].sha256 = "c".repeat(64);
+  const origin = storyReport("origin"); origin.field.media[0].origin = "illustration";
+  assert.equal(riverStory([synthetic, wrong, origin], "coimbra", referencePhotos[0].id).report, undefined);
+});
+await test("Story selection prefers usable recent creation time and leaves report order and originals intact", () => {
+  const old = storyReport("old"), latest = storyReport("latest"), unknown = storyReport("unknown");
+  old.createdAt = "2026-10-01T01:00:00Z"; latest.createdAt = "2026-10-02T01:00:00Z"; unknown.createdAt = "2026-10-03T10:00";
+  const records = [old, unknown, latest], before = JSON.stringify(records);
+  assert.equal(riverStory(records, "coimbra", referencePhotos[0].id).report.id, "latest"); assert.equal(JSON.stringify(records), before);
+});
+
 await mkdir(".sites-runtime/presentation-tests", { recursive: true });
 await writeFile(".sites-runtime/presentation-tests/results.json", JSON.stringify({ generatedAt: new Date().toISOString(), passed: results.filter((r) => r.passed).length, total: results.length, liveAI: false, limitations: ["Authored software fixtures and explicit hooks/JSX/media doubles; no browser focus/rendering, downloads, live AI or scientific evaluation."], results }, null, 2));
 for (const r of results) if (!r.passed) console.error(`FAIL ${r.name}: ${r.error}`);

@@ -222,6 +222,7 @@ await test("Mission control hides unrelated selected-frame actions and routes co
   const { MissionControl } = component("components/mission-control.tsx", runtime, {
     "./photo-inspector": { PhotoInspector: "photo-inspector", FrameImage: "frame-image" },
     "./evidence-visuals": { PhotoCompare: compare, EvidenceFlow: "evidence-flow", EvidenceReplay: "evidence-replay" },
+    "./river-stories": { RiverStories: "river-stories" },
     "./site-conditions": { SiteConditions: "site-conditions" }, "./geographic-evidence-map": { GeographicEvidenceMap: "geographic-map" },
     "./sampling-plan": { SamplingPlan: "sampling-plan" },
   }, { document: { addEventListener() {}, removeEventListener() {} } });
@@ -273,6 +274,7 @@ await test("All nine public photo selections bind their own source context rathe
   const { MissionControl } = component("components/mission-control.tsx", runtime, {
     "./photo-inspector": { PhotoInspector: "photo-inspector", FrameImage: "frame-image" },
     "./evidence-visuals": { PhotoCompare: "photo-compare", EvidenceFlow: "evidence-flow", EvidenceReplay: "evidence-replay" },
+    "./river-stories": { RiverStories: "river-stories" },
     "./site-conditions": { SiteConditions: "site-conditions" }, "./geographic-evidence-map": { GeographicEvidenceMap: "geographic-map" }, "./sampling-plan": { SamplingPlan: "sampling-plan" },
   }, { document: { addEventListener() {}, removeEventListener() {} } });
   const props = { records: [], onStart() {}, onReviewReference() {}, onOpen() {}, onUpdate() {}, onInsights() {}, onKit() {} }, render = () => runtime.render(MissionControl, props);

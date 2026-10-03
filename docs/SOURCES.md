@@ -342,3 +342,15 @@ The supplied b8da042c-7409-4a94-92a8-eed1d2d59e98 attachment was read in full. I
 - https://developers.cloudflare.com/workers/wrangler/bundling/ and https://developers.cloudflare.com/workers/wrangler/configuration/ — inspected after one local generated-module startup failure. Clean restart of the finished build recovered. No documented permanent bundling fix or deployment compatibility inferred.
 
 New components render existing metadata/candidates/decisions only. No live-provider request, generated river imagery, altered source pixels, fabricated measurement, new model or environmental threshold. Verified software/browser results and remaining physical-device/human-evaluation gaps are separate in QA.md.
+
+
+## S50 — River Atlas / broader scope (checked2026-10-03 India time)
+
+Attachment ad3a2ab8-c100-47c3-8512-6ae5e9e40c54 is byte-identical (SHA-256 checked) to the full b8da042c visual brief previously read. Reused earlier research and implementation; added scoped storytelling rather than claiming every suggested system is necessary or already built.
+
+- https://oneaquahealth-ieee-hackathon.devpost.com/updates/46660-deadline-extended-to-october-4-keep-innovating-keep-submitting — directly reopened: organizer explicitly permits one challenge track or multiple tracks when naturally spanning areas. Latest user authorizes broader scope. Does not establish this entrant's eligibility, submission or winning odds; no new judging schedule inferred.
+- https://www.radix-ui.com/primitives/docs/components/dialog — official controlled dialog/focus/title/description/Escape pattern checked. Reused installed MIT Radix, no copied template/source or added library. Actual atlas focus return/Escape/navigation exercised in isolated Chrome; not a complete assistive-technology certification.
+- https://motion.dev/docs/react-animate-presence — official progressive transition guidance reviewed. Existing Motion remains; the atlas uses brief native CSS transitions, reduced-motion overrides and DOM controls rather than another renderer. Native range extends the existing comparison input. No generated satellite/river imagery, physics model or copied commercial asset.
+- Installed Vinext CLI option text documents -H/--hostname. Windows development listener observed only::1; IPv4 connection refused. Portable launcher now defaults127.0.0.1 and honors explicit host override. This is a local preview fix, not deployment/network/performance certification.
+
+Source guards require canonical reference identity plus exact photo SHA-256/public-reference origin. Only candidates associated with that matched media are displayed. Historical chronology, example review and visual confidence remain distinct from field visits/scientific truth. Current QA reports software/browser observations, not ecological accuracy or a predicted judging score.

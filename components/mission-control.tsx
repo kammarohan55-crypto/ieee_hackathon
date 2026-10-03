@@ -15,6 +15,7 @@ import { sourceWeatherAnchor } from "@/lib/source-weather";
 import { EuropeanContext } from "./european-context";
 import { SamplingPlan } from "./sampling-plan";
 import { SourceDateWeather } from "./source-date-weather";
+import { RiverStories } from "./river-stories";
 
 type View = "photo" | "compare" | "flow" | "map";
 export function MissionControl({ records, aiReady, online, onStart, onReviewReference, onOpen, onFollowup, onUpdate, onInsights, onKit }: {
@@ -51,7 +52,7 @@ export function MissionControl({ records, aiReady, online, onStart, onReviewRefe
   return <div className={`mission-control${focus ? " is-focused" : ""}`}>
     <AquaHero online={online} onStart={onStart} onInsights={onInsights} />
     <div className="mc-top-metrics"><Metric icon={<FileText />} label="Field observations" value={analytics.field} detail="Saved in this browser" tone="cyan" /><Metric icon={<Camera />} label="Photo reviews" value={analytics.references} detail="Historical, source credited" tone="violet" /><Metric icon={<ShieldCheck />} label="Needs attention" value={queue.length} detail="Records needing attention" tone="amber" /><Metric icon={<MapPin />} label="Located field records" value={fieldRecords.filter((record) => !!record.field?.coordinates).length} detail="Supplied coordinates only" tone="mint" /></div>
-    <div className="mc-workspace-title"><div><span className="mc-kicker">THE EVIDENCE WORKSPACE</span><h2>One source. Every decision.</h2></div><p>Inspect the original, then follow its review.</p></div>
+    <div className="mc-workspace-title"><div><span className="mc-kicker">THE EVIDENCE WORKSPACE</span><h2>One source. Every decision.</h2></div><RiverStories records={records} onOpen={onOpen} onReview={onReviewReference} /></div>
     <div className="mc-command-bar"><label><Search size={16} /><input ref={search} type="search" value={query} onChange={(event) => { setQuery(event.target.value); setLimit(20); }} placeholder="Search photo sources, sites, notes…" aria-label="Search photo sources, sites or notes" /><kbd>Ctrl / ⌘ K</kbd></label><div className="mc-capabilities"><span><i className="ready" /> LOCAL RULES</span><span><i className={aiReady && online ? "ready" : "idle"} />{aiReady && online ? "AI CONFIGURED" : "AI UNAVAILABLE"}</span><span><Fingerprint size={13} /> SOURCE TRACEABLE</span></div></div>
     <div className={`mc-workbench${view === "map" ? " is-map" : ""}`}>
       <aside className="mc-source-panel"><div className="mc-panel-heading"><span><Layers size={15} /> PHOTO SOURCES</span><b>{filtered.length}</b></div><div className="mc-scope-buttons" role="group" aria-label="Photo source filter">{(["all", "field", "reference"] as const).map((value) => <button type="button" key={value} aria-pressed={scope === value} onClick={() => { setScope(value); setLimit(20); }}>{value === "all" ? "All" : value === "field" ? "Your field" : "Historical"}</button>)}</div>

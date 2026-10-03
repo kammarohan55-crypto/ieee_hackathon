@@ -1,6 +1,6 @@
 # AquaLens — final completion checklist
 
-Updated 2026-10-03. This is a readiness checklist, not a completed field study, device test, deployment or submission. Current primary decision: Track3, supporting1/2/4. Use FEATURE_AUDIT for implementation boundaries and QA for measured software checks.
+Updated 2026-10-03. This is a readiness checklist, not a completed field study, device test, deployment or submission. Latest user permits natural multi-track scope across citizen UX/context/assessment/storytelling; final entry choices remain user-owned. Use FEATURE_AUDIT for implementation boundaries and QA for measured software checks.
 
 ## Presentation data prepared
 

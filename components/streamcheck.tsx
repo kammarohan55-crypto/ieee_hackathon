@@ -632,7 +632,7 @@ export default function StreamCheck({ presentation = false }: { presentation?: b
             <TabsTrigger value="kit"><Backpack size={16} /> Field kit</TabsTrigger>
           </TabsList>
           <span className="track-label">
-            ONEAQUAHEALTH CHALLENGE <span>TRACK 03</span>
+            ONEAQUAHEALTH CHALLENGE <span>EVIDENCE / STORY</span>
           </span>
         </div>
         <main id="workspace-content" className="main">

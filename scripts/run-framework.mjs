@@ -20,5 +20,9 @@ const cli = new URL(managedLinux
   ? "../node_modules/vite/bin/vite.js"
   : "../node_modules/vinext/dist/cli.js", import.meta.url);
 process.argv = [process.execPath, fileURLToPath(cli), command,
-  ...(!managedLinux && command === "dev" ? ["--port", "5173"] : []), ...args];
+  ...(!managedLinux && command === "dev" ? ["--port", "5173",
+    // Bind a definite loopback address: Windows localhost may select only ::1,
+    // leaving IPv4 preview clients unable to connect. Honor an explicit override.
+    ...(!args.some((arg) => arg === "--hostname" || arg === "-H" || arg.startsWith("--hostname="))
+      ? ["--hostname", "127.0.0.1"] : [])] : []), ...args];
 await import(cli.href);

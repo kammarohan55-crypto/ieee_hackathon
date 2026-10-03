@@ -6,6 +6,7 @@ import type { CSSProperties } from "react";
 import type { Report } from "@/lib/assessment";
 import { europeanPlaces } from "@/lib/european-sites";
 import { referencePhotos, displayEvidenceTime } from "@/lib/references";
+import { RiverStories } from "./river-stories";
 
 export function photoCity(photoId?: string) {
   return photoId?.startsWith("mondego-") ? "coimbra" : photoId?.startsWith("garonne-") ? "toulouse" : photoId?.startsWith("hoffselva-") ? "oslo" : null;
@@ -16,7 +17,7 @@ export function RiverPortfolio({ records, city, onCity, onOpen }: { records: Rep
   if (!historical.length) return null;
   const timeline = historical.filter((record) => city === "all" || photoCity(record.field?.reference?.id) === city).sort((a, b) => a.original.observedAt.localeCompare(b.original.observedAt));
   return <section className="river-portfolio" aria-labelledby="river-portfolio-title">
-    <div className="portfolio-heading"><div><p className="mc-kicker"><Camera size={14} /> EUROPEAN RIVER PORTFOLIO</p><h2 id="river-portfolio-title">Different rivers. Visible evidence.</h2></div><button type="button" aria-pressed={city === "all"} onClick={() => onCity("all")}>All cities <ArrowUpRight size={15} /></button></div>
+    <div className="portfolio-heading"><div><p className="mc-kicker"><Camera size={14} /> EUROPEAN RIVER PORTFOLIO</p><h2 id="river-portfolio-title">Different rivers. Visible evidence.</h2></div><div className="portfolio-heading-actions"><RiverStories key={city} records={records} onOpen={onOpen} initialCity={city} /><button type="button" aria-pressed={city === "all"} onClick={() => onCity("all")}>All cities <ArrowUpRight size={15} /></button></div></div>
     <div className="portfolio-cities">{europeanPlaces.map((place, index) => {
       const saved = historical.filter((record) => photoCity(record.field?.reference?.id) === place.id), cover = referencePhotos.find((photo) => photo.id === covers[index])!;
       const candidates = saved.reduce((count, record) => count + record.field!.media.reduce((n, media) => n + (media.visual?.findings.length ?? 0), 0), 0);

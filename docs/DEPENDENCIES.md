@@ -38,3 +38,5 @@ Three.js provides a dynamically imported decorative scene; Motion's mini DOM API
 
 
 October3 clarity/globe/receipt refinement: no packages added. Existing MapLibre6.11.2 (BSD-3-Clause), React Flow12.12.0-compatible installed distribution (MIT), React/Radix/Motion (MIT), Lucide (ISC) and native CSS/details reused. Original DOM/CSS perspective receipt adds no renderer/model; ReactFlow upstream highlighting uses existing edges. Reviewed official globe/edge/accessibility examples and template inspiration before implementation; no template/example source copied. Existing attribution/licence notices retained. See SOURCES S49.
+
+River Atlas pass adds no dependency or asset. Existing MIT Radix/React, ISC Lucide, source catalogue/credits and native CSS/range reused; existing Motion/Three remain unchanged. Official dialog/transition guidance reviewed (S50); no library/template code copied. No new API key/model/remote image service.
